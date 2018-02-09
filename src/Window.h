@@ -14,22 +14,28 @@
 #include "HeaderBar.h"
 #include "PdfInfoWidget.h"
 
+/**
+ * @brief Provides window.
+ */
 class Window : public QMainWindow
 {
     Q_OBJECT
 public:
+
+    /**
+     * @brief Window Contruct a new window.
+     * @param pdfPath Path to pdf to display.
+     * @param parent Qt parent widget.
+     */
     explicit Window(const QString &pdfPath, QWidget *parent = 0);
 
 protected:
+
     virtual void resizeEvent(QResizeEvent *event) override;
 
 private:
-    QWidget *mRootWidget = new QWidget;
-    QHBoxLayout *mCenterLayout = new QHBoxLayout;
-    QVBoxLayout *mVerticalLayout = new QVBoxLayout;
+
     PdfWidget *mPdfWidget;
-    StatusBar *mStatusBar = new  StatusBar;
-    HeaderBar *mHeaderBar;
     ZoomSlider *mZoomSlider = new ZoomSlider;
     PdfInfoWidget *mPdfInfo;
     bool mInitialPageFitRequested = false;

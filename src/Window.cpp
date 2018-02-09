@@ -3,38 +3,43 @@
 Window::Window(const QString &pdfPath, QWidget *parent)
     : QMainWindow(parent)
     , mPdfWidget(new PdfWidget(pdfPath))
-    , mHeaderBar(new HeaderBar(QFileInfo(pdfPath).fileName()))
     , mPdfInfo(new PdfInfoWidget(mPdfWidget->getPopplerDocument()))
 {
     setWindowIcon(QIcon(":/assets/icon_mres.png"));
 
-    mCenterLayout->addWidget(mPdfWidget);
-    mCenterLayout->addWidget(mZoomSlider);
-    mCenterLayout->addWidget(mPdfInfo);
-    mCenterLayout->setMargin(0);
-    mVerticalLayout->addWidget(mHeaderBar);
-    mVerticalLayout->addLayout(mCenterLayout, 1);
-    mVerticalLayout->setMargin(0);
-    mRootWidget->setLayout(mVerticalLayout);
+    auto centerLayout = new QHBoxLayout();
+    auto verticalLayout = new QVBoxLayout;
+    auto headerBar = new HeaderBar(QFileInfo(pdfPath).fileName());
+    auto rootWidget = new QWidget();
+    auto statusBar = new  StatusBar;
+
+    centerLayout->addWidget(mPdfWidget);
+    centerLayout->addWidget(mZoomSlider);
+    centerLayout->addWidget(mPdfInfo);
+    centerLayout->setMargin(0);
+    verticalLayout->addWidget(headerBar);
+    verticalLayout->addLayout(centerLayout, 1);
+    verticalLayout->setMargin(0);
+    rootWidget->setLayout(verticalLayout);
 
     hideInfo();
 
     resize(360 * 1.4, 600 * 1.4);
-    setStatusBar(mStatusBar);
+    setStatusBar(statusBar);
     setWindowTitle("PdfViewer - " + QFileInfo(pdfPath).fileName());
-    setCentralWidget(mRootWidget);
+    setCentralWidget(rootWidget);
 
-    connect(mPdfWidget, SIGNAL(pagesChanged(int,int)), mStatusBar, SLOT(setPageInformation(int,int)));
-    connect(mStatusBar, SIGNAL(screenFit()), mPdfWidget, SLOT(screenFit()));
-    connect(mStatusBar, SIGNAL(pageFit()), mPdfWidget, SLOT(pageFit()));
-    connect(mStatusBar, SIGNAL(prevPage()), mPdfWidget, SLOT(prevPage()));
-    connect(mStatusBar, SIGNAL(nextPage()), mPdfWidget, SLOT(nextPage()));
-    connect(mStatusBar, SIGNAL(rotateLeft()), mPdfWidget, SLOT(rotateLeft()));
-    connect(mStatusBar, SIGNAL(rotateRight()), mPdfWidget, SLOT(rotateRight()));
+    connect(mPdfWidget, SIGNAL(pagesChanged(int,int)), statusBar, SLOT(setPageInformation(int,int)));
+    connect(statusBar, SIGNAL(screenFit()), mPdfWidget, SLOT(screenFit()));
+    connect(statusBar, SIGNAL(pageFit()), mPdfWidget, SLOT(pageFit()));
+    connect(statusBar, SIGNAL(prevPage()), mPdfWidget, SLOT(prevPage()));
+    connect(statusBar, SIGNAL(nextPage()), mPdfWidget, SLOT(nextPage()));
+    connect(statusBar, SIGNAL(rotateLeft()), mPdfWidget, SLOT(rotateLeft()));
+    connect(statusBar, SIGNAL(rotateRight()), mPdfWidget, SLOT(rotateRight()));
     connect(mPdfWidget, SIGNAL(zoomChanged(double)), mZoomSlider, SLOT(setZoom(double)));
     connect(mZoomSlider, SIGNAL(zoomChanged(double)), mPdfWidget, SLOT(setZoom(double)));
-    connect(mHeaderBar, SIGNAL(exit()), this, SLOT(close()));
-    connect(mHeaderBar, SIGNAL(showInfo()), this, SLOT(showInfo()));
+    connect(headerBar, SIGNAL(exit()), this, SLOT(close()));
+    connect(headerBar, SIGNAL(showInfo()), this, SLOT(showInfo()));
     connect(mPdfInfo, SIGNAL(returnToViewer()), this, SLOT(hideInfo()));
 
     mZoomSlider->reset();
