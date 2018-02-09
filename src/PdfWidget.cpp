@@ -12,7 +12,7 @@ PdfWidget::PdfWidget(const QString &path, QWidget *parent)
     if(mDocument->numPages() == 0) throw std::runtime_error("PDF does not contain any pages");
     mDocument->setRenderHint(Poppler::Document::TextAntialiasing);
 
-    setCursor(Qt::OpenHandCursor);
+    setCursor(Qt::ArrowCursor);
 }
 
 PdfWidget::~PdfWidget()
@@ -47,7 +47,7 @@ void PdfWidget::mousePressEvent(QMouseEvent *event)
 void PdfWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     mLastMousePosition = QPoint(event->x(), event->y());
-    setCursor(Qt::OpenHandCursor);
+    setCursor(Qt::ArrowCursor);
 }
 
 void PdfWidget::mouseMoveEvent(QMouseEvent *event)
