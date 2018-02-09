@@ -1,6 +1,6 @@
 #include "Window.h"
 
-Window::Window(const QString &pdfPath, QWidget *parent)
+Window::Window(QString const &pdfPath, QWidget *parent)
     : QMainWindow(parent)
     , mPdfWidget(new PdfWidget(pdfPath))
     , mPdfInfo(new PdfInfoWidget(mPdfWidget->getPopplerDocument()))

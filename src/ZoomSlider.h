@@ -12,6 +12,7 @@ class ZoomSlider
     Q_OBJECT
 
 public:
+
     ZoomSlider();
 
 signals:
@@ -20,7 +21,7 @@ signals:
      * @brief zoomChanged Emitted when zoom level was changed.
      * @param zoom New zoom, [0;1].
      */
-    void zoomChanged(double zoom);
+    void zoomChanged(double const zoom);
 
 public slots:
 
@@ -28,12 +29,15 @@ public slots:
      * @brief setZoom Set current zoom level, used e.g. when page-fit is requested.
      * @param zoom New zoom, [0;1].
      */
-    void setZoom(double zoom);
+    void setZoom(double const zoom);
 
 private slots:
 
-    /// Internally used to convert the zoom value.
-    void zoomRouter(int value);
+    /**
+     * Internally used to convert the zoom value.
+     */
+    void zoomRouter(int const value);
+
 };
 
 #endif // ZOOMSLIDER_H

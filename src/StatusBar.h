@@ -70,7 +70,7 @@ public slots:
      * @param count Total number of pages.
      * @param currentPage Current page index, zero-based.
      */
-    void setPageInformation(int count, int currentPage);
+    void setPageInformation(int const count, int const currentPage);
 
 };
 

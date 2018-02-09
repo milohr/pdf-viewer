@@ -20,7 +20,7 @@ public:
      * @brief PdfInfoWidget Construct a new info widget.
      * @param document Document whose properties to be displayed.
      */
-    PdfInfoWidget(const Poppler::Document *document);
+    PdfInfoWidget(Poppler::Document const *document);
 
 signals:
 

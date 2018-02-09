@@ -17,12 +17,12 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    CLOptions options;
-    options.parse(argc, argv);
+    CLOptions const options(argc, argv);
 
     Window w(options.path);
+
     if(options.windowed) {
-        QDesktopWidget *destop = new QDesktopWidget();
+        QDesktopWidget const * const destop = new QDesktopWidget();
         w.move(destop->screenGeometry().width() / 2 - w.width() / 2,
                destop->screenGeometry().height() / 2 - w.height() / 2);
         delete destop;

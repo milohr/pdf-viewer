@@ -31,7 +31,7 @@ StatusBar::StatusBar()
     setContentsMargins(10, 2, 10, 2);
 }
 
-void StatusBar::setPageInformation(int count, int currentPage)
+void StatusBar::setPageInformation(int const count, int const currentPage)
 {
     mPages->setText(QString("%1 / %2").arg(QString::number(currentPage + 1), QString::number(count)));
 }

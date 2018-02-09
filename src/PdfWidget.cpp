@@ -1,14 +1,10 @@
 #include "PdfWidget.h"
 
-#include <poppler/qt4/poppler-qt4.h>
-
-const double PdfWidget::AUTO_ZOOM_COEFFICIENT = 0.95;
-
-PdfWidget::PdfWidget(const QString &path, QWidget *parent)
+PdfWidget::PdfWidget(QString const &path, QWidget *parent)
     : QWidget(parent)
+    , mDocument(Poppler::Document::load(path))
     , mPath(path)
 {
-    mDocument = Poppler::Document::load(mPath);
     if(nullptr == mDocument) throw std::runtime_error("Cannot open PDF");
     if(mDocument->isLocked()) throw std::runtime_error("PDF is locked");
     if(mDocument->numPages() == 0) throw std::runtime_error("PDF does not contain any pages");
@@ -17,20 +13,14 @@ PdfWidget::PdfWidget(const QString &path, QWidget *parent)
     setCursor(Qt::ArrowCursor);
 }
 
-PdfWidget::~PdfWidget()
-{
-    if(nullptr != mPage) delete mPage;
-    delete mDocument;
-}
-
 const Poppler::Document *PdfWidget::getPopplerDocument() const
 {
-    return mDocument;
+    return mDocument.data();
 }
 
 void PdfWidget::open()
 {
-    mPage = mDocument->page(mPageIndex);
+    mPage.reset(mDocument->page(mPageIndex));
     pageFit();
     emit pagesChanged(mDocument->numPages(), mPageIndex);
 }
@@ -59,7 +49,7 @@ void PdfWidget::mouseMoveEvent(QMouseEvent *event)
     update();
 }
 
-void PdfWidget::pan(int x, int y)
+void PdfWidget::pan(int const x, int const y)
 {
     switch(mPageRotation) {
     case 0:
@@ -147,13 +137,13 @@ void PdfWidget::screenFit()
 {
     if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
-        mZoom = static_cast<double>(height()) / getRotatedPageSize().height() * AUTO_ZOOM_COEFFICIENT;
+        mZoom = static_cast<double>(height()) / getRotatedPageSize().height() * autoZoomCoefficient();
     }
     else {
         // Landscape orientation:
-        mZoom = static_cast<double>(width()) / getRotatedPageSize().width() * AUTO_ZOOM_COEFFICIENT;
+        mZoom = static_cast<double>(width()) / getRotatedPageSize().width() * autoZoomCoefficient();
     }
-    centralizePage();
+    resetPanning();
     emit zoomChanged(mZoom);
 }
 
@@ -161,7 +151,7 @@ void PdfWidget::pageFit()
 {
     if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
-        mZoom = static_cast<double>(width()) / getRotatedPageSize().width() * AUTO_ZOOM_COEFFICIENT;
+        mZoom = static_cast<double>(width()) / getRotatedPageSize().width() * autoZoomCoefficient();
 
         // Move to top page edge:
         mPanning.setX(0);
@@ -174,7 +164,7 @@ void PdfWidget::pageFit()
     }
     else {
         // Landscape orientation:
-        mZoom = static_cast<double>(height()) / getRotatedPageSize().height() * AUTO_ZOOM_COEFFICIENT;
+        mZoom = static_cast<double>(height()) / getRotatedPageSize().height() * autoZoomCoefficient();
 
         // Move to left page edge:
         mPanning.setX((getZoomedPageSize().width() / 2) - (width() / 2));
@@ -185,11 +175,11 @@ void PdfWidget::pageFit()
     emit zoomChanged(mZoom);
 }
 
-void PdfWidget::setZoom(double zoom)
+void PdfWidget::setZoom(double const zoom)
 {
     if(zoom == mZoom) return;
 
-    double diff = zoom / mZoom;
+    double const diff = zoom / mZoom;
     mZoom = zoom;
     mPanning.rx() *= diff;
     mPanning.ry() *= diff;
@@ -224,7 +214,7 @@ void PdfWidget::rotateRight()
     update();
 }
 
-void PdfWidget::centralizePage()
+void PdfWidget::resetPanning()
 {
     mPanning.setX(0);
     mPanning.setY(0);

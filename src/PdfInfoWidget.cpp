@@ -8,10 +8,10 @@
 
 #include <poppler/qt4/poppler-qt4.h>
 
-PdfInfoWidget::PdfInfoWidget(const Poppler::Document *document)
+PdfInfoWidget::PdfInfoWidget(Poppler::Document const *document)
 {
-    QWidget *info = new QWidget;
-    QGridLayout *grid = new QGridLayout;
+    QWidget * const info = new QWidget;
+    QGridLayout * const grid = new QGridLayout;
     info->setLayout(grid);
     grid->addWidget(new QLabel("Document Title:"), grid->rowCount(), 0);
     grid->addWidget(new QLabel(document->title().isEmpty() ? "No title specified" : document->title()), grid->rowCount() - 1, 1);
@@ -22,14 +22,14 @@ PdfInfoWidget::PdfInfoWidget(const Poppler::Document *document)
     grid->addWidget(new QLabel("Last Modification Date:"), grid->rowCount(), 0);
     grid->addWidget(new QLabel(document->modificationDate().toString()), grid->rowCount() - 1, 1);
 
-    QLabel *heading = new QLabel("<b>Document information:</b>");
+    QLabel * const heading = new QLabel("<b>Document information:</b>");
     heading->setAlignment(Qt::AlignBottom);
 
-    QPushButton *hideInfo = new QPushButton;
+    QPushButton * const hideInfo = new QPushButton;
     hideInfo->setIcon(QIcon(":/assets/hide_info.svg"));
     connect(hideInfo, SIGNAL(clicked(bool)), this, SIGNAL(returnToViewer()));
 
-    QVBoxLayout *layout = new QVBoxLayout;
+    QVBoxLayout * const layout = new QVBoxLayout;
     layout->addWidget(heading);
     layout->addWidget(info);
     layout->addWidget(hideInfo, 0, Qt::AlignRight);

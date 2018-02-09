@@ -8,17 +8,20 @@
  */
 struct CLOptions
 {
+
     /**
      * @brief Initialize this options struct with options from the command line
      * @param argc Count of arguments
      * @param argv Arguments
      */
-    void parse(int argc, char **argv);
+    CLOptions(int const argc, char const * const * const argv);
 
     /**
-     * @brief Enables windowed presentation, otherwise the viewer opens in fullscreen mode
+     * @brief Returns option to enable windowed presentation, otherwise the viewer opens in fullscreen mode
      */
-    static constexpr const char *OPTION_WINDOWED = "-windowed";
+    static constexpr const char *optionWindowed() {
+        return "-windowed";
+    }
 
     /**
      * @brief Path of PDF to display
@@ -29,6 +32,7 @@ struct CLOptions
      * @brief If set, viewer opens in windowed mode instead of fullscreen
      */
     bool windowed = false;
+
 };
 
 #endif // CLOPTIONS_H

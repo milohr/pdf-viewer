@@ -8,14 +8,14 @@ ZoomSlider::ZoomSlider()
     connect(this, SIGNAL(valueChanged(int)), this, SLOT(zoomRouter(int)));
 }
 
-void ZoomSlider::setZoom(double zoom)
+void ZoomSlider::setZoom(double const zoom)
 {
-    int convertedZoom = zoom * 100;
+    int const convertedZoom = zoom * 100;
     if(convertedZoom == value()) return;
     setValue(convertedZoom);
 }
 
-void ZoomSlider::zoomRouter(int value)
+void ZoomSlider::zoomRouter(int const value)
 {
     emit zoomChanged(value / 100.0);
 }

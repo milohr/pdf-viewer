@@ -1,11 +1,17 @@
 #include "CLOptions.h"
 
-void CLOptions::parse(int argc, char **argv)
+CLOptions::CLOptions(int const argc, char const * const * const argv)
 {
+    // 'path' is defined by the first argument:
     path = QString(argv[1]);
+
+    // search for other arguments:
     for(int i = 2; i < argc; i++) {
-        const char *option = argv[i];
-        if(0 == strcmp(OPTION_WINDOWED, option)) {
+
+        QString option = argv[i];
+
+        // '-windowed' argument found:
+        if(option == optionWindowed()) {
             windowed = true;
         }
     }

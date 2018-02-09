@@ -4,18 +4,18 @@
 #include <QLabel>
 #include <QPushButton>
 
-HeaderBar::HeaderBar(const QString &pdfFile, QWidget *parent)
+HeaderBar::HeaderBar(QString const &pdfFile, QWidget *parent)
     : QWidget(parent)
 {
-    QLabel *filename = new QLabel("<b>" + pdfFile + "</b>");
+    QLabel * const filename = new QLabel("<b>" + pdfFile + "</b>");
 
-    QPushButton *exit = new QPushButton;
+    QPushButton * const exit = new QPushButton;
     exit->setIcon(QIcon(":/assets/exit.svg"));
 
-    QPushButton *showInfo = new QPushButton;
+    QPushButton *const showInfo = new QPushButton;
     showInfo->setIcon(QIcon(":/assets/show_info.svg"));
 
-    QHBoxLayout *layout = new QHBoxLayout;
+    QHBoxLayout * const layout = new QHBoxLayout;
     layout->addWidget(showInfo);
     layout->addWidget(filename, 1, Qt::AlignCenter);
     layout->addWidget(exit);

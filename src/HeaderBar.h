@@ -18,7 +18,7 @@ public:
      * @param pdfFile File name of pdf without path.
      * @param parent Qt parent widget.
      */
-    explicit HeaderBar(const QString &pdfFile, QWidget *parent = nullptr);
+    explicit HeaderBar(QString const &pdfFile, QWidget *parent = nullptr);
 
 signals:
 

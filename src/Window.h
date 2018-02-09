@@ -19,6 +19,7 @@
 class Window : public QMainWindow
 {
     Q_OBJECT
+
 public:
 
     /**
@@ -26,28 +27,40 @@ public:
      * @param pdfPath Path to pdf to display.
      * @param parent Qt parent widget.
      */
-    explicit Window(const QString &pdfPath, QWidget *parent = 0);
+    explicit Window(QString const &pdfPath, QWidget *parent = 0);
 
 private:
 
-    /// Widget displaying the Pdf file:
+    /**
+     * Widget displaying the Pdf file.
+     */
     PdfWidget *mPdfWidget;
 
-    /// Slider to control zoom level:
+    /**
+     * Slider to control zoom level.
+    */
     ZoomSlider *mZoomSlider = new ZoomSlider;
 
-    /// Widget displaying Pdf file information. Initially hidden.
+    /**
+     * Widget displaying Pdf file information. Initially hidden.
+    */
     PdfInfoWidget *mPdfInfo;
 
 public slots:
 
-    /// Handles keyboard input to control the viewer:
+    /**
+     * Handles keyboard input to control the viewer.
+    */
     virtual void keyPressEvent(QKeyEvent *event) override;
 
-    /// Shows the info widget on top of the pdf widget:
+    /**
+     * Shows the info widget on top of the pdf widget.
+    */
     void showInfo();
 
-    /// Hides the info widget:
+    /**
+     * Hides the info widget.
+    */
     void hideInfo();
 
 };
