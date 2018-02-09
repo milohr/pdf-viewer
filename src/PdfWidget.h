@@ -24,6 +24,10 @@ public:
      */
     explicit PdfWidget(QString const &path, QWidget *parent = nullptr);
 
+    /**
+     * @return Get pointer to internal Poppler document, used by the pdf info widget.
+     * @attention Since this class implements RAII, the pointer is guaranteed to be valid for the livetime of this instance.
+     */
     Poppler::Document const * getPopplerDocument() const;
 
     void open();
@@ -38,18 +42,64 @@ protected:
 
 signals:
 
+    /**
+     * @brief Emitted when pages information changed.
+     * @param count Total count of pages.
+     * @param currentPage Current page index.
+     */
     void pagesChanged(int const count, int const currentPage);
+
+    /**
+     * @brief Emitted when zoom changed.
+     * @param zoom New value of zoom.
+     */
     void zoomChanged(qreal const zoom);
 
 public slots:
 
+    /**
+     * @brief Adjust zoom and panning to screen fit.
+     */
     void screenFit();
+
+    /**
+     * @brief Adjust zoom and panning to page fit.
+     */
     void pageFit();
+
+    /**
+     * @brief Set a specific zoom.
+     * @param zoom Zoom to set.
+     */
     void setZoom(qreal const zoom);
+
+    /**
+     * @brief Go back to previous page.
+     * If already on first page, this call has no effect.
+     */
     void prevPage();
+
+    /**
+     * @brief Go to next page.
+     * If already on last page, this call has no effect.
+     */
     void nextPage();
+
+    /**
+     * @brief Rotate page counter-clockwise.
+     */
     void rotateLeft();
+
+    /**
+     * @brief Rotate page clockwise.
+     */
     void rotateRight();
+
+    /**
+     * @brief Pan page by a specific x and y value.
+     * @param x Amount of pan on x axis, in pixels.
+     * @param y Amount of pan on y axis, in pixels.
+     */
     void pan(int const x, int const y);
 
 private:
