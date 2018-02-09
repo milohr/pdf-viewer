@@ -19,11 +19,11 @@ Window::Window(QString const &pdfPath, QWidget *parent)
 {
     setWindowIcon(QIcon(":/assets/icon_mres.png"));
 
-    auto centerLayout = new QHBoxLayout();
-    auto verticalLayout = new QVBoxLayout;
-    auto headerBar = new HeaderBar(QFileInfo(pdfPath).fileName());
-    auto rootWidget = new QWidget();
-    auto statusBar = new  StatusBar;
+    auto const centerLayout = new QHBoxLayout();
+    auto const verticalLayout = new QVBoxLayout;
+    auto const headerBar = new HeaderBar(QFileInfo(pdfPath).fileName());
+    auto const rootWidget = new QWidget();
+    auto const statusBar = new  StatusBar;
 
     centerLayout->addWidget(mPdfWidget);
     centerLayout->addWidget(mZoomSlider);

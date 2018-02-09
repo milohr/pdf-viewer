@@ -86,10 +86,10 @@ void PdfWidget::paintEvent(QPaintEvent *event)
     if(nullptr == mPage) return;
 
     // Image dimensions the image would have if fully rendered by Poppler:
-    int imageHeight = getZoomedPageSize().height();
-    int imageWidth = getZoomedPageSize().width();
+    int const imageHeight = getZoomedPageSize().height();
+    int const imageWidth = getZoomedPageSize().width();
 
-    QRect pdfRect(0, 0, imageWidth, imageHeight);
+    QRect const pdfRect(0, 0, imageWidth, imageHeight);
 
     QTransform transform;
     transform.translate(width() / 2, height() / 2);
@@ -97,10 +97,10 @@ void PdfWidget::paintEvent(QPaintEvent *event)
     transform.translate(mPanning.x(), mPanning.y());
     transform.translate(-getZoomedPageSize().width() / 2, -getZoomedPageSize().height() / 2);
 
-    QRect renderRect = transform.inverted(nullptr).mapRect(event->rect());
-    QRect visiblePdf = renderRect.intersect(pdfRect);
+    QRect const renderRect = transform.inverted(nullptr).mapRect(event->rect());
+    QRect const visiblePdf = renderRect.intersect(pdfRect);
 
-    QImage subImage = mPage->renderToImage(physicalDpiX() * mZoom, physicalDpiY() * mZoom,
+    QImage const subImage = mPage->renderToImage(physicalDpiX() * mZoom, physicalDpiY() * mZoom,
                                            visiblePdf.x(), visiblePdf.y(), visiblePdf.width(), visiblePdf.height()
                                   );
 
@@ -108,7 +108,7 @@ void PdfWidget::paintEvent(QPaintEvent *event)
     QImage image = QImage(imageWidth, imageHeight, subImage.format());
     QPainter subImagePainter(&image);
     subImagePainter.drawImage(visiblePdf.x(), visiblePdf.y(), subImage);
-    QImage scaled = image.scaledToHeight(imageHeight);
+    QImage const scaled = image.scaledToHeight(imageHeight);
 
     // Paint image onto widget:
     QPainter painter(this);
