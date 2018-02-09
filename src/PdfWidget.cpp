@@ -1,3 +1,7 @@
+#include <QPainter>
+#include <QPaintEvent>
+#include <QResizeEvent>
+
 #include "PdfWidget.h"
 
 PdfWidget::PdfWidget(QString const &path, QWidget *parent)

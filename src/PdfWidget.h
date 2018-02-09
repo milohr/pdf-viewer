@@ -2,10 +2,6 @@
 #define PDFWIDGET_H
 
 #include <QWidget>
-#include <QPaintEvent>
-#include <QResizeEvent>
-#include <QPainter>
-#include <QTransform>
 #include <QScopedPointer>
 
 // No forward-declare possible because of QScopedPointer

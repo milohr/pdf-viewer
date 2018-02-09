@@ -1,9 +1,21 @@
+#include <QKeyEvent>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QIcon>
+#include <QFileInfo>
+
 #include "Window.h"
+#include "PdfWidget.h"
+#include "StatusBar.h"
+#include "ZoomSlider.h"
+#include "HeaderBar.h"
+#include "PdfInfoWidget.h"
 
 Window::Window(QString const &pdfPath, QWidget *parent)
     : QMainWindow(parent)
     , mPdfWidget(new PdfWidget(pdfPath))
     , mPdfInfo(new PdfInfoWidget(mPdfWidget->getPopplerDocument()))
+    , mZoomSlider(new ZoomSlider)
 {
     setWindowIcon(QIcon(":/assets/icon_mres.png"));
 

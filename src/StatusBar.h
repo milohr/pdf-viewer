@@ -2,8 +2,9 @@
 #define STATUSBAR_H
 
 #include <QStatusBar>
-#include <QLabel>
-#include <QPushButton>
+
+class QLabel;
+class QPushButton;
 
 /**
  * @brief Implements the status bar on the lower window edge, providing navigation buttons.
@@ -23,25 +24,25 @@ public:
 private:
 
     /// Display current page and total number of pages.
-    QLabel *mPages = new QLabel;
+    QLabel *mPages;
 
     /// Zoom to screen-fit:
-    QPushButton *mScreenFit = new QPushButton;
+    QPushButton *mScreenFit;
 
     /// Zoom to page-fit:
-    QPushButton *mPageFit = new QPushButton;
+    QPushButton *mPageFit;
 
     /// Go to next page:
-    QPushButton *mNext = new QPushButton;
+    QPushButton *mNext;
 
     /// Go to previous page:
-    QPushButton *mPrev = new QPushButton;
+    QPushButton *mPrev;
 
     /// Rotate page counter-clockwise:
-    QPushButton *mRotateLeft = new QPushButton;
+    QPushButton *mRotateLeft;
 
     /// Rotate page clockwise:
-    QPushButton *mRotateRight = new QPushButton;
+    QPushButton *mRotateRight;
 
 signals:
 

@@ -2,16 +2,11 @@
 #define WINDOW_H
 
 #include <QMainWindow>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QIcon>
-#include <QFileInfo>
 
-#include "PdfWidget.h"
-#include "StatusBar.h"
-#include "ZoomSlider.h"
-#include "HeaderBar.h"
-#include "PdfInfoWidget.h"
+class QKeyEvent;
+class PdfWidget;
+class PdfInfoWidget;
+class ZoomSlider;
 
 /**
  * @brief Provides window.
@@ -37,14 +32,14 @@ private:
     PdfWidget *mPdfWidget;
 
     /**
-     * Slider to control zoom level.
-    */
-    ZoomSlider *mZoomSlider = new ZoomSlider;
-
-    /**
      * Widget displaying Pdf file information. Initially hidden.
     */
     PdfInfoWidget *mPdfInfo;
+
+    /**
+     * Slider to control zoom level.
+    */
+    ZoomSlider *mZoomSlider;
 
 public slots:
 

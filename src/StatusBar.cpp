@@ -1,6 +1,16 @@
+#include <QLabel>
+#include <QPushButton>
+
 #include "StatusBar.h"
 
 StatusBar::StatusBar()
+    : mPages(new QLabel)
+    , mScreenFit(new QPushButton)
+    , mPageFit(new QPushButton)
+    , mNext(new QPushButton)
+    , mPrev(new QPushButton)
+    , mRotateLeft(new QPushButton)
+    , mRotateRight(new QPushButton)
 {
     addWidget(mPageFit);
     addWidget(mScreenFit);
