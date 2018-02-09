@@ -3,6 +3,9 @@
 
 #include <QSlider>
 
+/**
+ * @brief A vertical slider to control the zoom level.
+ */
 class ZoomSlider
         : public QSlider
 {
@@ -11,13 +14,25 @@ class ZoomSlider
 public:
     ZoomSlider();
 
-    void reset();
-
 signals:
+
+    /**
+     * @brief zoomChanged Emitted when zoom level was changed.
+     * @param zoom New zoom, [0;1].
+     */
     void zoomChanged(double zoom);
 
-private slots:
+public slots:
+
+    /**
+     * @brief setZoom Set current zoom level, used e.g. when page-fit is requested.
+     * @param zoom New zoom, [0;1].
+     */
     void setZoom(double zoom);
+
+private slots:
+
+    /// Internally used to convert the zoom value.
     void zoomRouter(int value);
 };
 

@@ -2,16 +2,29 @@
 #define PDFINFOWIDGET_H
 
 #include <QWidget>
-#include <poppler/qt4/poppler-qt4.h>
 
+namespace Poppler {
+class Document;
+}
+
+/**
+ * @brief Display Pdf file information.
+ */
 class PdfInfoWidget : public QWidget
 {
     Q_OBJECT
 
 public:
+
+    /**
+     * @brief PdfInfoWidget Construct a new info widget.
+     * @param document Document whose properties to be displayed.
+     */
     PdfInfoWidget(const Poppler::Document *document);
 
 signals:
+
+    /// Emitted when user wants to return to the pdf widget, since it's obscured by this widget.
     void returnToViewer();
 };
 

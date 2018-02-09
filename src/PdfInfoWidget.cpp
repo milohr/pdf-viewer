@@ -6,6 +6,8 @@
 #include <QGridLayout>
 #include <QPushButton>
 
+#include <poppler/qt4/poppler-qt4.h>
+
 PdfInfoWidget::PdfInfoWidget(const Poppler::Document *document)
 {
     QWidget *info = new QWidget;

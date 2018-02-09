@@ -6,7 +6,6 @@
 #include <QVBoxLayout>
 #include <QIcon>
 #include <QFileInfo>
-#include <QDebug>
 
 #include "PdfWidget.h"
 #include "StatusBar.h"
@@ -29,23 +28,28 @@ public:
      */
     explicit Window(const QString &pdfPath, QWidget *parent = 0);
 
-protected:
-
-    virtual void resizeEvent(QResizeEvent *event) override;
-
 private:
 
+    /// Widget displaying the Pdf file:
     PdfWidget *mPdfWidget;
-    ZoomSlider *mZoomSlider = new ZoomSlider;
-    PdfInfoWidget *mPdfInfo;
-    bool mInitialPageFitRequested = false;
 
-signals:
+    /// Slider to control zoom level:
+    ZoomSlider *mZoomSlider = new ZoomSlider;
+
+    /// Widget displaying Pdf file information. Initially hidden.
+    PdfInfoWidget *mPdfInfo;
 
 public slots:
+
+    /// Handles keyboard input to control the viewer:
     virtual void keyPressEvent(QKeyEvent *event) override;
+
+    /// Shows the info widget on top of the pdf widget:
     void showInfo();
+
+    /// Hides the info widget:
     void hideInfo();
+
 };
 
 #endif // WINDOW_H

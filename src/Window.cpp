@@ -42,15 +42,7 @@ Window::Window(const QString &pdfPath, QWidget *parent)
     connect(headerBar, SIGNAL(showInfo()), this, SLOT(showInfo()));
     connect(mPdfInfo, SIGNAL(returnToViewer()), this, SLOT(hideInfo()));
 
-    mZoomSlider->reset();
     mPdfWidget->open();
-}
-
-void Window::resizeEvent(QResizeEvent *)
-{
-    if(!mInitialPageFitRequested) {
-        mInitialPageFitRequested = true;
-    }
 }
 
 void Window::keyPressEvent(QKeyEvent *event)

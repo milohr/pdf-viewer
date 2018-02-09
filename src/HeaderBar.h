@@ -12,17 +12,26 @@ class HeaderBar : public QWidget
     Q_OBJECT
 
 public:
+
+    /**
+     * @brief HeaderBar Conctruct a new header bar.
+     * @param pdfFile File name of pdf without path.
+     * @param parent Qt parent widget.
+     */
     explicit HeaderBar(const QString &pdfFile, QWidget *parent = nullptr);
 
 signals:
+
     /**
      * @brief Called when exit button clicked
      */
     void exit();
 
+    /**
+     * @brief showInfo File information is requested.
+     */
     void showInfo();
 
-public slots:
 };
 
 #endif // HEADERBAR_H
