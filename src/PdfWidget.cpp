@@ -1,5 +1,7 @@
 #include "PdfWidget.h"
 
+#include <poppler/qt4/poppler-qt4.h>
+
 const double PdfWidget::AUTO_ZOOM_COEFFICIENT = 0.95;
 
 PdfWidget::PdfWidget(const QString &path, QWidget *parent)
@@ -79,13 +81,6 @@ void PdfWidget::pan(int x, int y)
     }
 }
 
-QSize PdfWidget::getPdfImageSize() const {
-    return {
-        qRound(((physicalDpiY() * mZoom) / 72.0) * mPage->pageSize().width()),
-        qRound(((physicalDpiX() * mZoom) / 72.0) * mPage->pageSize().height())
-    };
-}
-
 bool PdfWidget::isRotated() const
 {
     return mPageRotation % 2 == 1;
@@ -97,8 +92,8 @@ void PdfWidget::paintEvent(QPaintEvent *event)
     if(nullptr == mPage) return;
 
     // Image dimensions the image would have if fully rendered by Poppler:
-    int imageHeight = getPdfImageSize().height();
-    int imageWidth = getPdfImageSize().width();
+    int imageHeight = getZoomedPageSize().height();
+    int imageWidth = getZoomedPageSize().width();
 
     QRect pdfRect(0, 0, imageWidth, imageHeight);
 
@@ -106,7 +101,7 @@ void PdfWidget::paintEvent(QPaintEvent *event)
     transform.translate(width() / 2, height() / 2);
     transform.rotate(mPageRotation * 90);
     transform.translate(mPanning.x(), mPanning.y());
-    transform.translate(-(getPageWidth() * mZoom) / 2, -(getPageHeight() * mZoom) / 2);
+    transform.translate(-getZoomedPageSize().width() / 2, -getZoomedPageSize().height() / 2);
 
     QRect renderRect = transform.inverted(nullptr).mapRect(event->rect());
     QRect visiblePdf = renderRect.intersect(pdfRect);
@@ -128,35 +123,35 @@ void PdfWidget::paintEvent(QPaintEvent *event)
     painter.drawRect(scaled.rect());
 }
 
-int PdfWidget::getPageWidth() const
+QSizeF PdfWidget::getPageSize() const
 {
-    return (mPage->pageSize().width() / 72.0) * physicalDpiX();
+    return {
+        (mPage->pageSize().width() / 72.0) * physicalDpiX(),
+        (mPage->pageSize().height() / 72.0) * physicalDpiY()
+    };
 }
 
-int PdfWidget::getPageHeight() const
+QSizeF PdfWidget::getRotatedPageSize() const
 {
-    return (mPage->pageSize().height() / 72.0) * physicalDpiY();
+    return !isRotated() ? getPageSize() : QSizeF{getPageSize().height(), getPageSize().width()};
 }
 
-int PdfWidget::getRotatedPageWidth() const
-{
-    return isRotated() ? getPageHeight() : getPageWidth();
-}
-
-int PdfWidget::getRotatedPageHeight() const
-{
-    return isRotated() ? getPageWidth() : getPageHeight();
+QSizeF PdfWidget::getZoomedPageSize() const {
+    return {
+        mZoom * getPageSize().width(),
+        mZoom * getPageSize().height()
+    };
 }
 
 void PdfWidget::screenFit()
 {
-    if(getRotatedPageHeight() > getRotatedPageWidth()) {
+    if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
-        mZoom = static_cast<double>(height()) / getRotatedPageHeight() * AUTO_ZOOM_COEFFICIENT;
+        mZoom = static_cast<double>(height()) / getRotatedPageSize().height() * AUTO_ZOOM_COEFFICIENT;
     }
     else {
         // Landscape orientation:
-        mZoom = static_cast<double>(width()) / getRotatedPageWidth() * AUTO_ZOOM_COEFFICIENT;
+        mZoom = static_cast<double>(width()) / getRotatedPageSize().width() * AUTO_ZOOM_COEFFICIENT;
     }
     centralizePage();
     emit zoomChanged(mZoom);
@@ -164,25 +159,25 @@ void PdfWidget::screenFit()
 
 void PdfWidget::pageFit()
 {
-    if(getRotatedPageHeight() > getRotatedPageWidth()) {
+    if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
-        mZoom = static_cast<double>(width()) / getRotatedPageWidth() * AUTO_ZOOM_COEFFICIENT;
+        mZoom = static_cast<double>(width()) / getRotatedPageSize().width() * AUTO_ZOOM_COEFFICIENT;
 
         // Move to top page edge:
         mPanning.setX(0);
         if(isRotated()) {
-            mPanning.setY((getPdfImageSize().width() / 2) - (width() / 2));
+            mPanning.setY((getZoomedPageSize().width() / 2) - (width() / 2));
         }
         else {
-            mPanning.setY((getPdfImageSize().height() / 2) - (height() / 2));
+            mPanning.setY((getZoomedPageSize().height() / 2) - (height() / 2));
         }
     }
     else {
         // Landscape orientation:
-        mZoom = static_cast<double>(height()) / getRotatedPageHeight() * AUTO_ZOOM_COEFFICIENT;
+        mZoom = static_cast<double>(height()) / getRotatedPageSize().height() * AUTO_ZOOM_COEFFICIENT;
 
         // Move to left page edge:
-        mPanning.setX((getPdfImageSize().width() / 2) - (width() / 2));
+        mPanning.setX((getZoomedPageSize().width() / 2) - (width() / 2));
         mPanning.setY(0);
     }
 
