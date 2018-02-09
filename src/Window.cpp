@@ -36,8 +36,8 @@ Window::Window(QString const &pdfPath, QWidget *parent)
     connect(statusBar, SIGNAL(nextPage()), mPdfWidget, SLOT(nextPage()));
     connect(statusBar, SIGNAL(rotateLeft()), mPdfWidget, SLOT(rotateLeft()));
     connect(statusBar, SIGNAL(rotateRight()), mPdfWidget, SLOT(rotateRight()));
-    connect(mPdfWidget, SIGNAL(zoomChanged(double)), mZoomSlider, SLOT(setZoom(double)));
-    connect(mZoomSlider, SIGNAL(zoomChanged(double)), mPdfWidget, SLOT(setZoom(double)));
+    connect(mPdfWidget, SIGNAL(zoomChanged(qreal)), mZoomSlider, SLOT(setZoom(qreal)));
+    connect(mZoomSlider, SIGNAL(zoomChanged(qreal)), mPdfWidget, SLOT(setZoom(qreal)));
     connect(headerBar, SIGNAL(exit()), this, SLOT(close()));
     connect(headerBar, SIGNAL(showInfo()), this, SLOT(showInfo()));
     connect(mPdfInfo, SIGNAL(returnToViewer()), this, SLOT(hideInfo()));

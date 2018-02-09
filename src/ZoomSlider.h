@@ -21,7 +21,7 @@ signals:
      * @brief zoomChanged Emitted when zoom level was changed.
      * @param zoom New zoom, [0;1].
      */
-    void zoomChanged(double const zoom);
+    void zoomChanged(qreal const zoom);
 
 public slots:
 
@@ -29,7 +29,7 @@ public slots:
      * @brief setZoom Set current zoom level, used e.g. when page-fit is requested.
      * @param zoom New zoom, [0;1].
      */
-    void setZoom(double const zoom);
+    void setZoom(qreal const zoom);
 
 private slots:
 

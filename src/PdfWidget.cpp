@@ -137,11 +137,11 @@ void PdfWidget::screenFit()
 {
     if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
-        mZoom = static_cast<double>(height()) / getRotatedPageSize().height() * autoZoomCoefficient();
+        mZoom = static_cast<qreal>(height()) / getRotatedPageSize().height() * autoZoomCoefficient();
     }
     else {
         // Landscape orientation:
-        mZoom = static_cast<double>(width()) / getRotatedPageSize().width() * autoZoomCoefficient();
+        mZoom = static_cast<qreal>(width()) / getRotatedPageSize().width() * autoZoomCoefficient();
     }
     resetPanning();
     emit zoomChanged(mZoom);
@@ -151,7 +151,7 @@ void PdfWidget::pageFit()
 {
     if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
-        mZoom = static_cast<double>(width()) / getRotatedPageSize().width() * autoZoomCoefficient();
+        mZoom = static_cast<qreal>(width()) / getRotatedPageSize().width() * autoZoomCoefficient();
 
         // Move to top page edge:
         mPanning.setX(0);
@@ -164,7 +164,7 @@ void PdfWidget::pageFit()
     }
     else {
         // Landscape orientation:
-        mZoom = static_cast<double>(height()) / getRotatedPageSize().height() * autoZoomCoefficient();
+        mZoom = static_cast<qreal>(height()) / getRotatedPageSize().height() * autoZoomCoefficient();
 
         // Move to left page edge:
         mPanning.setX((getZoomedPageSize().width() / 2) - (width() / 2));
@@ -175,11 +175,11 @@ void PdfWidget::pageFit()
     emit zoomChanged(mZoom);
 }
 
-void PdfWidget::setZoom(double const zoom)
+void PdfWidget::setZoom(qreal const zoom)
 {
     if(zoom == mZoom) return;
 
-    double const diff = zoom / mZoom;
+    qreal const diff = zoom / mZoom;
     mZoom = zoom;
     mPanning.rx() *= diff;
     mPanning.ry() *= diff;

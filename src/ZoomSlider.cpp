@@ -8,7 +8,7 @@ ZoomSlider::ZoomSlider()
     connect(this, SIGNAL(valueChanged(int)), this, SLOT(zoomRouter(int)));
 }
 
-void ZoomSlider::setZoom(double const zoom)
+void ZoomSlider::setZoom(qreal const zoom)
 {
     int const convertedZoom = zoom * 100;
     if(convertedZoom == value()) return;

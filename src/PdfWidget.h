@@ -43,13 +43,13 @@ protected:
 signals:
 
     void pagesChanged(int const count, int const currentPage);
-    void zoomChanged(double const zoom);
+    void zoomChanged(qreal const zoom);
 
 public slots:
 
     void screenFit();
     void pageFit();
-    void setZoom(double const zoom);
+    void setZoom(qreal const zoom);
     void prevPage();
     void nextPage();
     void rotateLeft();
@@ -135,7 +135,7 @@ private:
      * @return A number indicating an additional scale factor to automatic zoom,
      * so that a page does not cover the complete display.
      */
-    constexpr static double autoZoomCoefficient()
+    constexpr static qreal autoZoomCoefficient()
     {
         return 0.95;
     }
