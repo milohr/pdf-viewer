@@ -28,8 +28,8 @@ StatusBar::StatusBar()
     mNext->setIcon(QIcon(":/assets/next.svg"));
     mRotateLeft->setIcon(QIcon(":/assets/rotate_left.svg"));
     mRotateRight->setIcon(QIcon(":/assets/rotate_right.svg"));
-    mScreenFit->setText("&Screen-Fit");
-    mPageFit->setText("&Page-Fit");
+    mScreenFit->setText("Cover screen");
+    mPageFit->setText("Width fit");
 
     connect(mScreenFit, SIGNAL(clicked(bool)), this, SIGNAL(screenFit()));
     connect(mPageFit, SIGNAL(clicked(bool)), this, SIGNAL(pageFit()));
