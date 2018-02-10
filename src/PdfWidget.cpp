@@ -56,6 +56,11 @@ void PdfWidget::mouseMoveEvent(QMouseEvent *event)
     update();
 }
 
+void PdfWidget::wheelEvent(QWheelEvent *event)
+{
+    setZoom(mZoom * (1 + static_cast<qreal>(event->delta()) * 0.001));
+}
+
 void PdfWidget::pan(int const x, int const y)
 {
     switch(mPageRotation) {
@@ -189,8 +194,9 @@ void PdfWidget::pageFit()
     emit zoomChanged(mZoom);
 }
 
-void PdfWidget::setZoom(qreal const zoom)
+void PdfWidget::setZoom(qreal zoom)
 {
+    zoom = qBound(minZoom(), zoom, maxZoom());
     if(zoom == mZoom) return;
 
     qreal const diff = zoom / mZoom;

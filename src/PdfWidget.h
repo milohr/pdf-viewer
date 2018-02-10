@@ -30,6 +30,16 @@ public:
      */
     Poppler::Document const * getPopplerDocument() const;
 
+    constexpr static qreal minZoom()
+    {
+        return 0.1;
+    }
+
+    constexpr static qreal maxZoom()
+    {
+        return 4.0;
+    }
+
 protected:
 
     /**
@@ -58,6 +68,11 @@ protected:
      * @brief Listen to page grabbing.
      */
     virtual void mouseMoveEvent(QMouseEvent *event) override;
+
+    /**
+     * @brief Listen to mouse scrolls to zoom.
+     */
+    virtual void wheelEvent(QWheelEvent *event) override;
 
 signals:
 
@@ -90,7 +105,7 @@ public slots:
      * @brief Set a specific zoom.
      * @param zoom Zoom to set.
      */
-    void setZoom(qreal const zoom);
+    void setZoom(qreal zoom);
 
     /**
      * @brief Go back to previous page.

@@ -1,10 +1,11 @@
 #include "ZoomSlider.h"
+#include "PdfWidget.h"
 
 ZoomSlider::ZoomSlider()
 {
     setOrientation(Qt::Vertical);
-    setMinimum(10);
-    setMaximum(400);
+    setMinimum(PdfWidget::minZoom() * 100);
+    setMaximum(PdfWidget::maxZoom() * 100);
     connect(this, SIGNAL(valueChanged(int)), this, SLOT(zoomRouter(int)));
 }
 
