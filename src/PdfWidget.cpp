@@ -157,12 +157,16 @@ void PdfWidget::screenFit()
     if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
         mZoom = static_cast<qreal>(height()) / getRotatedPageSize().height();
+        resetPanning();
     }
     else {
         // Landscape orientation:
         mZoom = static_cast<qreal>(height()) / getPageSize().width();
+        mPanning.setX(0);
+
+        // Pan page so start edge is visible, since that is usually the page start:
+        mPanning.setY((getZoomedPageSize().height() - width()) / 2);
     }
-    resetPanning();
     emit zoomChanged(mZoom);
 }
 
