@@ -156,7 +156,7 @@ private:
     /**
      * Path of file.
     */
-    const QString &mPath;
+    QString const &mPath;
 
     /**
      * Stored mouse position, used to implement grabbing.

@@ -154,7 +154,7 @@ QSizeF PdfWidget::getZoomedPageSize() const {
 
 void PdfWidget::screenFit()
 {
-    if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
+    if(!isRotated()) {
         // Portrait orientation:
         mZoom = static_cast<qreal>(height()) / getRotatedPageSize().height();
         resetPanning();
@@ -172,7 +172,7 @@ void PdfWidget::screenFit()
 
 void PdfWidget::pageFit()
 {
-    if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
+    if(!isRotated()) {
         // Portrait orientation:
         mZoom = static_cast<qreal>(width()) / getPageSize().width();
 
