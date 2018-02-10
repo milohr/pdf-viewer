@@ -2,6 +2,13 @@
 
 A handy PDF Viewer tool using Qt 4 and the Poppler lib
 
+## Features
+
+- PDF files are rendered by the Poppler library
+- Only visible viewport quad is really rendered
+- Pan, rotate and zoom into pages
+- Display document information
+
 ## Command-line syntax
 
 ```sh
