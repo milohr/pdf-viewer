@@ -1,6 +1,7 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QResizeEvent>
+#include <QDebug>
 
 #include "PdfWidget.h"
 
@@ -15,9 +16,11 @@ PdfWidget::PdfWidget(QString const &path, QWidget *parent)
     mDocument->setRenderHint(Poppler::Document::TextAntialiasing);
 
     setCursor(Qt::ArrowCursor);
+
+    open();
 }
 
-const Poppler::Document *PdfWidget::getPopplerDocument() const
+Poppler::Document const *PdfWidget::getPopplerDocument() const
 {
     return mDocument.data();
 }
@@ -31,7 +34,7 @@ void PdfWidget::open()
 
 void PdfWidget::resizeEvent(QResizeEvent *)
 {
-    open();
+    pageFit();
 }
 
 void PdfWidget::mousePressEvent(QMouseEvent *event)
@@ -82,39 +85,46 @@ bool PdfWidget::isRotated() const
 
 void PdfWidget::paintEvent(QPaintEvent *event)
 {
-    (void)event;
+    // If no page is set currently, skip:
     if(nullptr == mPage) return;
 
     // Image dimensions the image would have if fully rendered by Poppler:
     int const imageHeight = getZoomedPageSize().height();
     int const imageWidth = getZoomedPageSize().width();
 
+    // A rect completely containing the Pdf:
     QRect const pdfRect(0, 0, imageWidth, imageHeight);
 
+    // Calculate a transformation matrix based on rotation, scaling and grabbing:
     QTransform transform;
     transform.translate(width() / 2, height() / 2);
     transform.rotate(mPageRotation * 90);
     transform.translate(mPanning.x(), mPanning.y());
-    transform.translate(-getZoomedPageSize().width() / 2, -getZoomedPageSize().height() / 2);
+    transform.translate(-imageWidth / 2, -imageHeight / 2);
 
-    QRect const renderRect = transform.inverted(nullptr).mapRect(event->rect());
-    QRect const visiblePdf = renderRect.intersect(pdfRect);
+    // Now figure out which rect a currently visible to the user by inverting that transform matrix:
+    QRect const visiblePdf = transform.inverted(nullptr).mapRect(event->rect()).intersect(pdfRect);
 
-    QImage const subImage = mPage->renderToImage(physicalDpiX() * mZoom, physicalDpiY() * mZoom,
-                                           visiblePdf.x(), visiblePdf.y(), visiblePdf.width(), visiblePdf.height()
-                                  );
-
-    // Create full image onto which the sub-image is drawn:
-    QImage image = QImage(imageWidth, imageHeight, subImage.format());
-    QPainter subImagePainter(&image);
-    subImagePainter.drawImage(visiblePdf.x(), visiblePdf.y(), subImage);
-    QImage const scaled = image.scaledToHeight(imageHeight);
+    QImage const image = mPage->renderToImage(
+                physicalDpiX() * mZoom,
+                physicalDpiY() * mZoom,
+                visiblePdf.x(),
+                visiblePdf.y(),
+                visiblePdf.width(),
+                visiblePdf.height());
 
     // Paint image onto widget:
     QPainter painter(this);
+
+    // Painter should start drawing the image at the current clipped visible rect position:
+    transform.translate(visiblePdf.x(), visiblePdf.y());
     painter.setTransform(transform);
-    painter.drawImage(0, 0, scaled);
-    painter.drawRect(scaled.rect());
+
+    // Draw rendered page itself:
+    painter.drawImage(0, 0, image);
+
+    // Draw page border:
+    painter.drawRect(QRect(0, 0, image.width() - 1, image.height() - 1));
 }
 
 QSizeF PdfWidget::getPageSize() const
@@ -141,11 +151,11 @@ void PdfWidget::screenFit()
 {
     if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
-        mZoom = static_cast<qreal>(height()) / getRotatedPageSize().height() * autoZoomCoefficient();
+        mZoom = static_cast<qreal>(height()) / getRotatedPageSize().height();
     }
     else {
         // Landscape orientation:
-        mZoom = static_cast<qreal>(width()) / getRotatedPageSize().width() * autoZoomCoefficient();
+        mZoom = static_cast<qreal>(width()) / getRotatedPageSize().width();
     }
     resetPanning();
     emit zoomChanged(mZoom);
@@ -155,7 +165,7 @@ void PdfWidget::pageFit()
 {
     if(getRotatedPageSize().height() > getRotatedPageSize().width()) {
         // Portrait orientation:
-        mZoom = static_cast<qreal>(width()) / getRotatedPageSize().width() * autoZoomCoefficient();
+        mZoom = static_cast<qreal>(width()) / getRotatedPageSize().width();
 
         // Move to top page edge:
         mPanning.setX(0);
@@ -168,7 +178,7 @@ void PdfWidget::pageFit()
     }
     else {
         // Landscape orientation:
-        mZoom = static_cast<qreal>(height()) / getRotatedPageSize().height() * autoZoomCoefficient();
+        mZoom = static_cast<qreal>(height()) / getRotatedPageSize().height();
 
         // Move to left page edge:
         mPanning.setX((getZoomedPageSize().width() / 2) - (width() / 2));

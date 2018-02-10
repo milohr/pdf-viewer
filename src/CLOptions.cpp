@@ -1,18 +1,29 @@
 #include "CLOptions.h"
 
 CLOptions::CLOptions(int const argc, char const * const * const argv)
+    : mArgc(argc)
+    , mArgv(argv)
+    , mPath(argv[1]) // 'path' is defined by the first argument
+    , mWindowed(findSwitchOption(optionWindowed()))
 {
-    // 'path' is defined by the first argument:
-    path = QString(argv[1]);
+}
 
-    // search for other arguments:
-    for(int i = 2; i < argc; i++) {
-
-        QString option = argv[i];
-
-        // '-windowed' argument found:
-        if(option == optionWindowed()) {
-            windowed = true;
+bool CLOptions::findSwitchOption(QString const name)
+{
+    for(int i = 2; i < mArgc; i++) {
+        if(QString(mArgv[i]) == name) {
+            return true;
         }
     }
+    return false;
+}
+
+QString CLOptions::path() const
+{
+    return mPath;
+}
+
+bool CLOptions::windowed() const
+{
+    return mWindowed;
 }

@@ -26,18 +26,37 @@ public:
 
     /**
      * @return Get pointer to internal Poppler document, used by the pdf info widget.
-     * @attention Since this class implements RAII, the pointer is guaranteed to be valid for the livetime of this instance.
+     * @note Since this class implements RAII, the pointer is guaranteed to be valid for the livetime of this instance.
      */
     Poppler::Document const * getPopplerDocument() const;
 
-    void open();
-
 protected:
 
-    virtual void resizeEvent(QResizeEvent *event) override;
+    /**
+     * @brief Since widget size has not its final value at construction time,
+     * it need to listen to new resizements to zoom to page fit.
+     */
+    virtual void resizeEvent(QResizeEvent *) override;
+
+    /**
+     * @brief Renders the current visible rect of the Pdf.
+     * @param event Paint event, telling the rectangular extent to render.
+     */
     virtual void paintEvent(QPaintEvent *event) override;
+
+    /**
+     * @brief Listen to page grabbing start.
+     */
     virtual void mousePressEvent(QMouseEvent *event) override;
+
+    /**
+     * @brief Listen to page grabbing end.
+     */
     virtual void mouseReleaseEvent(QMouseEvent *event) override;
+
+    /**
+     * @brief Listen to page grabbing.
+     */
     virtual void mouseMoveEvent(QMouseEvent *event) override;
 
 signals:
@@ -86,12 +105,12 @@ public slots:
     void nextPage();
 
     /**
-     * @brief Rotate page counter-clockwise.
+     * @brief Rotate page counter-clockwise around the currently visible viewport center.
      */
     void rotateLeft();
 
     /**
-     * @brief Rotate page clockwise.
+     * @brief Rotate page clockwise around the currently visible viewport center.
      */
     void rotateRight();
 
@@ -178,13 +197,9 @@ private:
     bool isRotated() const;
 
     /**
-     * @return A number indicating an additional scale factor to automatic zoom,
-     * so that a page does not cover the complete display.
+     * @brief Opens the current page denoted by an index and emit the pagesChanged() signal.
      */
-    constexpr static qreal autoZoomCoefficient()
-    {
-        return 0.95;
-    }
+    void open();
 
 };
 

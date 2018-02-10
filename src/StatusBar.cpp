@@ -17,7 +17,7 @@ StatusBar::StatusBar()
     addWidget(mRotateLeft);
     addWidget(mRotateRight);
 
-    addWidget(new QWidget(), 1);
+    addWidget(new QWidget, 1);
     addWidget(mPages);
     addWidget(mPrev);
     addWidget(mNext);

@@ -19,10 +19,10 @@ Window::Window(QString const &pdfPath, QWidget *parent)
 {
     setWindowIcon(QIcon(":/assets/icon_mres.png"));
 
-    auto const centerLayout = new QHBoxLayout();
+    auto const centerLayout = new QHBoxLayout;
     auto const verticalLayout = new QVBoxLayout;
     auto const headerBar = new HeaderBar(QFileInfo(pdfPath).fileName());
-    auto const rootWidget = new QWidget();
+    auto const rootWidget = new QWidget;
     auto const statusBar = new  StatusBar;
 
     centerLayout->addWidget(mPdfWidget);
@@ -53,8 +53,6 @@ Window::Window(QString const &pdfPath, QWidget *parent)
     connect(headerBar, SIGNAL(exit()), this, SLOT(close()));
     connect(headerBar, SIGNAL(showInfo()), this, SLOT(showInfo()));
     connect(mPdfInfo, SIGNAL(returnToViewer()), this, SLOT(hideInfo()));
-
-    mPdfWidget->open();
 }
 
 void Window::keyPressEvent(QKeyEvent *event)

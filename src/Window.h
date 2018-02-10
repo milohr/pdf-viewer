@@ -29,17 +29,17 @@ private:
     /**
      * Widget displaying the Pdf file.
      */
-    PdfWidget *mPdfWidget;
+    PdfWidget * const mPdfWidget;
 
     /**
      * Widget displaying Pdf file information. Initially hidden.
     */
-    PdfInfoWidget *mPdfInfo;
+    PdfInfoWidget * const mPdfInfo;
 
     /**
      * Slider to control zoom level.
     */
-    ZoomSlider *mZoomSlider;
+    ZoomSlider * const mZoomSlider;
 
 public slots:
 
