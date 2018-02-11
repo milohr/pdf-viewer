@@ -30,11 +30,17 @@ public:
      */
     Poppler::Document const * getPopplerDocument() const;
 
+	/**
+ 	 * @return Minimum zoom.
+ 	 */
     constexpr static qreal minZoom()
     {
         return 0.1;
     }
 
+	/**
+ 	 * @return Maximum zoom.
+ 	 */
     constexpr static qreal maxZoom()
     {
         return 4.0;
