@@ -17,6 +17,10 @@ pdf-viewer <file> [-windowed]
 - `file`: Relative or absolute path to file to display.
 - `-windowed`: If given, the app does not start as fullscreen
 
+Sample call:
+
+    pdf-viewer test-pdf/Demo.pdf -windowed
+
 ## Directory structure
 
 - `src:` Source files
