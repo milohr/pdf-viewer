@@ -108,7 +108,7 @@ void PdfWidget::paintEvent(QPaintEvent *event)
     transform.translate(-imageWidth / 2, -imageHeight / 2);
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
-    QRect const visiblePdf = transform.inverted(nullptr).mapRect(event->rect()).intersect(pdfRect);
+    QRect const visiblePdf = transform.inverted(nullptr).mapRect(event->rect()).intersected(pdfRect);
 
     QImage const image = mPage->renderToImage(
                 physicalDpiX() * mZoom,
