@@ -25,7 +25,7 @@ pdf-viewer <file> [-windowed]
 
 ## Documentation
 
-Run `doxygen` inside the project root directory to generate an HTML doumentation.
+Run `doxygen` inside the project root directory to generate an HTML documentation.
 
 ## Links
 - Poppler:
