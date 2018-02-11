@@ -15,7 +15,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="screen_fit-tall.svg">
+   sodipodi:docname="width-fit.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -25,17 +25,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.9195959"
-     inkscape:cx="14.316251"
-     inkscape:cy="38.385366"
+     inkscape:zoom="5.6"
+     inkscape:cx="4.2329378"
+     inkscape:cy="34.057547"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
      inkscape:window-width="1920"
-     inkscape:window-height="1016"
+     inkscape:window-height="1015"
      inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      showguides="false" />
   <metadata
@@ -55,21 +55,26 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-280.06665)">
-    <path
-       style="fill:#202020;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       d="m 6.1334758,282.86287 c -0.4986001,0 -0.9002035,0.4016 -0.9002035,0.9002 v 9.5405 c 0,0.4986 0.4016034,0.9002 0.9002035,0.9002 h 7.2543372 v -11.3409 z"
-       id="rect3698"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ssssccs" />
     <rect
-       ry="1"
-       style="fill:none;fill-opacity:1;stroke:#202020;stroke-width:0.40000001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       id="rect816"
-       width="14.734355"
-       height="9.8421049"
-       x="281.16614"
-       y="-13.387719"
-       rx="1"
-       transform="rotate(90)" />
+       rx="0.99999994"
+       y="285.33548"
+       x="5.4646015"
+       height="6.4011469"
+       width="6.0041289"
+       id="rect817"
+       style="fill:#202020;fill-opacity:1;stroke:none;stroke-width:0.39999998;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       ry="1" />
+    <path
+       style="fill:#202020;fill-opacity:1;stroke:#202020;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 4.6542126,282.90125 -4.10807428,5.62967 4.10807428,5.62962 z"
+       id="path819"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccc" />
+    <path
+       sodipodi:nodetypes="cccc"
+       inkscape:connector-curvature="0"
+       id="path822"
+       d="m 12.27912,282.90125 4.108075,5.62967 -4.108075,5.62962 z"
+       style="fill:#202020;fill-opacity:1;stroke:#202020;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>
