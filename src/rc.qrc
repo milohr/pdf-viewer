@@ -8,10 +8,8 @@
         <file>assets/rotate_left.svg</file>
         <file>assets/rotate_right.svg</file>
 
-        <file>assets/page_fit-broad.svg</file>
-        <file>assets/page_fit-tall.svg</file>
-        <file>assets/screen_fit-broad.svg</file>
-        <file>assets/screen_fit-tall.svg</file>
+        <file>assets/width-fit.svg</file>
+        <file>assets/height-fit.svg</file>
 
         <file>assets/next.svg</file>
         <file>assets/prev.svg</file>
