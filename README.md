@@ -23,6 +23,10 @@ pdf-viewer <file> [-windowed]
     - `assets`: Resource files compiled into binary, like icons
 - `test-pdf`: Some Pdf files for testing
 
+## Documentation
+
+Run `doxygen` inside the project root directory to generate an HTML doumentation.
+
 ## Links
 - Poppler:
    - [Homepage](https://poppler.freedesktop.org/)
