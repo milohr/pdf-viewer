@@ -18,5 +18,7 @@
 
         <file>assets/hide_info.svg</file>
         <file>assets/show_info.svg</file>
+
+		<file>qml/ZoomSlider.qml</file>
     </qresource>
 </RCC>

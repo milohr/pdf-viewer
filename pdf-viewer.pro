@@ -1,6 +1,9 @@
-QT += core gui
+QT += core gui declarative
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 QMAKE_CXXFLAGS += -Wall -Wextra -Wpedantic
+
+# Import Qt Quick Controls 1:
+QML_IMPORT_PATH += /usr/lib/x86_64-linux-gnu/qt5/qml/
 
 TARGET = pdf-viewer
 TEMPLATE = app
