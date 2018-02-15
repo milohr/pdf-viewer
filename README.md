@@ -2,6 +2,8 @@
 
 A handy PDF Viewer tool using Qt 4 and the Poppler lib
 
+[Qt sandbox repository](https://github.com/jim-eckerlein/qml-example)
+
 ## Features
 
 - PDF files are rendered by the Poppler library
