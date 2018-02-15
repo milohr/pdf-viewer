@@ -26,24 +26,6 @@ private:
     /// Display current page and total number of pages.
     QLabel *mPages;
 
-    /// Zoom to screen-fit:
-    QPushButton *mScreenFit;
-
-    /// Zoom to page-fit:
-    QPushButton *mPageFit;
-
-    /// Go to next page:
-    QPushButton *mNext;
-
-    /// Go to previous page:
-    QPushButton *mPrev;
-
-    /// Rotate page counter-clockwise:
-    QPushButton *mRotateLeft;
-
-    /// Rotate page clockwise:
-    QPushButton *mRotateRight;
-
 signals:
 
     /// Emitted when screen-fit is requested:
