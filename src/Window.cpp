@@ -1,21 +1,27 @@
 #include <QKeyEvent>
 #include <QIcon>
+#include <QDeclarativeView>
+#include <QDeclarativeItem>
+#include <QDeclarativeContext>
 
 #include "Window.h"
-#include "PdfWidget.h"
+#include "PdfViewer.h"
 
 Window::Window(
-        QString const &pdfPath,
         QWidget *parent
 )
-    : QMainWindow(parent)
-    , mPdfWidget(new PdfWidget(pdfPath))
+    : QMainWindow{parent}
 {
     setWindowIcon(QIcon(":/img/icon_mres.png"));
-    setWindowTitle(mPdfWidget->documentTitle());
-    setCentralWidget(mPdfWidget);
+
+    qmlRegisterType<PdfViewer>("PdfViewer", 1, 0, "PdfViewer");
+
+    auto *view = new QDeclarativeView;
+    view->setSource({"qrc:/qml/main.qml"});
+    setCentralWidget(view);
 }
 
+/*
 void Window::keyPressEvent(
         QKeyEvent * const event
 )
@@ -78,3 +84,4 @@ void Window::keyPressEvent(
         break;
     }
 }
+*/

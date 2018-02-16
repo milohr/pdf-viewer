@@ -1,12 +1,14 @@
 #include <QApplication>
+#include <QMainWindow>
 
 #include "Window.h"
+#include "PdfViewer.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    Window w("test-pdf/Merged.pdf");
+    Window w;
     w.resize(800, 600);
     w.show();
 

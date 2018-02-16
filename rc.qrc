@@ -1,16 +1,14 @@
 <RCC>
     <qresource prefix="/">
+        <file>qml/main.qml</file>
         <file>img/icon.svg</file>
         <file>img/icon_hres.png</file>
         <file>img/icon_lres.png</file>
         <file>img/icon_mres.png</file>
-
         <file>img/rotate_left.svg</file>
         <file>img/rotate_right.svg</file>
-
         <file>img/width-fit.svg</file>
         <file>img/height-fit.svg</file>
-
         <file>img/next.svg</file>
         <file>img/prev.svg</file>
     </qresource>
