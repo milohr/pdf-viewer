@@ -1,11 +1,11 @@
 #pragma once
 
 #include <QWidget>
-#include <QScopedPointer>
 
-// TODO: move into source file, eventually use raw pointers
-// No forward-declare possible because of QScopedPointer
-#include <poppler/qt4/poppler-qt4.h>
+namespace Poppler {
+    class Document;
+    class Page;
+}
 
 /**
  * @brief The PdfWidget rendering the PDF
@@ -26,6 +26,8 @@ public:
             QString const &path,
             QWidget * const parent = nullptr
     );
+
+    ~PdfWidget() override;
 
 	/**
  	 * @return Minimum zoom.
@@ -155,12 +157,12 @@ private:
     /**
      * Internal document handle.
     */
-    QScopedPointer<Poppler::Document> mDocument;
+    Poppler::Document * const mDocument{nullptr};
 
     /**
      * Internal page handle of current page.
     */
-    QScopedPointer<Poppler::Page> mPage;
+    Poppler::Page *mPage{nullptr};
 
     /**
      * Index of current page.

@@ -1,9 +1,11 @@
+#include "PdfWidget.h"
+
 #include <QPainter>
 #include <QPaintEvent>
 #include <QResizeEvent>
 #include <QDebug>
 
-#include "PdfWidget.h"
+#include <poppler/qt4/poppler-qt4.h>
 
 PdfWidget::PdfWidget(
         QString const &path,
@@ -23,9 +25,17 @@ PdfWidget::PdfWidget(
     open();
 }
 
+PdfWidget::~PdfWidget()
+{
+    delete mPage;
+    delete mDocument;
+}
+
 void PdfWidget::open()
 {
-    mPage.reset(mDocument->page(mPageIndex));
+    delete mPage;
+    mPage = mDocument->page(mPageIndex);
+
     pageFit();
     emit pagesChanged(mDocument->numPages(), mPageIndex);
 }
