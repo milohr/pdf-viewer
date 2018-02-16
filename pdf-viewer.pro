@@ -16,22 +16,12 @@ RCC_DIR = build/rcc
 
 QMAKE_CXXFLAGS += -Wall -Wextra
 
-RESOURCES += src/rc.qrc
+RESOURCES += rc.qrc
 
 SOURCES += src/main.cpp \
     src/Window.cpp \
-    src/PdfWidget.cpp \
-    src/StatusBar.cpp \
-    src/CLOptions.cpp \
-    src/ZoomSlider.cpp \
-    src/HeaderBar.cpp \
-    src/PdfInfoWidget.cpp
+    src/PdfWidget.cpp
 
 HEADERS  += \
     src/Window.h \
-    src/PdfWidget.h \
-    src/StatusBar.h \
-    src/CLOptions.h \
-    src/ZoomSlider.h \
-    src/HeaderBar.h \
-    src/PdfInfoWidget.h
+    src/PdfWidget.h

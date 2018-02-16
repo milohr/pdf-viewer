@@ -1,9 +1,9 @@
-#ifndef PDFWIDGET_H
-#define PDFWIDGET_H
+#pragma once
 
 #include <QWidget>
 #include <QScopedPointer>
 
+// TODO: move into source file, eventually use raw pointers
 // No forward-declare possible because of QScopedPointer
 #include <poppler/qt4/poppler-qt4.h>
 
@@ -22,13 +22,10 @@ public:
      * @param parent Qt parent widget.
      * @throw std::runtime_error if file could not be opened.
      */
-    explicit PdfWidget(QString const &path, QWidget *parent = nullptr);
-
-    /**
-     * @return Get pointer to internal Poppler document, used by the pdf info widget.
-     * @note Since this class implements RAII, the pointer is guaranteed to be valid for the livetime of this instance.
-     */
-    Poppler::Document const * getPopplerDocument() const;
+    explicit PdfWidget(
+            QString const &path,
+            QWidget * const parent = nullptr
+    );
 
 	/**
  	 * @return Minimum zoom.
@@ -49,36 +46,40 @@ public:
 protected:
 
     /**
-     * @brief Since widget size has not its final value at construction time,
-     * it need to listen to new resizements to zoom to page fit.
-     */
-    virtual void resizeEvent(QResizeEvent *) override;
-
-    /**
      * @brief Renders the current visible rect of the Pdf.
      * @param event Paint event, telling the rectangular extent to render.
      */
-    virtual void paintEvent(QPaintEvent *event) override;
+    virtual void paintEvent(
+            QPaintEvent * const event
+    ) override;
 
     /**
      * @brief Listen to page grabbing start.
      */
-    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mousePressEvent(
+            QMouseEvent * const event
+    ) override;
 
     /**
      * @brief Listen to page grabbing end.
      */
-    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(
+            QMouseEvent * const event
+    ) override;
 
     /**
      * @brief Listen to page grabbing.
      */
-    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    virtual void mouseMoveEvent(
+            QMouseEvent * const event
+    ) override;
 
     /**
      * @brief Listen to mouse scrolls to zoom.
      */
-    virtual void wheelEvent(QWheelEvent *event) override;
+    virtual void wheelEvent(
+            QWheelEvent * const event
+    ) override;
 
 signals:
 
@@ -87,13 +88,18 @@ signals:
      * @param count Total count of pages.
      * @param currentPage Current page index.
      */
-    void pagesChanged(int const count, int const currentPage);
+    void pagesChanged(
+            int const count,
+            int const currentPage
+    );
 
     /**
      * @brief Emitted when zoom changed.
      * @param zoom New value of zoom.
      */
-    void zoomChanged(qreal const zoom);
+    void zoomChanged(
+            qreal const zoom
+    );
 
 public slots:
 
@@ -111,7 +117,9 @@ public slots:
      * @brief Set a specific zoom.
      * @param zoom Zoom to set.
      */
-    void setZoom(qreal zoom);
+    void setZoom(
+            qreal zoom
+    );
 
     /**
      * @brief Go back to previous page.
@@ -223,5 +231,3 @@ private:
     void open();
 
 };
-
-#endif // PDFWIDGET_H

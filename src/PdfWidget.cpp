@@ -5,7 +5,10 @@
 
 #include "PdfWidget.h"
 
-PdfWidget::PdfWidget(QString const &path, QWidget *parent)
+PdfWidget::PdfWidget(
+        QString const &path,
+        QWidget * const parent
+)
     : QWidget(parent)
     , mDocument(Poppler::Document::load(path))
     , mPath(path)
@@ -20,11 +23,6 @@ PdfWidget::PdfWidget(QString const &path, QWidget *parent)
     open();
 }
 
-Poppler::Document const *PdfWidget::getPopplerDocument() const
-{
-    return mDocument.data();
-}
-
 void PdfWidget::open()
 {
     mPage.reset(mDocument->page(mPageIndex));
@@ -32,36 +30,42 @@ void PdfWidget::open()
     emit pagesChanged(mDocument->numPages(), mPageIndex);
 }
 
-void PdfWidget::resizeEvent(QResizeEvent *)
-{
-    pageFit();
-}
-
-void PdfWidget::mousePressEvent(QMouseEvent *event)
+void PdfWidget::mousePressEvent(
+        QMouseEvent * const event
+)
 {
     mLastMousePosition = QPoint(event->x(), event->y());
     setCursor(Qt::ClosedHandCursor);
 }
 
-void PdfWidget::mouseReleaseEvent(QMouseEvent *event)
+void PdfWidget::mouseReleaseEvent(
+        QMouseEvent * const event
+)
 {
     mLastMousePosition = QPoint(event->x(), event->y());
     setCursor(Qt::ArrowCursor);
 }
 
-void PdfWidget::mouseMoveEvent(QMouseEvent *event)
+void PdfWidget::mouseMoveEvent(
+        QMouseEvent * const event
+)
 {
     pan(event->x() - mLastMousePosition.x(), event->y() - mLastMousePosition.y());
     mLastMousePosition = QPoint(event->x(), event->y());
     update();
 }
 
-void PdfWidget::wheelEvent(QWheelEvent *event)
+void PdfWidget::wheelEvent(
+        QWheelEvent * const event
+)
 {
     setZoom(mZoom * (1 + static_cast<qreal>(event->delta()) * 0.001));
 }
 
-void PdfWidget::pan(int const x, int const y)
+void PdfWidget::pan(
+        int const x,
+        int const y
+)
 {
     switch(mPageRotation) {
     case 0:
@@ -88,7 +92,9 @@ bool PdfWidget::isRotated() const
     return mPageRotation % 2 == 1;
 }
 
-void PdfWidget::paintEvent(QPaintEvent *event)
+void PdfWidget::paintEvent(
+        QPaintEvent * const event
+)
 {
     // If no page is set currently, skip:
     if(nullptr == mPage) return;
@@ -198,7 +204,9 @@ void PdfWidget::pageFit()
     emit zoomChanged(mZoom);
 }
 
-void PdfWidget::setZoom(qreal zoom)
+void PdfWidget::setZoom(
+        qreal zoom
+)
 {
     zoom = qBound(minZoom(), zoom, maxZoom());
     if(zoom == mZoom) return;
