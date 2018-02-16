@@ -7,6 +7,10 @@
 
 #include <poppler/qt4/poppler-qt4.h>
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Constructor and destructor
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 PdfWidget::PdfWidget(
         QString const &path,
         QWidget * const parent
@@ -30,6 +34,51 @@ PdfWidget::~PdfWidget()
     delete mPage;
     delete mDocument;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Document setter and getter
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+qreal
+PdfWidget::zoom() const
+{
+    return mZoom;
+}
+
+QString
+PdfWidget::documentTitle() const
+{
+    return mDocument->title();
+}
+
+QString
+PdfWidget::documentAuthor() const
+{
+    return mDocument->author();
+}
+
+QString
+PdfWidget::documentCreator() const
+{
+    return mDocument->creator();
+}
+
+QDateTime
+PdfWidget::documentCreationDate() const
+{
+    return mDocument->creationDate();
+}
+
+QDateTime
+PdfWidget::documentModificationDate() const
+{
+    return mDocument->modificationDate();
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Page navigation
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PdfWidget::open()
 {
@@ -60,16 +109,9 @@ void PdfWidget::mouseMoveEvent(
         QMouseEvent * const event
 )
 {
-    pan(event->x() - mLastMousePosition.x(), event->y() - mLastMousePosition.y());
+    pan(mLastMousePosition.x() - event->x(), mLastMousePosition.y() - event->y());
     mLastMousePosition = QPoint(event->x(), event->y());
     update();
-}
-
-void PdfWidget::wheelEvent(
-        QWheelEvent * const event
-)
-{
-    setZoom(mZoom * (1 + static_cast<qreal>(event->delta()) * 0.001));
 }
 
 void PdfWidget::pan(
@@ -79,20 +121,20 @@ void PdfWidget::pan(
 {
     switch(mPageRotation) {
     case 0:
-        mPanning.rx() += x;
-        mPanning.ry() += y;
-        break;
-    case 1:
-        mPanning.rx() += y;
-        mPanning.ry() -= x;
-        break;
-    case 2:
         mPanning.rx() -= x;
         mPanning.ry() -= y;
         break;
-    case 3:
+    case 1:
         mPanning.rx() -= y;
         mPanning.ry() += x;
+        break;
+    case 2:
+        mPanning.rx() += x;
+        mPanning.ry() += y;
+        break;
+    case 3:
+        mPanning.rx() += y;
+        mPanning.ry() -= x;
         break;
     }
 }

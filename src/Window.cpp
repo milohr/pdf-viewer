@@ -12,7 +12,7 @@ Window::Window(
     , mPdfWidget(new PdfWidget(pdfPath))
 {
     setWindowIcon(QIcon(":/img/icon_mres.png"));
-    //setWindowTitle("PdfViewer - " + QFileInfo(pdfPath).fileName()); // todo: pdf component provides document information
+    setWindowTitle(mPdfWidget->documentTitle());
     setCentralWidget(mPdfWidget);
 }
 
@@ -25,12 +25,12 @@ void Window::keyPressEvent(
         close();
         break;
 
-    case Qt::Key_D:
-        mPdfWidget->nextPage();
+    case Qt::Key_Y:
+        mPdfWidget->prevPage();
         break;
 
-    case Qt::Key_A:
-        mPdfWidget->prevPage();
+    case Qt::Key_X:
+        mPdfWidget->nextPage();
         break;
 
     case Qt::Key_Q:
@@ -41,12 +41,40 @@ void Window::keyPressEvent(
         mPdfWidget->rotateRight();
         break;
 
-    case Qt::Key_W:
+    case Qt::Key_R:
         mPdfWidget->pageFit();
         break;
 
-    case Qt::Key_S:
+    case Qt::Key_F:
         mPdfWidget->screenFit();
+        break;
+
+    case Qt::Key_Plus:
+        mPdfWidget->setZoom(mPdfWidget->zoom() * 1.1);
+        break;
+
+    case Qt::Key_Minus:
+        mPdfWidget->setZoom(mPdfWidget->zoom() * 0.9);
+        break;
+
+    case Qt::Key_W:
+        mPdfWidget->pan(0, -10);
+        mPdfWidget->update();
+        break;
+
+    case Qt::Key_S:
+        mPdfWidget->pan(0, 10);
+        mPdfWidget->update();
+        break;
+
+    case Qt::Key_A:
+        mPdfWidget->pan(-10, 0);
+        mPdfWidget->update();
+        break;
+
+    case Qt::Key_D:
+        mPdfWidget->pan(10, 0);
+        mPdfWidget->update();
         break;
     }
 }

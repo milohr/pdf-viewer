@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QDateTime>
 
 namespace Poppler {
     class Document;
@@ -28,6 +29,24 @@ public:
     );
 
     ~PdfWidget() override;
+
+    qreal
+    zoom() const;
+
+    QString
+    documentTitle() const;
+
+    QString
+    documentAuthor() const;
+
+    QString
+    documentCreator() const;
+
+    QDateTime
+    documentCreationDate() const;
+
+    QDateTime
+    documentModificationDate() const;
 
 	/**
  	 * @return Minimum zoom.
@@ -74,13 +93,6 @@ protected:
      */
     virtual void mouseMoveEvent(
             QMouseEvent * const event
-    ) override;
-
-    /**
-     * @brief Listen to mouse scrolls to zoom.
-     */
-    virtual void wheelEvent(
-            QWheelEvent * const event
     ) override;
 
 signals:
