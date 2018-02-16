@@ -13,11 +13,17 @@ Item {
         color: "#1fd174"
 
         Text {
-            text: "Hello world!"
+            id: text
+            text: pdf.statusMessage
             color: "white"
             font.bold: true
             font.pointSize: 27
             anchors.centerIn: parent
+        }
+
+        MouseArea {
+            id: mouseArea
+            anchors.fill: parent
         }
     }
 
@@ -28,7 +34,10 @@ Item {
         width: parent.width / 2
 
         PdfViewer {
-            //anchors.fill: parent
+            id: pdf
+            anchors.fill: parent
+            pageNumber: 4
+            source: "test-pdf/Merged.pdf"
         }
     }
 
