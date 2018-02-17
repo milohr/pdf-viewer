@@ -146,9 +146,9 @@ private:
 
     Status mStatus{NOT_OPEN};
     QString mSource;
-    Poppler::Document const *mDocument{nullptr};
+    Poppler::Document *mDocument{nullptr};
     Poppler::Page const *mPage{nullptr};
-    int mPageNumber{0};
+    int mPageNumber{-1};
     QPoint mPan;
     qreal mZoom{1};
     PageOrientation mPageOrientation{ZERO_PI};
@@ -181,12 +181,6 @@ private:
      */
     QSizeF
     rotatedPageSize() const;
-
-    /**
-     * @return Page size considering zoom.
-    */
-    QSizeF
-    zoomedPageSize() const;
 
     /**
      * @return A real page scalement, computed from the logical zoom.

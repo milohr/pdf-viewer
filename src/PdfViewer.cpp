@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QtCore/qmath.h>
 #include <QApplication>
+#include <QDesktopWidget>
 
 #include <QDebug>
 
@@ -25,6 +26,7 @@ PdfViewer::PdfViewer(
     : QDeclarativeItem{parent}
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
+    setSmooth(true);
 
     connect(this, SIGNAL(widthChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(heightChanged()), this, SLOT(renderPdf()));
@@ -80,6 +82,9 @@ PdfViewer::setSource(
         }
         setStatus(OK);
 
+        // Enable anti-aliased rendering in Poppler:
+        mDocument->setRenderHint(Poppler::Document::TextAntialiasing);
+
         // Reset page number to zero:
         setPageNumber(0);
     }
@@ -96,7 +101,7 @@ PdfViewer::setPageNumber(
         int const pageNumber
 )
 {
-    if((pageNumber != mPageNumber) && (mStatus == OK))
+    if((mStatus == OK) && (pageNumber != mPageNumber) && (pageNumber >= 0) && (pageNumber < mDocument->numPages()))
     {
         mPageNumber = pageNumber;
 
@@ -268,14 +273,6 @@ PdfViewer::rotatedPageSize() const
             : QSizeF{pageSize().height(), pageSize().width()};
 }
 
-QSizeF
-PdfViewer::zoomedPageSize() const {
-    return QSizeF{
-        mZoom * pageSize().width(),
-        mZoom * pageSize().height()
-    };
-}
-
 qreal
 PdfViewer::convertZoomToScale() const
 {
@@ -287,11 +284,11 @@ PdfViewer::fitScale() const
 {
     if(rotatedPageSize().height() > rotatedPageSize().width())
     {
-        return height() / rotatedPageSize().height();
+        return (height() / rotatedPageSize().height());
     }
     else
     {
-        return width() / rotatedPageSize().width();
+        return (width() / rotatedPageSize().width());
     }
 }
 
@@ -325,9 +322,54 @@ PdfViewer::paint(
         QWidget * const
 )
 {
-    (void)painter;
-    qDebug() << "paint";
+    // If no page is set currently, skip:
+    if(!mPage)
+    {
+        return;
+    }
 
+    qDebug() << "paint: ";
+
+    qreal scale = convertZoomToScale();
+    qDebug() << "scale: " << scale;
+
+    // Image dimensions the image would have if fully rendered by Poppler:
+    qreal const imageHeight = scale * pageSize().height();
+    qreal const imageWidth = scale * pageSize().width();
+
+    // A rect completely containing the Pdf:
+    QRectF const pdfRect{0, 0, imageWidth, imageHeight};
+
+    // Calculate a transformation matrix based on rotation, scaling and grabbing:
+    QTransform transform;
+    transform.translate(width() / 2, height() / 2);
+    transform.rotateRadians(pageRotation());
+    transform.translate(mPan.x(), mPan.y());
+    transform.translate(-imageWidth / 2, -imageHeight / 2);
+
+    // Now figure out which rect a currently visible to the user by inverting that transform matrix:
+    QRectF const rect{0, 0, boundingRect().width(), boundingRect().height()};
+    QRectF const visiblePdf = transform.inverted(nullptr).mapRect(rect).intersected(pdfRect);
+
+    qDebug() << "Visible rect:" << visiblePdf;
+
+    QImage const image = mPage->renderToImage(
+                72.0 * scale,
+                72.0 * scale,
+                visiblePdf.x(),
+                visiblePdf.y(),
+                visiblePdf.width(),
+                visiblePdf.height());
+
+    // Painter should start drawing the image at the current clipped visible rect position:
+    transform.translate(visiblePdf.x(), visiblePdf.y());
+    transform.translate(boundingRect().width(), 0);
+    painter->setTransform(transform);
+
+    // Draw rendered page itself:
+    painter->drawImage(0, 0, image);
+
+    // Draw page border:
     painter->setPen(Qt::black);
-    painter->drawRoundedRect(boundingRect(), 10, 10);
+    painter->drawRect(QRect{0, 0, image.width() - 1, image.height() - 1});
 }
