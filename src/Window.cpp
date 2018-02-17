@@ -18,6 +18,7 @@ Window::Window(
 
     auto *view = new QDeclarativeView;
     view->setSource({"qrc:/qml/main.qml"});
+    view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     setCentralWidget(view);
 }
 

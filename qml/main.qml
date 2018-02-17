@@ -14,11 +14,14 @@ Item {
 
         Text {
             id: text
-            text: pdf.statusMessage
+            text: pdf.documentTitle
+            wrapMode: Text.Wrap
             color: "white"
             font.bold: true
             font.pointSize: 27
             anchors.centerIn: parent
+            width: parent.width
+            horizontalAlignment: Text.AlignHCenter
         }
 
         MouseArea {
