@@ -1,4 +1,4 @@
-# ![Icon](src/assets/icon_mres.png) PDF Viewer
+# ![Icon](img/icon_lres.png) PDF Viewer
 
 A handy PDF Viewer tool using Qt 4 and the Poppler lib
 
