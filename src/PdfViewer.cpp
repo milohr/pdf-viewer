@@ -282,7 +282,6 @@ PdfViewer::convertZoomToScale() const
 qreal
 PdfViewer::fitScale() const
 {
-    // TODO: what if page is wider than tall?
     qreal const pageWidth = rotatedPageSize().width();
     qreal const pageHeight = rotatedPageSize().height();
     qreal const pageAspect = pageWidth / pageHeight;
@@ -300,13 +299,17 @@ PdfViewer::fitScale() const
 qreal
 PdfViewer::coverScale() const
 {
-    if(rotatedPageSize().height() > rotatedPageSize().width())
+    qreal const pageWidth = rotatedPageSize().width();
+    qreal const pageHeight = rotatedPageSize().height();
+    qreal const pageAspect = pageWidth / pageHeight;
+
+    if((width()) > height() * pageAspect)
     {
-        return width() / rotatedPageSize().width();
+        return width() / pageWidth;
     }
     else
     {
-        return height() / rotatedPageSize().height();
+        return height() / pageHeight;
     }
 }
 

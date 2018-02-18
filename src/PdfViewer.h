@@ -188,9 +188,15 @@ private:
     qreal
     convertZoomToScale() const;
 
+    /**
+     * @return The scale to which the page is guaranteed to be completely observable. This is, by defintion, a zoom of 1.
+     */
     qreal
     fitScale() const;
 
+    /**
+     * @return The scale to which the page is guaranteed to completely cover its bounding rect. This is, by defintion, a zoom > 1.
+     */
     qreal
     coverScale() const;
 
