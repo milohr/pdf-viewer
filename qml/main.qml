@@ -14,7 +14,7 @@ Item {
 
         Text {
             id: text
-            text: pdf.documentTitle
+            text: pdf.zoom
             wrapMode: Text.Wrap
             color: "white"
             font.bold: true
