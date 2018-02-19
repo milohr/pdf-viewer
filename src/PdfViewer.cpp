@@ -327,12 +327,6 @@ PdfViewer::mouseMoveEvent(
 /////////////////////        Helper functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool
-PdfViewer::hasRotatedOrientation() const
-{
-    return (mPageOrientation == HALF_PI) || (mPageOrientation == ONE_HALF_PI);
-}
-
 qreal
 PdfViewer::pageRotation()
 {
@@ -340,17 +334,11 @@ PdfViewer::pageRotation()
 }
 
 QSizeF
-PdfViewer::pageSize() const
+PdfViewer::pageQuad() const
 {
-    return mPage->pageSizeF();
-}
-
-QSizeF
-PdfViewer::rotatedPageSize() const
-{
-    return !hasRotatedOrientation()
+    return (mPageOrientation == ZERO_PI) || (mPageOrientation == ONE_PI)
             ? mPage->pageSize()
-            : QSizeF{pageSize().height(), pageSize().width()};
+            : QSizeF(mPage->pageSize().height(), mPage->pageSize().width());
 }
 
 qreal
@@ -362,8 +350,8 @@ PdfViewer::convertZoomToScale() const
 qreal
 PdfViewer::fitScale() const
 {
-    qreal const pageWidth = rotatedPageSize().width();
-    qreal const pageHeight = rotatedPageSize().height();
+    qreal const pageWidth = pageQuad().width();
+    qreal const pageHeight = pageQuad().height();
     qreal const pageAspect = pageWidth / pageHeight;
 
     if((width()) > height() * pageAspect)
@@ -379,8 +367,8 @@ PdfViewer::fitScale() const
 qreal
 PdfViewer::coverScale() const
 {
-    qreal const pageWidth = rotatedPageSize().width();
-    qreal const pageHeight = rotatedPageSize().height();
+    qreal const pageWidth = pageQuad().width();
+    qreal const pageHeight = pageQuad().height();
     qreal const pageAspect = pageWidth / pageHeight;
 
     if((width()) > height() * pageAspect)
@@ -419,8 +407,8 @@ PdfViewer::paint(
     qreal scale = convertZoomToScale();
 
     // Image dimensions the image would have if fully rendered by Poppler:
-    qreal const imageHeight = scale * rotatedPageSize().height();
-    qreal const imageWidth = scale * rotatedPageSize().width();
+    qreal const imageHeight = scale * pageQuad().height();
+    qreal const imageWidth = scale * pageQuad().width();
 
     // A rect completely containing the Pdf:
     QRectF const pdfRect{0, 0, imageWidth, imageHeight};

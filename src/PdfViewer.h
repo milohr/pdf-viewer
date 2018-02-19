@@ -199,28 +199,16 @@ private:
     );
 
     /**
-     * @return Whether the page has an orientation changing it's bounds, i.e. rotated by 0.5π or 1.5π.
-     */
-    bool
-    hasRotatedOrientation() const;
-
-    /**
      * @return Page orientation expressed in radians.
      */
     qreal
     pageRotation();
 
     /**
-     * @return Size of page.
-     */
-    QSizeF
-    pageSize() const;
-
-    /**
      * @return Size of page considering rotation, so width and height might be swapped.
      */
     QSizeF
-    rotatedPageSize() const;
+    pageQuad() const;
 
     /**
      * @return A real page scalement, computed from the logical zoom.
