@@ -29,6 +29,8 @@ PdfViewer::PdfViewer(
 
     connect(this, SIGNAL(widthChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(heightChanged()), this, SLOT(renderPdf()));
+    connect(this, SIGNAL(widthChanged()), this, SIGNAL(coverZoomChanged()));
+    connect(this, SIGNAL(heightChanged()), this, SIGNAL(coverZoomChanged()));
     connect(this, SIGNAL(pageNumberChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(panChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(zoomChanged()), this, SLOT(renderPdf()));

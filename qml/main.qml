@@ -119,12 +119,30 @@ Item {
                 text: "Fit zoom"
                 textColor: "white"
                 backgroundColor: "#1fd174"
-                onClicked: pdf.zoom = 1
+                onClicked: zoomToFitAnimation.start()
+
+                NumberAnimation {
+                    id: zoomToFitAnimation
+                    target: pdf
+                    property: "zoom"
+                    to: 1
+                    duration: 200
+                    easing.type: Easing.InOutQuad;
+                }
             }
 
             Button {
-                text: "Cover zoom"
-                onClicked: pdf.zoom = pdf.coverZoom
+                text: "Cover zoom "
+                onClicked: zoomToCoverAnimation.start()
+
+                NumberAnimation {
+                    id: zoomToCoverAnimation
+                    target: pdf
+                    property: "zoom"
+                    to: pdf.coverZoom
+                    duration: 200
+                    easing.type: Easing.InOutQuad;
+                }
             }
 
             Button {
@@ -141,7 +159,7 @@ Item {
                 text: pdf.documentTitle
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                verticalAlignment: Text.AlignVCenter;
+                verticalAlignment: Text.AlignVCenter
                 font.bold: true
                 visible: pdf.status == PdfViewer.OK
             }
@@ -150,7 +168,7 @@ Item {
                 text: "(" + pdf.source + ")"
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                verticalAlignment: Text.AlignVCenter;
+                verticalAlignment: Text.AlignVCenter
                 opacity: 0.5
                 font.bold: true
                 visible: pdf.status == PdfViewer.OK
@@ -162,7 +180,7 @@ Item {
                 visible: pdf.status != PdfViewer.OK
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                verticalAlignment: Text.AlignVCenter;
+                verticalAlignment: Text.AlignVCenter
             }
         }
 
@@ -173,6 +191,15 @@ Item {
             anchors.right: parent.right
             anchors.margins: 10
             spacing: 10
+
+            Text {
+                text: Math.round(pdf.zoom * 100) + "%"
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                verticalAlignment: Text.AlignVCenter
+                opacity: 0.5
+                font.bold: true
+            }
 
             Button {
                 text: "Previous"
