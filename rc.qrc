@@ -1,6 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>qml/main.qml</file>
+        <file>qml/Button.qml</file>
+        <file>qml/Circle.qml</file>
+        <file>qml/Slider.qml</file>
         <file>img/icon.svg</file>
         <file>img/icon_hres.png</file>
         <file>img/icon_lres.png</file>

@@ -1,40 +1,17 @@
 import QtQuick 1.0
 import PdfViewer 1.0
 
+// Theme color: #1fd174
+
 Item {
     width: 800
     height: 600
 
     Rectangle {
         anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        width: parent.width / 2
-        color: "#1fd174"
-
-        Text {
-            text: pdf.pageNumber
-            id: text
-            wrapMode: Text.Wrap
-            color: "white"
-            font.bold: true
-            font.pointSize: 27
-            anchors.centerIn: parent
-            width: parent.width
-            horizontalAlignment: Text.AlignHCenter
-        }
-
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-        }
-    }
-
-    Rectangle {
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        anchors.bottom: buttons.top
         anchors.right: parent.right
-        width: parent.width / 2
+        anchors.left: parent.left
 
         PdfViewer {
             id: pdf
@@ -100,6 +77,84 @@ Item {
                 }
             }
         }
+    }
+
+    Slider {
+        anchors.top: parent.top
+        anchors.bottom: buttons.top
+        anchors.right: parent.right
+        anchors.margins: 5
+        color: "#1fd174"
+    }
+
+    Rectangle {
+         anchors.left: parent.left
+         anchors.right: parent.right
+         anchors.bottom: buttons.top
+         height: 10
+         gradient: Gradient {
+             GradientStop { position: 0.0; color: "#00bbbbbb" }
+             GradientStop { position: 1.0; color: "#bbb" }
+         }
+     }
+
+    Rectangle {
+        id: buttons
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: buttonRow.implicitHeight  + 2 * buttonRow.anchors.margins
+        color: "#fff"
+
+        Row {
+            anchors.fill: parent
+            anchors.margins: 10
+            id: buttonRow
+            spacing: 10
+
+            Button {
+                text: "Fit zoom"
+                textColor: "white"
+                backgroundColor: "#1fd174"
+                onClicked: pdf.zoom = 1
+            }
+
+            Button {
+                text: "Cover zoom"
+                onClicked: pdf.zoom = pdf.coverZoom
+            }
+
+            Button {
+                text: "↶"
+                onClicked: pdf.pageOrientation -= PdfViewer.HALF_PI;
+            }
+
+            Button {
+                text: "↷"
+                onClicked: pdf.pageOrientation += PdfViewer.HALF_PI;
+            }
+        }
+
+        Row {
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            anchors.margins: 10
+            spacing: 10
+
+            Button {
+                text: "Previous"
+                onClicked: pdf.pageNumber--;
+            }
+
+            Button {
+                text: "Next"
+                textColor: "white"
+                backgroundColor: "#1fd174"
+                onClicked: pdf.pageNumber++;
+            }
+        }
+
     }
 
 }
