@@ -416,3 +416,15 @@ PdfViewer::paint(
     painter->setPen(Qt::black);
     painter->drawRect(QRect{0, 0, image.width() - 1, image.height() - 1});
 }
+
+void
+PdfViewer::rotatePageClockwise()
+{
+    setPageOrientation(static_cast<PageOrientation>(mPageOrientation + HALF_PI));
+}
+
+void
+PdfViewer::rotatePageCounterClockwise()
+{
+    setPageOrientation(static_cast<PageOrientation>(mPageOrientation - HALF_PI));
+}

@@ -101,7 +101,7 @@ Item {
          height: 10
          gradient: Gradient {
              GradientStop { position: 0.0; color: "#00000000" }
-             GradientStop { position: 1.0; color: "#aaa" }
+             GradientStop { position: 1.0; color: "#55000000" }
          }
      }
 
@@ -154,12 +154,12 @@ Item {
 
             Button {
                 text: "↶"
-                onClicked: pdf.pageOrientation -= PdfViewer.HALF_PI;
+                onClicked: pdf.rotatePageCounterClockwise();
             }
 
             Button {
                 text: "↷"
-                onClicked: pdf.pageOrientation += PdfViewer.HALF_PI;
+                onClicked: pdf.rotatePageClockwise();
             }
 
             Text {

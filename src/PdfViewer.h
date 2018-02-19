@@ -54,18 +54,8 @@ public:
     QString
     source() const;
 
-    void
-    setSource(
-            QString const &source
-    );
-
     int
     pageNumber() const;
-
-    void
-    setPageNumber(
-            int pageNumber
-    );
 
     Status
     status() const;
@@ -91,37 +81,49 @@ public:
     QPoint
     pan() const;
 
+    qreal
+    zoom() const;
+
+    qreal
+    maxZoom() const;
+
+    PageOrientation
+    pageOrientation() const;
+
+    qreal
+    coverZoom() const;
+
+public slots:
+
+    void
+    setSource(
+            QString const &source
+    );
+
+    void
+    setPageNumber(
+            int pageNumber
+    );
+
     void
     setPan(
             QPoint const pan
     );
-
-    qreal
-    zoom() const;
 
     void
     setZoom(
             qreal zoom
     );
 
-    qreal
-    maxZoom() const;
-
     void
     setMaxZoom(
             qreal maxZoom
     );
 
-    PageOrientation
-    pageOrientation() const;
-
     void
     setPageOrientation(
             PageOrientation orientation
     );
-
-    qreal
-    coverZoom() const;
 
     void
     paint(
@@ -129,6 +131,12 @@ public:
             QStyleOptionGraphicsItem const * const option,
             QWidget * const widget
     ) override;
+
+    Q_INVOKABLE void
+    rotatePageClockwise();
+
+    Q_INVOKABLE void
+    rotatePageCounterClockwise();
 
 signals:
 
