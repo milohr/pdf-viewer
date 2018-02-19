@@ -353,11 +353,7 @@ PdfViewer::paint(
         return;
     }
 
-    qDebug() << "paint: ";
-
     qreal scale = convertZoomToScale();
-    qDebug() << "scale: " << scale;
-    qDebug() << "rotation: " << pageRotation() / M_PI;
 
     // Image dimensions the image would have if fully rendered by Poppler:
     qreal const imageHeight = scale * rotatedPageSize().height();
