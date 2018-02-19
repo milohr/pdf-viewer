@@ -4,7 +4,6 @@
 #include <QtCore/qmath.h>
 #include <QApplication>
 #include <QDesktopWidget>
-
 #include <QDebug>
 
 #include <poppler/qt4/poppler-qt4.h>
@@ -98,10 +97,11 @@ PdfViewer::pageNumber() const
 
 void
 PdfViewer::setPageNumber(
-        int const pageNumber
+        int pageNumber
 )
 {
-    if((mStatus == OK) && (pageNumber != mPageNumber) && (pageNumber >= 0) && (pageNumber < mDocument->numPages()))
+    pageNumber = qBound(0, pageNumber, mDocument->numPages() - 1);
+    if((mStatus == OK) && (pageNumber != mPageNumber))
     {
         mPageNumber = pageNumber;
 
@@ -215,10 +215,11 @@ PdfViewer::zoom() const
 
 void
 PdfViewer::setZoom(
-        qreal const zoom
+        qreal zoom
 )
 {
-    if(mZoom != zoom && zoom >= 1)
+    zoom = qMax(1.0, zoom);
+    if(mZoom != zoom)
     {
         mZoom = zoom;
         emit zoomChanged();

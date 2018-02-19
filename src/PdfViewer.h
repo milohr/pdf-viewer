@@ -62,7 +62,7 @@ public:
 
     void
     setPageNumber(
-            int const pageNumber
+            int pageNumber
     );
 
     Status
@@ -99,7 +99,7 @@ public:
 
     void
     setZoom(
-            qreal const zoom
+            qreal zoom
     );
 
     PageOrientation

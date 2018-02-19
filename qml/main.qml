@@ -40,7 +40,7 @@ Item {
             id: pdf
             anchors.fill: parent
             pageNumber: 4
-            source: "test-pdf/Merged.pdf"
+            source: "test-pdf/Demo.pdf"
         }
     }
 
