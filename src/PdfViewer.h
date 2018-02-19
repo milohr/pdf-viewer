@@ -22,7 +22,7 @@ class PdfViewer
     Q_PROPERTY(QString documentCreator READ documentCreator NOTIFY sourceChanged)
     Q_PROPERTY(QDateTime documentCreationDate READ documentCreationDate NOTIFY sourceChanged)
     Q_PROPERTY(QDateTime documentModificationDate READ documentModificationDate NOTIFY sourceChanged)
-    Q_PROPERTY(QPoint pan READ pan WRITE setPan NOTIFY panChanged)
+    Q_PROPERTY(QPointF pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(qreal zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
     Q_PROPERTY(qreal maxZoom READ maxZoom WRITE setMaxZoom NOTIFY maxZoomChanged)
     Q_PROPERTY(PageOrientation pageOrientation READ pageOrientation WRITE setPageOrientation NOTIFY pageOrientationChanged)
@@ -78,7 +78,7 @@ public:
     QDateTime
     documentModificationDate() const;
 
-    QPoint
+    QPointF
     pan() const;
 
     qreal
@@ -92,6 +92,18 @@ public:
 
     qreal
     coverZoom() const;
+
+protected:
+
+    void
+    mousePressEvent(
+            QGraphicsSceneMouseEvent * const event
+    ) override;
+
+    void
+    mouseMoveEvent(
+            QGraphicsSceneMouseEvent * const event
+    ) override;
 
 public slots:
 
@@ -107,7 +119,7 @@ public slots:
 
     void
     setPan(
-            QPoint const pan
+            QPointF const pan
     );
 
     void
@@ -176,7 +188,7 @@ private:
     Poppler::Document *mDocument{nullptr};
     Poppler::Page const *mPage{nullptr};
     int mPageNumber{-1};
-    QPoint mPan;
+    QPointF mPan;
     qreal mZoom{1};
     qreal mMaxZoom{6};
     PageOrientation mPageOrientation{ZERO_PI};

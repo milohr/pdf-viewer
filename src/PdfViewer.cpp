@@ -2,8 +2,7 @@
 
 #include <QPainter>
 #include <QtCore/qmath.h>
-#include <QApplication>
-#include <QDesktopWidget>
+#include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 
 #include <poppler/qt4/poppler-qt4.h>
@@ -23,7 +22,12 @@ PdfViewer::PdfViewer(
     : QDeclarativeItem{parent}
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
+    setFlag(QGraphicsItem::ItemIsFocusable, true);
+    setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
+    setAcceptTouchEvents(true);
+    setAcceptHoverEvents(false);
     setSmooth(false);
+    setFocus(true);
 
     connect(this, SIGNAL(widthChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(heightChanged()), this, SLOT(renderPdf()));
@@ -199,7 +203,7 @@ PdfViewer::documentModificationDate() const
     return mDocument ? mDocument->modificationDate() : QDateTime{};
 }
 
-QPoint
+QPointF
 PdfViewer::pan() const
 {
     return mPan;
@@ -207,7 +211,7 @@ PdfViewer::pan() const
 
 void
 PdfViewer::setPan(
-        QPoint const pan
+        QPointF const pan
 )
 {
     if(mPan != pan)
@@ -283,6 +287,40 @@ qreal
 PdfViewer::coverZoom() const
 {
     return coverScale() / fitScale();
+}
+
+void
+PdfViewer::rotatePageClockwise()
+{
+    setPageOrientation(static_cast<PageOrientation>(mPageOrientation + HALF_PI));
+}
+
+void
+PdfViewer::rotatePageCounterClockwise()
+{
+    setPageOrientation(static_cast<PageOrientation>(mPageOrientation - HALF_PI));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Panning
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void
+PdfViewer::mousePressEvent(
+        QGraphicsSceneMouseEvent * const
+)
+{
+    // Simply grab mouse focus
+}
+
+void
+PdfViewer::mouseMoveEvent(
+        QGraphicsSceneMouseEvent * const event
+)
+{
+    QPointF const delta = event->pos() - event->lastPos();
+    mPan += delta;
+    renderPdf();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -415,16 +453,4 @@ PdfViewer::paint(
     // Draw page border:
     painter->setPen(Qt::black);
     painter->drawRect(QRect{0, 0, image.width() - 1, image.height() - 1});
-}
-
-void
-PdfViewer::rotatePageClockwise()
-{
-    setPageOrientation(static_cast<PageOrientation>(mPageOrientation + HALF_PI));
-}
-
-void
-PdfViewer::rotatePageCounterClockwise()
-{
-    setPageOrientation(static_cast<PageOrientation>(mPageOrientation - HALF_PI));
 }
