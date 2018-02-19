@@ -103,6 +103,11 @@ PdfViewer::setPageNumber(
         int pageNumber
 )
 {
+    if(!mDocument)
+    {
+        return;
+    }
+
     pageNumber = qBound(0, pageNumber, mDocument->numPages() - 1);
     if((mStatus == OK) && (pageNumber != mPageNumber))
     {
@@ -166,31 +171,31 @@ PdfViewer::setStatus(
 QString
 PdfViewer::documentTitle() const
 {
-    return mDocument->title();
+    return mDocument ? mDocument->title() : "";
 }
 
 QString
 PdfViewer::documentAuthor() const
 {
-    return mDocument->author();
+    return mDocument ? mDocument->author() : "";
 }
 
 QString
 PdfViewer::documentCreator() const
 {
-    return mDocument->creator();
+    return mDocument ? mDocument->creator() : "";
 }
 
 QDateTime
 PdfViewer::documentCreationDate() const
 {
-    return mDocument->creationDate();
+    return mDocument ? mDocument->creationDate() : QDateTime{};
 }
 
 QDateTime
 PdfViewer::documentModificationDate() const
 {
-    return mDocument->modificationDate();
+    return mDocument ? mDocument->modificationDate() : QDateTime{};
 }
 
 QPoint

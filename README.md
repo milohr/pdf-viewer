@@ -1,41 +1,18 @@
 # ![Icon](img/icon_lres.png) PDF Viewer
 
-A handy PDF Viewer tool using Qt 4 and the Poppler lib
-
-[Qt sandbox repository](https://github.com/jim-eckerlein/qml-example)
+A QML QtQuick 1 component able to display PDF files.
 
 ## Features
 
+- The bare component on itself does not impose any UI visuals at all, it is solely responsible for PDF rendering.
 - PDF files are rendered by the Poppler library
 - Only visible viewport quad is really rendered
 - Pan, rotate and zoom into pages
 - Display document information
 
-## Command-line syntax
-
-```sh
-pdf-viewer <file> [-windowed]
-```
-- `file`: Relative or absolute path to file to display.
-- `-windowed`: If given, the app does not start as fullscreen
-
-Sample call:
-
-    pdf-viewer test-pdf/Demo.pdf -windowed
-
-## Directory structure
-
-- `src:` Source files
-    - `assets`: Resource files compiled into binary, like icons
-- `test-pdf`: Some Pdf files for testing
-
 ## Documentation
+
+*Dev note: No documentation yet*
 
 Run `doxygen` inside the project root directory to generate an HTML documentation.
 
-## Links
-- Poppler:
-   - [Homepage](https://poppler.freedesktop.org/)
-   - [Tutorial](https://people.freedesktop.org/~aacid/docs/qt4/)
-   - [Repository](https://cgit.freedesktop.org/poppler/poppler/tree/)
-   - [License](https://cgit.freedesktop.org/poppler/poppler/tree/COPYING)

@@ -103,13 +103,16 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        height: buttonRow.implicitHeight  + 2 * buttonRow.anchors.margins
+        height: buttonRowLeft.implicitHeight  + 2 * buttonRowLeft.anchors.margins
         color: "#fff"
 
         Row {
-            anchors.fill: parent
+            id: buttonRowLeft
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: buttonRowRight.left
             anchors.margins: 10
-            id: buttonRow
             spacing: 10
 
             Button {
@@ -133,9 +136,38 @@ Item {
                 text: "↷"
                 onClicked: pdf.pageOrientation += PdfViewer.HALF_PI;
             }
+
+            Text {
+                text: pdf.documentTitle
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                verticalAlignment: Text.AlignVCenter;
+                font.bold: true
+                visible: pdf.status == PdfViewer.OK
+            }
+
+            Text {
+                text: "(" + pdf.source + ")"
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                verticalAlignment: Text.AlignVCenter;
+                opacity: 0.5
+                font.bold: true
+                visible: pdf.status == PdfViewer.OK
+            }
+
+            Text {
+                text: "Status: " + pdf.statusMessage
+                font.bold: true
+                visible: pdf.status != PdfViewer.OK
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                verticalAlignment: Text.AlignVCenter;
+            }
         }
 
         Row {
+            id: buttonRowRight
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.right: parent.right
