@@ -12,8 +12,6 @@
  * TODO:
  *
  *
- * - use QTransform::rotateRadians()
- * - a zoom of 1 means fit-zoom, which is the smallest allowed zoom
  * - take a look at scroll()
  *
  */
@@ -230,11 +228,30 @@ PdfViewer::setZoom(
         qreal zoom
 )
 {
-    zoom = qMax(1.0, zoom);
+    zoom = qBound(1.0, zoom, mMaxZoom);
     if(mZoom != zoom)
     {
         mZoom = zoom;
         emit zoomChanged();
+    }
+}
+
+qreal
+PdfViewer::maxZoom() const
+{
+    return mMaxZoom;
+}
+
+void
+PdfViewer::setMaxZoom(
+        qreal maxZoom
+)
+{
+    maxZoom = qMax(1.0, maxZoom);
+    if(mMaxZoom != maxZoom)
+    {
+        mMaxZoom = maxZoom;
+        emit maxZoomChanged();
     }
 }
 

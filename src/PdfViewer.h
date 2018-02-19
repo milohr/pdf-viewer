@@ -24,6 +24,7 @@ class PdfViewer
     Q_PROPERTY(QDateTime documentModificationDate READ documentModificationDate NOTIFY sourceChanged)
     Q_PROPERTY(QPoint pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(qreal zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
+    Q_PROPERTY(qreal maxZoom READ maxZoom WRITE setMaxZoom NOTIFY maxZoomChanged)
     Q_PROPERTY(PageOrientation pageOrientation READ pageOrientation WRITE setPageOrientation NOTIFY pageOrientationChanged)
     Q_PROPERTY(qreal coverZoom READ coverZoom NOTIFY coverZoomChanged)
 
@@ -103,16 +104,24 @@ public:
             qreal zoom
     );
 
+    qreal
+    maxZoom() const;
+
+    void
+    setMaxZoom(
+            qreal maxZoom
+    );
+
     PageOrientation
     pageOrientation() const;
-
-    qreal
-    coverZoom() const;
 
     void
     setPageOrientation(
             PageOrientation orientation
     );
+
+    qreal
+    coverZoom() const;
 
     void
     paint(
@@ -144,6 +153,9 @@ signals:
     void
     coverZoomChanged();
 
+    void
+    maxZoomChanged();
+
 private slots:
 
     void
@@ -158,6 +170,7 @@ private:
     int mPageNumber{-1};
     QPoint mPan;
     qreal mZoom{1};
+    qreal mMaxZoom{6};
     PageOrientation mPageOrientation{ZERO_PI};
 
     void

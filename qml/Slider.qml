@@ -26,6 +26,8 @@ Item {
       */
     property color lineColor: "#ddd"
 
+    property alias value: draggerControl.value
+
     id: root
     width: radiusOuter
 
@@ -37,6 +39,7 @@ Item {
         id: box
         anchors.fill: parent
         anchors.margins: (root.radiusOuter - root.radiusDefault) / 2
+        onHeightChanged: draggerControl.valueChanged()
 
         /**
           * The vertical line the dragger is dragged along.
@@ -62,6 +65,16 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             width: root.radiusDefault
             height: width
+
+            property real value: 0
+
+            onYChanged: {
+                value = 1 - (y / draggerMouseArea.drag.maximumY);
+            }
+
+            onValueChanged: {
+                y = (1 - value) * draggerMouseArea.drag.maximumY;
+            }
 
             MouseArea {
                 id: draggerMouseArea

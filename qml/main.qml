@@ -19,6 +19,9 @@ Item {
             pageNumber: 0
             source: "test-pdf/Merged.pdf"
             focus: true
+            maxZoom: 3
+
+            onZoomChanged: zoomSlider.value = (zoom - 1) / (maxZoom - 1);
 
             Keys.onPressed: {
 
@@ -80,11 +83,15 @@ Item {
     }
 
     Slider {
+        id: zoomSlider
         anchors.top: parent.top
         anchors.bottom: buttons.top
         anchors.right: parent.right
         anchors.margins: 5
         color: "#1fd174"
+        value: 0
+
+        onValueChanged: pdf.zoom = 1 + (pdf.maxZoom - 1) * value;
     }
 
     Rectangle {
@@ -93,8 +100,8 @@ Item {
          anchors.bottom: buttons.top
          height: 10
          gradient: Gradient {
-             GradientStop { position: 0.0; color: "#00bbbbbb" }
-             GradientStop { position: 1.0; color: "#bbb" }
+             GradientStop { position: 0.0; color: "#00000000" }
+             GradientStop { position: 1.0; color: "#aaa" }
          }
      }
 
