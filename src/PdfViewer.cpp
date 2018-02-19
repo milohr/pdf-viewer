@@ -7,15 +7,6 @@
 
 #include <poppler/qt4/poppler-qt4.h>
 
-/*
- * TODO:
- *
- *
- * - take a look at scroll()
- *
- */
-
-
 PdfViewer::PdfViewer(
         QDeclarativeItem * const parent
 )
@@ -318,10 +309,21 @@ PdfViewer::mouseMoveEvent(
         QGraphicsSceneMouseEvent * const event
 )
 {
-    QPointF const delta = event->pos() - event->lastPos();
-    mPan += delta;
+    auto const delta = event->pos() - event->lastPos();
+    auto const page = pageQuad() * convertZoomToScale();
+    qreal const panMargin = 0.9;
+
+    mPan.setX(qBound(
+                  -page.width() * panMargin,
+                  (mPan + delta).x(),
+                  width() - page.width() * (1 - panMargin)));
+
+    mPan.setY(qBound(
+                  -page.height() * panMargin,
+                  (mPan + delta).y(),
+                  height() - page.height() * (1 - panMargin)));
+
     renderPdf();
-    qDebug() << (pageQuad().width() - mPan.x());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -417,7 +419,8 @@ PdfViewer::paint(
     // Calculate a transformation matrix based on rotation, scaling and grabbing:
     QTransform const transform{QTransform{}
             .translate(mPan.x(), mPan.y())
-            .translate((width() - imageWidth) / 2, (height() - imageHeight) / 2)};
+            //.translate((width() - imageWidth) / 2, (height() - imageHeight) / 2) // TODO: cleanup
+    };
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
     QRectF const rect{0, 0, boundingRect().width(), boundingRect().height()};
