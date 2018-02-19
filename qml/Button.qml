@@ -44,7 +44,7 @@ Item {
                     duration: 150
                     properties: "width"
                     from: 0
-                    to: button.width
+                    to: Math.max(button.width, button.height)
                     easing.type: Easing.OutCirc
                     easing.amplitude: 2.0
                 }

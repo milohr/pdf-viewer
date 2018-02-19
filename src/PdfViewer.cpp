@@ -321,6 +321,7 @@ PdfViewer::mouseMoveEvent(
     QPointF const delta = event->pos() - event->lastPos();
     mPan += delta;
     renderPdf();
+    qDebug() << (pageQuad().width() - mPan.x());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -414,9 +415,9 @@ PdfViewer::paint(
     QRectF const pdfRect{0, 0, imageWidth, imageHeight};
 
     // Calculate a transformation matrix based on rotation, scaling and grabbing:
-    QTransform transform;
-    transform.translate(mPan.x(), mPan.y());
-    transform.translate((width() - imageWidth) / 2, (height() - imageHeight) / 2);
+    QTransform const transform{QTransform{}
+            .translate(mPan.x(), mPan.y())
+            .translate((width() - imageWidth) / 2, (height() - imageHeight) / 2)};
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
     QRectF const rect{0, 0, boundingRect().width(), boundingRect().height()};
@@ -432,8 +433,8 @@ PdfViewer::paint(
                 static_cast<Poppler::Page::Rotation>(mPageOrientation));
 
     // Painter should start drawing the image at the current clipped visible rect position:
-    transform.translate(visiblePdf.x(), visiblePdf.y());
     painter->setTransform(transform, true);
+    painter->setTransform(QTransform{}.translate(visiblePdf.x(), visiblePdf.y()), true);
 
     // Draw rendered page itself:
     painter->drawImage(0, 0, image);
