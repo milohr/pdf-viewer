@@ -13,8 +13,8 @@ Item {
         color: "#1fd174"
 
         Text {
+            text: pdf.pageNumber
             id: text
-            text: pdf.zoom
             wrapMode: Text.Wrap
             color: "white"
             font.bold: true
@@ -39,8 +39,66 @@ Item {
         PdfViewer {
             id: pdf
             anchors.fill: parent
-            pageNumber: 4
-            source: "test-pdf/Demo.pdf"
+            pageNumber: 0
+            source: "test-pdf/Merged.pdf"
+            focus: true
+
+            Keys.onPressed: {
+
+                switch(event.key)
+                {
+                case Qt.Key_W:
+                    pdf.pan.y += 10;
+                    break;
+
+                case Qt.Key_S:
+                    pdf.pan.y -= 10;
+                    break;
+
+                case Qt.Key_A:
+                    pdf.pan.x += 10;
+                    break;
+
+                case Qt.Key_D:
+                    pdf.pan.x -= 10;
+                    break;
+
+                case Qt.Key_E:
+                    pdf.pageOrientation += PdfViewer.HALF_PI;
+                    break;
+
+                case Qt.Key_Q:
+                    pdf.pageOrientation -= PdfViewer.HALF_PI;
+                    break;
+
+                case Qt.Key_Plus:
+                    pdf.zoom *= 1.1;
+                    break;
+
+                case Qt.Key_Minus:
+                    pdf.zoom /= 1.1;
+                    break;
+
+                case Qt.Key_Y:
+                    pdf.pageNumber--;
+                    break;
+
+                case Qt.Key_X:
+                    pdf.pageNumber++;
+                    break;
+
+                case Qt.Key_R:
+                    pdf.zoom = 1;
+                    break;
+
+                case Qt.Key_F:
+                    pdf.zoom = pdf.coverZoom;
+                    break;
+
+                default:
+                    break;
+                }
+            }
         }
     }
 

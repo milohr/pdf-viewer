@@ -25,6 +25,7 @@ class PdfViewer
     Q_PROPERTY(QPoint pan READ pan WRITE setPan NOTIFY panChanged)
     Q_PROPERTY(qreal zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
     Q_PROPERTY(PageOrientation pageOrientation READ pageOrientation WRITE setPageOrientation NOTIFY pageOrientationChanged)
+    Q_PROPERTY(qreal coverZoom READ coverZoom NOTIFY coverZoomChanged)
 
 public:
 
@@ -105,9 +106,12 @@ public:
     PageOrientation
     pageOrientation() const;
 
+    qreal
+    coverZoom() const;
+
     void
     setPageOrientation(
-            PageOrientation const orientation
+            PageOrientation orientation
     );
 
     void
@@ -136,6 +140,9 @@ signals:
 
     void
     pageOrientationChanged();
+
+    void
+    coverZoomChanged();
 
 private slots:
 
