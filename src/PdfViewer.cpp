@@ -7,6 +7,23 @@
 
 #include <poppler/qt4/poppler-qt4.h>
 
+/**
+ * Compare to floating points value up to a given precision.
+ * @param a First number.
+ * @param b Second number.
+ * @param precision The `log10(precision)`th digit following the comma is guaranteed to be equal.
+ * @return
+ */
+static bool
+equalReals(
+        qreal const a,
+        qreal const b,
+        int const precision
+)
+{
+    return qRound(a * precision) == qRound(b * precision);
+}
+
 PdfViewer::PdfViewer(
         QDeclarativeItem * const parent
 )
@@ -142,10 +159,9 @@ PdfViewer::statusMessage() const
 
     case DOCUMENT_IS_LOCKED:
         return "Document is locked";
-
-    default:
-        return "Undefined status";
     }
+
+    return "Undefined status";
 }
 
 void
@@ -224,7 +240,7 @@ PdfViewer::setZoom(
 )
 {
     zoom = qBound(1.0, zoom, mMaxZoom);
-    if(mZoom != zoom)
+    if(!equalReals(mZoom, zoom, 1000))
     {
         mZoom = zoom;
         emit zoomChanged();
@@ -243,7 +259,7 @@ PdfViewer::setMaxZoom(
 )
 {
     maxZoom = qMax(1.0, maxZoom);
-    if(mMaxZoom != maxZoom)
+    if(!equalReals(mMaxZoom, maxZoom, 1000))
     {
         mMaxZoom = maxZoom;
         emit maxZoomChanged();
@@ -429,10 +445,10 @@ PdfViewer::paint(
     QImage const image = mPage->renderToImage(
                 72.0 * scale,
                 72.0 * scale,
-                visiblePdf.x(),
-                visiblePdf.y(),
-                visiblePdf.width(),
-                visiblePdf.height(),
+                static_cast<int>(visiblePdf.x()),
+                static_cast<int>(visiblePdf.y()),
+                static_cast<int>(visiblePdf.width()),
+                static_cast<int>(visiblePdf.height()),
                 static_cast<Poppler::Page::Rotation>(mPageOrientation));
 
     // Painter should start drawing the image at the current clipped visible rect position:
