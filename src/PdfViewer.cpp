@@ -12,7 +12,7 @@
  * @param a First number.
  * @param b Second number.
  * @param precision The `log10(precision)`th digit following the comma is guaranteed to be equal.
- * @return
+ * @return Whether the two numbers are equal up to the given precision.
  */
 static bool
 equalReals(
@@ -39,13 +39,15 @@ PdfViewer::PdfViewer(
 
     connect(this, SIGNAL(widthChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(heightChanged()), this, SLOT(renderPdf()));
-    connect(this, SIGNAL(widthChanged()), this, SIGNAL(coverZoomChanged()));
-    connect(this, SIGNAL(heightChanged()), this, SIGNAL(coverZoomChanged()));
-    connect(this, SIGNAL(pageOrientationChanged()), this, SIGNAL(coverZoomChanged()));
     connect(this, SIGNAL(pageNumberChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(panChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(zoomChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(pageOrientationChanged()), this, SLOT(renderPdf()));
+
+    connect(this, SIGNAL(widthChanged()), this, SIGNAL(coverZoomChanged()));
+    connect(this, SIGNAL(heightChanged()), this, SIGNAL(coverZoomChanged()));
+    connect(this, SIGNAL(pageOrientationChanged()), this, SIGNAL(coverZoomChanged()));
+    connect(this, SIGNAL(pageNumberChanged()), this, SIGNAL(coverZoomChanged()));
 }
 
 PdfViewer::~PdfViewer()
@@ -263,6 +265,9 @@ PdfViewer::setMaxZoom(
     {
         mMaxZoom = maxZoom;
         emit maxZoomChanged();
+
+        // Eventually re-clamp the current zoom:
+        setZoom(zoom());
     }
 }
 
@@ -329,15 +334,14 @@ PdfViewer::mouseMoveEvent(
     auto const page = pageQuad() * convertZoomToScale();
     qreal const panMargin = 0.9;
 
-    mPan.setX(qBound(
+    setPan({qBound(
                   -page.width() * panMargin,
                   (mPan + delta).x(),
-                  width() - page.width() * (1 - panMargin)));
-
-    mPan.setY(qBound(
+                  width() - page.width() * (1 - panMargin)),
+            qBound(
                   -page.height() * panMargin,
                   (mPan + delta).y(),
-                  height() - page.height() * (1 - panMargin)));
+                  height() - page.height() * (1 - panMargin))});
 
     renderPdf();
 }
@@ -369,6 +373,11 @@ PdfViewer::convertZoomToScale() const
 qreal
 PdfViewer::fitScale() const
 {
+    if(!mPage)
+    {
+        return 1;
+    }
+
     qreal const pageWidth = pageQuad().width();
     qreal const pageHeight = pageQuad().height();
     qreal const pageAspect = pageWidth / pageHeight;
@@ -386,6 +395,11 @@ PdfViewer::fitScale() const
 qreal
 PdfViewer::coverScale() const
 {
+    if(!mPage)
+    {
+        return 1;
+    }
+
     qreal const pageWidth = pageQuad().width();
     qreal const pageHeight = pageQuad().height();
     qreal const pageAspect = pageWidth / pageHeight;

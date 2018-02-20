@@ -8,28 +8,96 @@ namespace Poppler {
     class Page;
 }
 
+/**
+ * Display a PDF file.
+ */
 class PdfViewer
         : public QDeclarativeItem
 {
+
     Q_OBJECT
     Q_ENUMS(Status PageOrientation)
+
+    /**
+     * Document file path.
+     */
     Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
+
+    /**
+     * Page number.
+     */
     Q_PROPERTY(int pageNumber READ pageNumber WRITE setPageNumber NOTIFY pageNumberChanged)
+
+    /**
+     * Document status.
+     */
     Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+
+    /**
+     * Document status as message string.
+     */
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusChanged)
+
+    /**
+     * Document title.
+     */
     Q_PROPERTY(QString documentTitle READ documentTitle NOTIFY sourceChanged)
+
+    /**
+     * Document author.
+     */
     Q_PROPERTY(QString documentAuthor READ documentAuthor NOTIFY sourceChanged)
+
+    /**
+     * Document creator.
+     */
     Q_PROPERTY(QString documentCreator READ documentCreator NOTIFY sourceChanged)
+
+    /**
+     * Document creation date.
+     */
     Q_PROPERTY(QDateTime documentCreationDate READ documentCreationDate NOTIFY sourceChanged)
+
+    /**
+     * Document modification date.
+     */
     Q_PROPERTY(QDateTime documentModificationDate READ documentModificationDate NOTIFY sourceChanged)
+
+    /**
+     * Page panning.
+     */
     Q_PROPERTY(QPointF pan READ pan WRITE setPan NOTIFY panChanged)
+
+    /**
+     * Zoom.
+     * @note Zoom and scale refer to the same term but from different views.
+     * Scale is the internal value to which the page is scaled when rendered.
+     * Zoom is the scalement value exposed to the user and a relative measurement.
+     * A zoom of 1 is by definition the fit zoom and therefore does not depend
+     * on page orientation or graphics item size. A zoom < 1 is not allowed.
+     */
     Q_PROPERTY(qreal zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
+
+    /**
+     * Maximum zoom. Minimum is 1 by definition.
+     */
     Q_PROPERTY(qreal maxZoom READ maxZoom WRITE setMaxZoom NOTIFY maxZoomChanged)
+
+    /**
+     * Page orientation.
+     */
     Q_PROPERTY(PageOrientation pageOrientation READ pageOrientation WRITE setPageOrientation NOTIFY pageOrientationChanged)
+
+    /**
+     * The zoom at which the page would cover the whole graphics item.
+     */
     Q_PROPERTY(qreal coverZoom READ coverZoom NOTIFY coverZoomChanged)
 
 public:
 
+    /**
+     * The page status.
+     */
     enum Status {
         NOT_OPEN,               ///< Initial state the viewer resides in, until the source is set
         OK,                     ///< Everything is okay. Implies that the document pointer is not null.
@@ -38,6 +106,9 @@ public:
         DOCUMENT_IS_LOCKED      ///< A password is required to open the document
     };
 
+    /**
+     * The possible page orientations.
+     */
     enum PageOrientation {
         ZERO_PI,                ///< 0°, initial state
         HALF_PI,                ///< 90°, counter-clockwise
@@ -45,61 +116,115 @@ public:
         ONE_HALF_PI             ///< 270°, counter-clockwise
     };
 
+    /**
+     * Construct a new PDF viewer item.
+     * @param parent Parent item.
+     */
     PdfViewer(
             QDeclarativeItem * const parent = nullptr
     );
 
     ~PdfViewer() override;
 
+    /**
+     * @return The document file path.
+     */
     QString
     source() const;
 
+    /**
+     * @return The current page number, zero based.
+     */
     int
     pageNumber() const;
 
+    /**
+     * @return The document status.
+     */
     Status
     status() const;
 
+    /**
+     * @return The document status as a message string.
+     */
     QString
     statusMessage() const;
 
+    /**
+     * @return The document title.
+     */
     QString
     documentTitle() const;
 
+    /**
+     * @return The document author.
+     */
     QString
     documentAuthor() const;
 
+    /**
+     * @return The document creator.
+     */
     QString
     documentCreator() const;
 
+    /**
+     * @return The document creation date.
+     */
     QDateTime
     documentCreationDate() const;
 
+    /**
+     * @return The document modification date.
+     */
     QDateTime
     documentModificationDate() const;
 
+    /**
+     * @return Current pan.
+     */
     QPointF
     pan() const;
 
+    /**
+     * @return Current zoom.
+     */
     qreal
     zoom() const;
 
+    /**
+     * @return Maximum zoom.
+     */
     qreal
     maxZoom() const;
 
+    /**
+     * @return Current page orientation.
+     */
     PageOrientation
     pageOrientation() const;
 
+    /**
+     * @return The zoom at which the page would cover the whole graphics item.
+     */
     qreal
     coverZoom() const;
 
 protected:
 
+    /**
+     * Grabs mouse focus.
+     * @param event Mouse event.
+     */
     void
     mousePressEvent(
             QGraphicsSceneMouseEvent * const event
     ) override;
 
+    /**
+     * Implements panning based on mouse movements.
+     * @param event Mouse event.
+     */
     void
     mouseMoveEvent(
             QGraphicsSceneMouseEvent * const event
@@ -107,36 +232,70 @@ protected:
 
 public slots:
 
+    /**
+     * Set the document file path and tries to open it.
+     * Closes any document currently opened.
+     * @param source File path to open.
+     */
     void
     setSource(
             QString const &source
     );
 
+    /**
+     * Set the current page number.
+     * Is clamped between 0 and the total page count.
+     * @param pageNumber Number to set.
+     */
     void
     setPageNumber(
             int pageNumber
     );
 
+    /**
+     * Set the page panning.
+     * @param pan Pan to set.
+     */
     void
     setPan(
             QPointF const pan
     );
 
+    /**
+     * Set the page zoom.
+     * Is clamped between 1 and the maximum zoom set by `setMaxZoom()`.
+     * @param zoom Zoom to set.
+     */
     void
     setZoom(
             qreal zoom
     );
 
+    /**
+     * Set the maximum allowed zoom.
+     * Must be greater or equal to 1.
+     * @param maxZoom Zoom to set.
+     */
     void
     setMaxZoom(
             qreal maxZoom
     );
 
+    /**
+     * Set the current page orientation.
+     * @param orientation Orientation to set.
+     */
     void
     setPageOrientation(
             PageOrientation orientation
     );
 
+    /**
+     * Paint item and renderbPDF.
+     * @param painter Painter.
+     * @param option Graphics options, ignored.
+     * @param widget Widget, ignored.
+     */
     void
     paint(
             QPainter * const painter,
@@ -144,53 +303,125 @@ public slots:
             QWidget * const widget
     ) override;
 
+    /**
+     * Rotate page clockwise.
+     */
     Q_INVOKABLE void
     rotatePageClockwise();
 
+    /**
+     * Rotate page counter-clockwise.
+     */
     Q_INVOKABLE void
     rotatePageCounterClockwise();
 
 signals:
 
+    /**
+     * Emitted when page source changed.
+     */
     void
     sourceChanged();
 
+    /**
+     * Emitted when page number changed.
+     */
     void
     pageNumberChanged();
 
+    /**
+     * Emitted when document status changed.
+     */
     void
     statusChanged();
 
+    /**
+     * Emitted when panning changed.
+     */
     void
     panChanged();
 
+    /**
+     * Emitted when zoom changed.
+     */
     void
     zoomChanged();
 
+    /**
+     * Emitted when page orientation changed.
+     */
     void
     pageOrientationChanged();
 
+    /**
+     * Emitted when cover zoom changed.
+     * This happens due to item resizement and page geometry changes.
+     */
     void
     coverZoomChanged();
 
+    /**
+     * Emitted when maximum zoom changed.
+     */
     void
     maxZoomChanged();
 
 private slots:
 
+    /**
+     * Dispatch a new render request.
+     */
     void
     renderPdf();
 
 private:
 
+    /**
+     * The document status.
+     * The status will be set to OK as soon as a document is successfully opened.
+     */
     Status mStatus{NOT_OPEN};
+
+    /**
+     * The document file path.
+     */
     QString mSource;
+
+    /**
+     * The internal document handle.
+     */
     Poppler::Document *mDocument{nullptr};
+
+    /**
+     * The internal page handle.
+     */
     Poppler::Page const *mPage{nullptr};
+
+    /**
+     * The current page number, which is zero based.
+     */
     int mPageNumber{-1};
+
+    /**
+     * Linear translation of the page.
+     */
     QPointF mPan;
+
+    /**
+     * Page zoom.
+     */
     qreal mZoom{1};
+
+    /**
+     * The upper zoom bound, which can be set by the user.
+     */
     qreal mMaxZoom{6};
+
+    /**
+     * The current page orientation.
+     * @note Do not use rotate() in QML to do rotation, since that does not refer to page rotation.
+     * @see rotateClockwise(), rotateCounterClockwise()
+     */
     PageOrientation mPageOrientation{ZERO_PI};
 
     void
