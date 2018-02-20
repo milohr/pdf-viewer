@@ -12,7 +12,5 @@ A QML QtQuick 1 component capable of PDF files rendering.
 
 ## Documentation
 
-*Dev note: No documentation yet*
-
 Run `doxygen` inside the project root directory to generate an HTML documentation.
 
