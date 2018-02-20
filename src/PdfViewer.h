@@ -16,6 +16,7 @@ class PdfViewer
 {
 
     Q_OBJECT
+
     Q_ENUMS(Status PageOrientation)
 
     /**
@@ -92,6 +93,11 @@ class PdfViewer
      * The zoom at which the page would cover the whole graphics item.
      */
     Q_PROPERTY(qreal coverZoom READ coverZoom NOTIFY coverZoomChanged)
+
+    /**
+     * The pan at which the page would be centralized at the current zoom.
+     */
+    Q_PROPERTY(QPointF centralizePan READ centralizePan NOTIFY coverZoomChanged)
 
 public:
 
@@ -210,25 +216,11 @@ public:
     qreal
     coverZoom() const;
 
-protected:
-
     /**
-     * Grabs mouse focus.
-     * @param event Mouse event.
+     * @return The pan at which the page would be centralized at the current zoom.
      */
-    void
-    mousePressEvent(
-            QGraphicsSceneMouseEvent * const event
-    ) override;
-
-    /**
-     * Implements panning based on mouse movements.
-     * @param event Mouse event.
-     */
-    void
-    mouseMoveEvent(
-            QGraphicsSceneMouseEvent * const event
-    ) override;
+    QPointF
+    centralizePan();
 
 public slots:
 
@@ -315,6 +307,13 @@ public slots:
     Q_INVOKABLE void
     rotatePageCounterClockwise();
 
+    /**
+     * Centralize page if page zoom is fitting.
+     * Used to initially centralize a page upon opening.
+     */
+    Q_INVOKABLE void
+    centralizePage();
+
 signals:
 
     /**
@@ -365,6 +364,26 @@ signals:
      */
     void
     maxZoomChanged();
+
+protected:
+
+    /**
+     * Grabs mouse focus.
+     * @param event Mouse event.
+     */
+    void
+    mousePressEvent(
+            QGraphicsSceneMouseEvent * const event
+    ) override;
+
+    /**
+     * Implements panning based on mouse movements.
+     * @param event Mouse event.
+     */
+    void
+    mouseMoveEvent(
+            QGraphicsSceneMouseEvent * const event
+    ) override;
 
 private slots:
 

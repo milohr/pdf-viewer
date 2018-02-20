@@ -129,14 +129,26 @@ Item {
                 backgroundColor: themeColor
                 onClicked: zoomToFitAnimation.start()
 
-                NumberAnimation {
+                ParallelAnimation {
                     id: zoomToFitAnimation
-                    target: pdf
-                    property: "zoom"
-                    to: 1
-                    duration: 200
-                    easing.type: Easing.InOutQuad;
+
+                    NumberAnimation {
+                        target: pdf
+                        property: "zoom"
+                        to: 1
+                        duration: 200
+                        easing.type: Easing.InOutQuad;
+                    }
+
+                    PropertyAnimation {
+                        target: pdf
+                        property: "pan"
+                        to: pdf.centralizePan
+                        duration: 200
+                        easing.type: Easing.InOutQuad;
+                    }
                 }
+
             }
 
             // Cover zoom button:
@@ -144,13 +156,24 @@ Item {
                 text: "Cover zoom "
                 onClicked: zoomToCoverAnimation.start()
 
-                NumberAnimation {
+                ParallelAnimation {
                     id: zoomToCoverAnimation
-                    target: pdf
-                    property: "zoom"
-                    to: pdf.coverZoom
-                    duration: 200
-                    easing.type: Easing.InOutQuad;
+
+                    NumberAnimation {
+                        target: pdf
+                        property: "zoom"
+                        to: pdf.coverZoom
+                        duration: 200
+                        easing.type: Easing.InOutQuad;
+                    }
+
+                    PropertyAnimation {
+                        target: pdf
+                        property: "pan"
+                        to: Qt.point(0, 0)
+                        duration: 200
+                        easing.type: Easing.InOutQuad;
+                    }
                 }
             }
 

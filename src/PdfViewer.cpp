@@ -48,6 +48,8 @@ PdfViewer::PdfViewer(
     connect(this, SIGNAL(heightChanged()), this, SIGNAL(coverZoomChanged()));
     connect(this, SIGNAL(pageOrientationChanged()), this, SIGNAL(coverZoomChanged()));
     connect(this, SIGNAL(pageNumberChanged()), this, SIGNAL(coverZoomChanged()));
+
+    connect(this, SIGNAL(coverZoomChanged()), this, SLOT(centralizePage()));
 }
 
 PdfViewer::~PdfViewer()
@@ -344,6 +346,23 @@ PdfViewer::mouseMoveEvent(
                   height() - page.height() * (1 - panMargin))});
 
     renderPdf();
+}
+
+QPointF
+PdfViewer::centralizePan()
+{
+    return {
+        (width() - pageQuad().width() * convertZoomToScale()) / 2,
+        (height() - pageQuad().height() * convertZoomToScale()) / 2
+    };
+}
+
+void PdfViewer::centralizePage()
+{
+    if(equalReals(mZoom, 1, 100))
+    {
+        setPan(centralizePan());
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
