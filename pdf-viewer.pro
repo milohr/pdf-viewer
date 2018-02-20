@@ -20,10 +20,9 @@ RESOURCES += rc.qrc
 
 SOURCES += src/main.cpp \
     src/Window.cpp \
-    src/PdfWidget.cpp \
     src/PdfViewer.cpp
 
 HEADERS  += \
     src/Window.h \
-    src/PdfWidget.h \
     src/PdfViewer.h
+
