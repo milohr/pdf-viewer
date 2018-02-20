@@ -371,8 +371,8 @@ QPointF
 PdfViewer::centralizePan()
 {
     return {
-        (width() - pageQuad().width() * convertZoomToScale()) / 2,
-        (height() - pageQuad().height() * convertZoomToScale()) / 2
+        (width() - pageQuad().width() * fitScale()) / 2,
+        (height() - pageQuad().height() * fitScale()) / 2
     };
 }
 

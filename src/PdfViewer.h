@@ -95,7 +95,7 @@ class PdfViewer
     Q_PROPERTY(qreal coverZoom READ coverZoom NOTIFY coverZoomChanged)
 
     /**
-     * The pan at which the page would be centralized at the current zoom.
+     * The pan at which the page would be centralized at fit zoom.
      */
     Q_PROPERTY(QPointF centralizePan READ centralizePan NOTIFY coverZoomChanged)
 
@@ -217,7 +217,7 @@ public:
     coverZoom() const;
 
     /**
-     * @return The pan at which the page would be centralized at the current zoom.
+     * @return The pan at which the page would be centralized at fit zoom.
      */
     QPointF
     centralizePan();
@@ -306,13 +306,6 @@ public slots:
      */
     Q_INVOKABLE void
     rotatePageCounterClockwise();
-
-    /**
-     * Centralize page if page zoom is fitting.
-     * Used to initially centralize a page upon opening.
-     */
-    Q_INVOKABLE void
-    centralizePage();
 
 signals:
 
@@ -486,5 +479,14 @@ private:
      */
     qreal
     coverScale() const;
+
+private slots:
+
+    /**
+     * Centralize page if page zoom is fitting.
+     * Used to initially centralize a page upon opening.
+     */
+    void
+    centralizePage();
 
 };
