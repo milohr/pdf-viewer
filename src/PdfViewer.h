@@ -385,6 +385,15 @@ protected:
             QGraphicsSceneMouseEvent * const event
     ) override;
 
+    /**
+     * A convinient way to toggle automatically between fit and cover zoom.
+     * @param event Mouse event.
+     */
+    void
+    mouseDoubleClickEvent(
+            QGraphicsSceneMouseEvent * const event
+    ) override;
+
 private slots:
 
     /**

@@ -348,6 +348,25 @@ PdfViewer::mouseMoveEvent(
     renderPdf();
 }
 
+void
+PdfViewer::mouseDoubleClickEvent(
+        QGraphicsSceneMouseEvent * const
+)
+{
+    if(equalReals(mZoom, 1, 100))
+    {
+        // Zoom to cover:
+        setZoom(coverZoom());
+        setPan({});
+    }
+    else
+    {
+        // Zoom to fit:
+        setZoom(1);
+        setPan(centralizePan());
+    }
+}
+
 QPointF
 PdfViewer::centralizePan()
 {
