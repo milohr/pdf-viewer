@@ -101,7 +101,7 @@ PdfViewer::setSource(
             setStatus(DOCUMENT_IS_LOCKED);
             return;
         }
-        if(mDocument->numPages() == 0)
+        if(0 == mDocument->numPages())
         {
             setStatus(NO_PAGES);
             return;
@@ -370,12 +370,12 @@ PdfViewer::mouseDoubleClickEvent(
     {
         // Zoom to fit:
         setZoom(1);
-        setPan(centralizePan());
+        setPan(fitPan());
     }
 }
 
 QPointF
-PdfViewer::centralizePan()
+PdfViewer::fitPan()
 {
     return QPointF(
         (width() - pageQuad().width() * fitScale()) / 2,
@@ -383,11 +383,17 @@ PdfViewer::centralizePan()
     );
 }
 
+QPointF
+PdfViewer::coverPan()
+{
+    return QPointF(0, 0);
+}
+
 void PdfViewer::centralizePage()
 {
     if(equalReals(mZoom, 1, 100))
     {
-        setPan(centralizePan());
+        setPan(fitPan());
     }
 }
 

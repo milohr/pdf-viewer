@@ -74,6 +74,16 @@ class PdfViewer
     Q_PROPERTY(QPointF pan READ pan WRITE setPan NOTIFY panChanged)
 
     /**
+     * The pan at which the page would be centralized at fit zoom.
+     */
+    Q_PROPERTY(QPointF fitPan READ fitPan NOTIFY coverZoomChanged)
+
+    /**
+     * The pan at which the page should sit when cover zoom is requested.
+     */
+    Q_PROPERTY(QPointF coverPan READ coverPan NOTIFY coverZoomChanged)
+
+    /**
      * Zoom.
      * @note Zoom and scale refer to the same term but from different views.
      * Scale is the internal value to which the page is scaled when rendered.
@@ -97,11 +107,6 @@ class PdfViewer
      * The zoom at which the page would cover the whole graphics item.
      */
     Q_PROPERTY(qreal coverZoom READ coverZoom NOTIFY coverZoomChanged)
-
-    /**
-     * The pan at which the page would be centralized at fit zoom.
-     */
-    Q_PROPERTY(QPointF centralizePan READ centralizePan NOTIFY coverZoomChanged)
 
 public:
 
@@ -197,6 +202,18 @@ public:
     pan() const;
 
     /**
+     * @return The pan at which the page would be centralized at fit zoom.
+     */
+    QPointF
+    fitPan();
+
+    /**
+     * @return The pan at which the page should sit when cover zoom is requested.
+     */
+    QPointF
+    coverPan();
+
+    /**
      * @return Current zoom.
      */
     qreal
@@ -219,12 +236,6 @@ public:
      */
     qreal
     coverZoom() const;
-
-    /**
-     * @return The pan at which the page would be centralized at fit zoom.
-     */
-    QPointF
-    centralizePan();
 
 public slots:
 

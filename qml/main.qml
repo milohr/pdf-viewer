@@ -143,7 +143,7 @@ Item {
                     PropertyAnimation {
                         target: pdf
                         property: "pan"
-                        to: pdf.centralizePan
+                        to: pdf.fitPan
                         duration: 200
                         easing.type: Easing.InOutQuad;
                     }
@@ -170,7 +170,7 @@ Item {
                     PropertyAnimation {
                         target: pdf
                         property: "pan"
-                        to: Qt.point(0, 0)
+                        to: pdf.coverPan
                         duration: 200
                         easing.type: Easing.InOutQuad;
                     }
