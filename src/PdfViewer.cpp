@@ -27,7 +27,14 @@ equalReals(
 PdfViewer::PdfViewer(
         QDeclarativeItem * const parent
 )
-    : QDeclarativeItem{parent}
+    : QDeclarativeItem(parent)
+    , mStatus(NOT_OPEN)
+    , mDocument(Q_NULLPTR)
+    , mPage(Q_NULLPTR)
+    , mPageNumber(-1)
+    , mZoom(1)
+    , mMaxZoom(6)
+    , mPageOrientation(ZERO_PI)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -205,13 +212,13 @@ PdfViewer::documentCreator() const
 QDateTime
 PdfViewer::documentCreationDate() const
 {
-    return mDocument ? mDocument->creationDate() : QDateTime{};
+    return mDocument ? mDocument->creationDate() : QDateTime();
 }
 
 QDateTime
 PdfViewer::documentModificationDate() const
 {
-    return mDocument ? mDocument->modificationDate() : QDateTime{};
+    return mDocument ? mDocument->modificationDate() : QDateTime();
 }
 
 QPointF
@@ -332,18 +339,18 @@ PdfViewer::mouseMoveEvent(
         QGraphicsSceneMouseEvent * const event
 )
 {
-    auto const delta = event->pos() - event->lastPos();
-    auto const page = pageQuad() * convertZoomToScale();
+    QPointF const delta = event->pos() - event->lastPos();
+    QSizeF const page = pageQuad() * convertZoomToScale();
     qreal const panMargin = 0.9;
 
-    setPan({qBound(
+    setPan(QPointF(qBound(
                   -page.width() * panMargin,
                   (mPan + delta).x(),
                   width() - page.width() * (1 - panMargin)),
             qBound(
                   -page.height() * panMargin,
                   (mPan + delta).y(),
-                  height() - page.height() * (1 - panMargin))});
+                  height() - page.height() * (1 - panMargin))));
 
     renderPdf();
 }
@@ -357,7 +364,7 @@ PdfViewer::mouseDoubleClickEvent(
     {
         // Zoom to cover:
         setZoom(coverZoom());
-        setPan({});
+        setPan(QPointF(0, 0));
     }
     else
     {
@@ -370,10 +377,10 @@ PdfViewer::mouseDoubleClickEvent(
 QPointF
 PdfViewer::centralizePan()
 {
-    return {
+    return QPointF(
         (width() - pageQuad().width() * fitScale()) / 2,
         (height() - pageQuad().height() * fitScale()) / 2
-    };
+    );
 }
 
 void PdfViewer::centralizePage()
@@ -482,17 +489,17 @@ PdfViewer::paint(
     qreal const imageWidth = scale * pageQuad().width();
 
     // A rect completely containing the Pdf:
-    QRectF const pdfRect{0, 0, imageWidth, imageHeight};
+    QRectF const pdfRect(0, 0, imageWidth, imageHeight);
 
     // Calculate a transformation matrix based on rotation, scaling and grabbing:
-    QTransform const transform{QTransform{}
+    QTransform const transform(QTransform()
             .translate(mPan.x(), mPan.y())
             //.translate((width() - imageWidth) / 2, (height() - imageHeight) / 2) // TODO: cleanup
-    };
+    );
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
-    QRectF const rect{0, 0, boundingRect().width(), boundingRect().height()};
-    QRectF const visiblePdf = transform.inverted(nullptr).mapRect(rect).intersected(pdfRect);
+    QRectF const rect(0, 0, boundingRect().width(), boundingRect().height());
+    QRectF const visiblePdf = transform.inverted(Q_NULLPTR).mapRect(rect).intersected(pdfRect);
 
     QImage const image = mPage->renderToImage(
                 72.0 * scale,
@@ -505,12 +512,12 @@ PdfViewer::paint(
 
     // Painter should start drawing the image at the current clipped visible rect position:
     painter->setTransform(transform, true);
-    painter->setTransform(QTransform{}.translate(visiblePdf.x(), visiblePdf.y()), true);
+    painter->setTransform(QTransform().translate(visiblePdf.x(), visiblePdf.y()), true);
 
     // Draw rendered page itself:
     painter->drawImage(0, 0, image);
 
     // Draw page border:
     painter->setPen(Qt::black);
-    painter->drawRect(QRect{0, 0, image.width() - 1, image.height() - 1});
+    painter->drawRect(QRect(0, 0, image.width() - 1, image.height() - 1));
 }

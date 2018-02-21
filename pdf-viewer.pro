@@ -1,5 +1,8 @@
 QT += core gui declarative
-QMAKE_CXXFLAGS += -Wall -Wextra -Wpedantic
+
+# Compile to C++98:
+CONFIG += c++98
+QMAKE_CXXFLAGS += -std=c++98
 
 TARGET = pdf-viewer
 TEMPLATE = app

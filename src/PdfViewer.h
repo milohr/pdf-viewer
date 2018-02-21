@@ -3,6 +3,10 @@
 #include <QDeclarativeItem>
 #include <QDateTime>
 
+#ifndef Q_NULLPTR
+#define Q_NULLPTR NULL
+#endif // Q_NULLPTR
+
 namespace Poppler {
     class Document;
     class Page;
@@ -106,7 +110,7 @@ public:
      */
     enum Status {
         NOT_OPEN,               ///< Initial state the viewer resides in, until the source is set
-        OK,                     ///< Everything is okay. Implies that the document pointer is not null.
+        OK,                     ///< Everything is okay. Implies that the document pointer is not Q_NULLPTR.
         CANNOT_OPEN_DOCUMENT,   ///< The document cannot be opened, e.g. the path is invalid or the file just doesn't exist
         NO_PAGES,               ///< The document has no pages to display
         DOCUMENT_IS_LOCKED      ///< A password is required to open the document
@@ -127,10 +131,10 @@ public:
      * @param parent Parent item.
      */
     PdfViewer(
-            QDeclarativeItem * const parent = nullptr
+            QDeclarativeItem * const parent = Q_NULLPTR
     );
 
-    ~PdfViewer() override;
+    virtual ~PdfViewer();
 
     /**
      * @return The document file path.
@@ -288,12 +292,12 @@ public slots:
      * @param option Graphics options, ignored.
      * @param widget Widget, ignored.
      */
-    void
+    virtual void
     paint(
             QPainter * const painter,
             QStyleOptionGraphicsItem const * const option,
             QWidget * const widget
-    ) override;
+    );
 
     /**
      * Rotate page clockwise.
@@ -364,28 +368,28 @@ protected:
      * Grabs mouse focus.
      * @param event Mouse event.
      */
-    void
+    virtual void
     mousePressEvent(
             QGraphicsSceneMouseEvent * const event
-    ) override;
+    );
 
     /**
      * Implements panning based on mouse movements.
      * @param event Mouse event.
      */
-    void
+    virtual void
     mouseMoveEvent(
             QGraphicsSceneMouseEvent * const event
-    ) override;
+    );
 
     /**
      * A convinient way to toggle automatically between fit and cover zoom.
      * @param event Mouse event.
      */
-    void
+    virtual void
     mouseDoubleClickEvent(
             QGraphicsSceneMouseEvent * const event
-    ) override;
+    );
 
 private slots:
 
@@ -401,7 +405,7 @@ private:
      * The document status.
      * The status will be set to OK as soon as a document is successfully opened.
      */
-    Status mStatus{NOT_OPEN};
+    Status mStatus;
 
     /**
      * The document file path.
@@ -411,17 +415,17 @@ private:
     /**
      * The internal document handle.
      */
-    Poppler::Document *mDocument{nullptr};
+    Poppler::Document *mDocument;
 
     /**
      * The internal page handle.
      */
-    Poppler::Page const *mPage{nullptr};
+    Poppler::Page const *mPage;
 
     /**
      * The current page number, which is zero based.
      */
-    int mPageNumber{-1};
+    int mPageNumber;
 
     /**
      * Linear translation of the page.
@@ -431,19 +435,19 @@ private:
     /**
      * Page zoom.
      */
-    qreal mZoom{1};
+    qreal mZoom;
 
     /**
      * The upper zoom bound, which can be set by the user.
      */
-    qreal mMaxZoom{6};
+    qreal mMaxZoom;
 
     /**
      * The current page orientation.
      * @note Do not use rotate() in QML to do rotation, since that does not refer to page rotation.
      * @see rotateClockwise(), rotateCounterClockwise()
      */
-    PageOrientation mPageOrientation{ZERO_PI};
+    PageOrientation mPageOrientation;
 
     void
     setStatus(

@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
 
     // Create the main window:
     QMainWindow window;
-    window.setWindowIcon(QIcon{":/img/icon_mres.png"});
+    window.setWindowIcon(QIcon(":/img/icon_mres.png"));
 
     // Create the declarative view, displaying the `main.qml` file:
-    auto *view = new QDeclarativeView;
-    view->setSource({"qrc:/qml/main.qml"});
+    QDeclarativeView *view = new QDeclarativeView;
+    view->setSource(QUrl("qrc:/qml/main.qml"));
     view->setResizeMode(QDeclarativeView::SizeRootObjectToView);
     window.setCentralWidget(view);
 
