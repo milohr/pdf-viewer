@@ -397,7 +397,7 @@ PdfViewer::mouseDoubleClickEvent(
     {
         // Zoom to cover:
         setZoom(coverZoom());
-        setPan(QPointF(0, 0));
+        setPan(coverPan());
     }
     else
     {
@@ -443,7 +443,7 @@ PdfViewer::fitScale() const
     qreal const pageHeight = pageQuad().height();
     qreal const pageAspect = pageWidth / pageHeight;
 
-    if((width()) > height() * pageAspect)
+    if(width() > height() * pageAspect)
     {
         return height() / pageHeight;
     }
@@ -465,12 +465,20 @@ PdfViewer::coverScale() const
     qreal const pageHeight = pageQuad().height();
     qreal const pageAspect = pageWidth / pageHeight;
 
-    if((width()) > height() * pageAspect)
+    qDebug() << "\n";
+    qDebug() << "coverScale:";
+    qDebug() << "   size:    " << boundingRect();
+    qDebug() << "   page-size:" << pageQuad();
+    qDebug() << "   page-aspect: " << pageAspect;
+
+    if(width() > height() * pageAspect)
     {
+        qDebug() << "    (1: same width)   zoom:" << width() / pageWidth;
         return width() / pageWidth;
     }
     else
     {
+        qDebug() << "    (2: same height)   zoom:" << height() / pageHeight;
         return height() / pageHeight;
     }
 }
