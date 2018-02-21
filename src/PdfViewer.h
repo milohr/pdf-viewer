@@ -226,16 +226,16 @@ public:
     maxZoom() const;
 
     /**
-     * @return Current page orientation.
-     */
-    PageOrientation
-    pageOrientation() const;
-
-    /**
      * @return The zoom at which the page would cover the whole graphics item.
      */
     qreal
     coverZoom() const;
+
+    /**
+     * @return Current page orientation.
+     */
+    PageOrientation
+    pageOrientation() const;
 
 public slots:
 

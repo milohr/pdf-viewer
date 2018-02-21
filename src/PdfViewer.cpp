@@ -251,7 +251,9 @@ PdfViewer::fitPan()
 QPointF
 PdfViewer::coverPan()
 {
-    return QPointF(0, 0);
+    return QPointF(
+                (pageQuad().width() * (coverScale() - fitScale())) / 2,
+                (pageQuad().height() * (coverScale() - fitScale())) / 2);
 }
 
 void PdfViewer::centralizePage()
@@ -512,13 +514,15 @@ PdfViewer::paint(
     qreal const imageHeight = scale * pageQuad().height();
     qreal const imageWidth = scale * pageQuad().width();
 
-    // A rect completely containing the Pdf:
+    // A rect completely containing the PDF:
     QRectF const pdfRect(0, 0, imageWidth, imageHeight);
 
-    // Calculate a transformation matrix based on rotation, scaling and grabbing:
+    // Calculate a transformation matrix:
     QTransform const transform(QTransform()
-            .translate(mPan.x(), mPan.y())
-            //.translate((width() - imageWidth) / 2, (height() - imageHeight) / 2) // TODO: cleanup
+                               .translate(mPan.x(), mPan.y())
+                               .translate(
+                                   (-pageQuad().width() * (scale - fitScale())) / 2,
+                                   (-pageQuad().height() * (scale - fitScale())) / 2)
     );
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
