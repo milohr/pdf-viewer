@@ -7,22 +7,18 @@
 
 #include <poppler/qt4/poppler-qt4.h>
 
-/**
- * Compare to floating points value up to a given precision.
- * @param a First number.
- * @param b Second number.
- * @param precision The `log10(precision)`th digit following the comma is guaranteed to be equal.
- * @return Whether the two numbers are equal up to the given precision.
- */
-static bool
+// Compare to floating points value up to a given precision.
+// The `log10(precision)`th digit following the comma is guaranteed to be equal.
+bool
 equalReals(
         qreal const a,
         qreal const b,
-        int const precision
-)
-{
-    return qRound(a * precision) == qRound(b * precision);
-}
+        int const precision = 1000
+);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        PDF Viewer
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PdfViewer::PdfViewer(
         QDeclarativeItem * const parent
@@ -188,7 +184,7 @@ PdfViewer::setStatus(
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////        Property getter and setter
+/////////////////////        Document getter and setter
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 QString
@@ -221,6 +217,10 @@ PdfViewer::documentModificationDate() const
     return mDocument ? mDocument->modificationDate() : QDateTime();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Panning
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 QPointF
 PdfViewer::pan() const
 {
@@ -239,6 +239,33 @@ PdfViewer::setPan(
     }
 }
 
+QPointF
+PdfViewer::fitPan()
+{
+    return QPointF(
+        (width() - pageQuad().width() * fitScale()) / 2,
+        (height() - pageQuad().height() * fitScale()) / 2
+    );
+}
+
+QPointF
+PdfViewer::coverPan()
+{
+    return QPointF(0, 0);
+}
+
+void PdfViewer::centralizePage()
+{
+    if(equalReals(mZoom, 1))
+    {
+        setPan(fitPan());
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Zooming
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 qreal
 PdfViewer::zoom() const
 {
@@ -251,7 +278,7 @@ PdfViewer::setZoom(
 )
 {
     zoom = qBound(1.0, zoom, mMaxZoom);
-    if(!equalReals(mZoom, zoom, 1000))
+    if(!equalReals(mZoom, zoom))
     {
         mZoom = zoom;
         emit zoomChanged();
@@ -270,7 +297,7 @@ PdfViewer::setMaxZoom(
 )
 {
     maxZoom = qMax(1.0, maxZoom);
-    if(!equalReals(mMaxZoom, maxZoom, 1000))
+    if(!equalReals(mMaxZoom, maxZoom))
     {
         mMaxZoom = maxZoom;
         emit maxZoomChanged();
@@ -279,6 +306,16 @@ PdfViewer::setMaxZoom(
         setZoom(zoom());
     }
 }
+
+qreal
+PdfViewer::coverZoom() const
+{
+    return coverScale() / fitScale();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Orientation
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PdfViewer::PageOrientation
 PdfViewer::pageOrientation() const
@@ -304,12 +341,6 @@ PdfViewer::setPageOrientation(
     }
 }
 
-qreal
-PdfViewer::coverZoom() const
-{
-    return coverScale() / fitScale();
-}
-
 void
 PdfViewer::rotatePageClockwise()
 {
@@ -323,7 +354,7 @@ PdfViewer::rotatePageCounterClockwise()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////        Panning
+/////////////////////        Mouse interaction
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
@@ -360,7 +391,7 @@ PdfViewer::mouseDoubleClickEvent(
         QGraphicsSceneMouseEvent * const
 )
 {
-    if(equalReals(mZoom, 1, 100))
+    if(equalReals(mZoom, 1))
     {
         // Zoom to cover:
         setZoom(coverZoom());
@@ -370,29 +401,6 @@ PdfViewer::mouseDoubleClickEvent(
     {
         // Zoom to fit:
         setZoom(1);
-        setPan(fitPan());
-    }
-}
-
-QPointF
-PdfViewer::fitPan()
-{
-    return QPointF(
-        (width() - pageQuad().width() * fitScale()) / 2,
-        (height() - pageQuad().height() * fitScale()) / 2
-    );
-}
-
-QPointF
-PdfViewer::coverPan()
-{
-    return QPointF(0, 0);
-}
-
-void PdfViewer::centralizePage()
-{
-    if(equalReals(mZoom, 1, 100))
-    {
         setPan(fitPan());
     }
 }
@@ -463,6 +471,16 @@ PdfViewer::coverScale() const
     {
         return height() / pageHeight;
     }
+}
+
+bool
+equalReals(
+        qreal const a,
+        qreal const b,
+        int const precision
+)
+{
+    return qRound(a * precision) == qRound(b * precision);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
