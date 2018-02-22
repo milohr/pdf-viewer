@@ -65,7 +65,7 @@ Item {
                     break;
 
                 case Qt.Key_R:
-                    pdf.zoom = 1;
+                    pdf.zoom = pdf.fitZoom;
                     break;
 
                 case Qt.Key_F:

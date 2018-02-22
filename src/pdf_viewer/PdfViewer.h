@@ -102,6 +102,15 @@ class PdfViewer
             NOTIFY sourceChanged)
 
     /**
+     * Page orientation.
+     */
+    Q_PROPERTY(
+            PageOrientation pageOrientation
+            READ pageOrientation
+            WRITE setPageOrientation
+            NOTIFY pageOrientationChanged)
+
+    /**
      * Page panning.
      */
     Q_PROPERTY(
@@ -150,20 +159,19 @@ class PdfViewer
             NOTIFY maxZoomChanged)
 
     /**
-     * Page orientation.
-     */
-    Q_PROPERTY(
-            PageOrientation pageOrientation
-            READ pageOrientation
-            WRITE setPageOrientation
-            NOTIFY pageOrientationChanged)
-
-    /**
      * The zoom at which the page would cover the whole graphics item.
      */
     Q_PROPERTY(
             qreal coverZoom
             READ coverZoom
+            NOTIFY coverZoomChanged)
+
+    /**
+     * The zoom at which the page would fit exactly into the view.
+     */
+    Q_PROPERTY(
+            qreal fitZoom
+            READ fitZoom
             NOTIFY coverZoomChanged)
 
 public:
@@ -288,6 +296,12 @@ public:
      */
     qreal
     coverZoom() const;
+
+    /**
+     * @return The zoom at which the page would fit exactly into the view.
+     */
+    qreal
+    fitZoom() const;
 
     /**
      * @return Current page orientation.
