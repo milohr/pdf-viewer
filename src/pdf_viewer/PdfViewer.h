@@ -287,6 +287,7 @@ public:
 
     /**
      * @return Maximum zoom.
+     * @attention If smaller than cover-zoom, covering will not work properly.
      */
     qreal
     maxZoom() const;

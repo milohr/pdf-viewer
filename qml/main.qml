@@ -16,7 +16,7 @@ Item {
         pageNumber: 0
         source: "../../../pdf-viewer/test-pdf/Merged.pdf"
         focus: true
-        maxZoom: 3
+        maxZoom: 4
 
         onZoomChanged: zoomSlider.value = (zoom - pdf.fitZoom) / (maxZoom - 1)
 
