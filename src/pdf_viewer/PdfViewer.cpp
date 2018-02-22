@@ -30,7 +30,7 @@ PdfViewer::PdfViewer(
     , mDocument(Q_NULLPTR)
     , mPage(Q_NULLPTR)
     , mPageNumber(-1)
-    , mZoom(1)
+    , mZoom(fitZoom())
     , mMaxZoom(6)
     , mPageOrientation(ZERO_PI)
 {
@@ -265,7 +265,7 @@ PdfViewer::coverPan()
 void
 PdfViewer::centralizePage()
 {
-    if(equalReals(mZoom, 1))
+    if(equalReals(mZoom, fitZoom()))
     {
         setPan(fitPan());
     }
@@ -286,7 +286,7 @@ PdfViewer::setZoom(
         qreal zoom
 )
 {
-    zoom = qBound(1.0, zoom, mMaxZoom);
+    zoom = qBound(fitZoom(), zoom, mMaxZoom);
     if(!equalReals(mZoom, zoom))
     {
         mZoom = zoom;
@@ -305,7 +305,7 @@ PdfViewer::setMaxZoom(
         qreal maxZoom
 )
 {
-    maxZoom = qMax(1.0, maxZoom);
+    maxZoom = qMax(fitZoom(), maxZoom);
     if(!equalReals(mMaxZoom, maxZoom))
     {
         mMaxZoom = maxZoom;
@@ -405,7 +405,7 @@ PdfViewer::mouseDoubleClickEvent(
         QGraphicsSceneMouseEvent * const
 )
 {
-    if(equalReals(mZoom, 1))
+    if(equalReals(mZoom, fitZoom()))
     {
         // Zoom to cover:
         setZoom(coverZoom());
@@ -414,7 +414,7 @@ PdfViewer::mouseDoubleClickEvent(
     else
     {
         // Zoom to fit:
-        setZoom(1);
+        setZoom(fitZoom());
         setPan(fitPan());
     }
 }

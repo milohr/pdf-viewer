@@ -18,62 +18,64 @@ Item {
         focus: true
         maxZoom: 3
 
-        onZoomChanged: zoomSlider.value = (zoom - 1) / (maxZoom - 1);
+        onZoomChanged: zoomSlider.value = (zoom - pdf.fitZoom) / (maxZoom - 1)
 
         Keys.onPressed: {
 
                 switch(event.key)
                 {
                 case Qt.Key_W:
-                    pdf.pan.y += 10;
-                    break;
+                    pdf.pan.y += 10
+                    break
 
                 case Qt.Key_S:
-                    pdf.pan.y -= 10;
-                    break;
+                    pdf.pan.y -= 10
+                    break
 
                 case Qt.Key_A:
-                    pdf.pan.x += 10;
-                    break;
+                    pdf.pan.x += 10
+                    break
 
                 case Qt.Key_D:
-                    pdf.pan.x -= 10;
-                    break;
+                    pdf.pan.x -= 10
+                    break
 
                 case Qt.Key_E:
                     pdf.rotatePageClockwise()
-                    break;
+                    break
 
                 case Qt.Key_Q:
                     pdf.rotatePageCounterClockwise()
-                    break;
+                    break
 
                 case Qt.Key_Plus:
-                    pdf.zoom *= 1.1;
-                    break;
+                    pdf.zoom *= 1.1
+                    break
 
                 case Qt.Key_Minus:
-                    pdf.zoom /= 1.1;
-                    break;
+                    pdf.zoom /= 1.1
+                    break
 
                 case Qt.Key_Y:
-                    pdf.pageNumber--;
-                    break;
+                    pdf.pageNumber--
+                    break
 
                 case Qt.Key_X:
-                    pdf.pageNumber++;
-                    break;
+                    pdf.pageNumber++
+                    break
 
                 case Qt.Key_R:
-                    pdf.zoom = pdf.fitZoom;
-                    break;
+                    pdf.zoom = pdf.fitZoom
+                    pdf.pan = pdf.fitPan
+                    break
 
                 case Qt.Key_F:
-                    pdf.zoom = pdf.coverZoom;
-                    break;
+                    pdf.zoom = pdf.coverZoom
+                    pdf.pan = pdf.coverPan
+                    break
 
                 default:
-                    break;
+                    break
                 }
             }
     }
@@ -88,7 +90,7 @@ Item {
         color: themeColor
         value: 0
 
-        onValueChanged: pdf.zoom = 1 + (pdf.maxZoom - 1) * value;
+        onValueChanged: pdf.zoom = 1 + (pdf.maxZoom - pdf.fitZoom) * value
     }
 
     // Shadow of the button row:
@@ -98,8 +100,14 @@ Item {
          anchors.bottom: buttons.top
          height: 10
          gradient: Gradient {
-             GradientStop { position: 0.0; color: "#00000000" }
-             GradientStop { position: 1.0; color: "#55000000" }
+             GradientStop {
+                 position: 0.0
+                 color: "#00000000"
+             }
+             GradientStop {
+                 position: 1.0
+                 color: "#55000000"
+             }
          }
     }
 
@@ -137,7 +145,7 @@ Item {
                         property: "zoom"
                         to: 1
                         duration: 200
-                        easing.type: Easing.InOutQuad;
+                        easing.type: Easing.InOutQuad
                     }
 
                     PropertyAnimation {
@@ -145,7 +153,7 @@ Item {
                         property: "pan"
                         to: pdf.fitPan
                         duration: 200
-                        easing.type: Easing.InOutQuad;
+                        easing.type: Easing.InOutQuad
                     }
                 }
 
@@ -164,7 +172,7 @@ Item {
                         property: "zoom"
                         to: pdf.coverZoom
                         duration: 200
-                        easing.type: Easing.InOutQuad;
+                        easing.type: Easing.InOutQuad
                     }
 
                     PropertyAnimation {
@@ -172,7 +180,7 @@ Item {
                         property: "pan"
                         to: pdf.coverPan
                         duration: 200
-                        easing.type: Easing.InOutQuad;
+                        easing.type: Easing.InOutQuad
                     }
                 }
             }
@@ -180,13 +188,13 @@ Item {
             // Rotate counter-clockwise:
             Button {
                 text: "↶"
-                onClicked: pdf.rotatePageCounterClockwise();
+                onClicked: pdf.rotatePageCounterClockwise()
             }
 
             // Rotate clockwise:
             Button {
                 text: "↷"
-                onClicked: pdf.rotatePageClockwise();
+                onClicked: pdf.rotatePageClockwise()
             }
 
             // Document title:
@@ -242,7 +250,7 @@ Item {
             // Previous page:
             Button {
                 text: "Previous"
-                onClicked: pdf.pageNumber--;
+                onClicked: pdf.pageNumber--
             }
 
             // Next page:
@@ -250,7 +258,7 @@ Item {
                 text: "Next"
                 textColor: "white"
                 backgroundColor: themeColor
-                onClicked: pdf.pageNumber++;
+                onClicked: pdf.pageNumber++
             }
         }
 
