@@ -17,7 +17,7 @@ RESOURCES += rc.qrc
 
 SOURCES += \
     src/main.cpp \
-    src/pdf_viewer/PdfViewer.cpp
+    src/pdf_viewer/PdfViewer.cpp \
 
 HEADERS  += \
     src/pdf_viewer/PdfViewer.h

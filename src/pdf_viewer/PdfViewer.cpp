@@ -7,6 +7,8 @@
 
 #include <poppler/qt4/poppler-qt4.h>
 
+namespace pdf_viewer {
+
 // Compare to floating points value up to a given precision.
 // The `log10(precision)`th digit following the comma is guaranteed to be equal.
 bool
@@ -562,3 +564,5 @@ PdfViewer::paint(
     painter->setPen(Qt::black);
     painter->drawRect(QRect(0, 0, image.width() - 1, image.height() - 1));
 }
+
+} // namespace pdf_viewer

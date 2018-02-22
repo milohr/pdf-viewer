@@ -12,6 +12,8 @@ namespace Poppler {
     class Page;
 }
 
+namespace pdf_viewer {
+
 /**
  * Display a PDF file.
  */
@@ -561,3 +563,5 @@ private slots:
     centralizePage();
 
 };
+
+} // namespace pdf_viewer

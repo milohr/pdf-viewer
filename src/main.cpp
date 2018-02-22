@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     // Register PDF viewer component to QML:
-    qmlRegisterType<PdfViewer>("PdfViewer", 1, 0, "PdfViewer");
+    qmlRegisterType<pdf_viewer::PdfViewer>("PdfViewer", 1, 0, "PdfViewer");
 
     // Create the main window:
     QMainWindow window;
