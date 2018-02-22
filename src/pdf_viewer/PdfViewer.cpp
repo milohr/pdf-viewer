@@ -286,7 +286,6 @@ PdfViewer::setZoom(
         qreal zoom
 )
 {
-    qDebug() << "set zoom to:" << zoom << "   (clamped between:" << fitZoom() << "and" << mMaxZoom;
     zoom = qBound(fitZoom(), zoom, mMaxZoom);
     if(!equalReals(mZoom, zoom))
     {
@@ -320,7 +319,6 @@ PdfViewer::setMaxZoom(
 qreal
 PdfViewer::coverZoom() const
 {
-    //qDebug() << "coverZoom: cover:" << coverScale() << "fit:" << fitScale() << "   =>" << coverScale() / fitScale();
     return coverScale() / fitScale();
 }
 
@@ -479,20 +477,12 @@ PdfViewer::coverScale() const
     qreal const pageHeight = pageQuad().height();
     qreal const pageAspectRatio = pageWidth / pageHeight;
 
-    //qDebug() << "\n";
-    //qDebug() << "coverScale:";
-    //qDebug() << "   size:    " << boundingRect();
-    //qDebug() << "   page-size:" << pageQuad();
-    //qDebug() << "   page-aspect: " << pageAspectRatio;
-
     if(width() > height() * pageAspectRatio)
     {
-        //qDebug() << "    (1: same width)   zoom:" << width() / pageWidth;
         return width() / pageWidth;
     }
     else
     {
-        //qDebug() << "    (2: same height)   zoom:" << height() / pageHeight;
         return height() / pageHeight;
     }
 }
@@ -531,8 +521,6 @@ PdfViewer::paint(
     }
 
     qreal scale = convertZoomToScale();
-
-    //qDebug() << "scale:" << scale << "   (fit-scale:" << fitScale() << ")";
 
     // Image dimensions the image would have if fully rendered by Poppler:
     qreal const imageHeight = scale * pageQuad().height();
