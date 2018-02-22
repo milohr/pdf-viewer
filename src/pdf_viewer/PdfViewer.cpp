@@ -240,6 +240,8 @@ PdfViewer::setPan(
 {
     if(mPan != pan)
     {
+        scroll(pan.x() - mPan.x(), pan.y() - mPan.y());
+
         mPan = pan;
         emit panChanged();
     }
@@ -365,6 +367,20 @@ void
 PdfViewer::rotatePageCounterClockwise()
 {
     setPageOrientation(static_cast<PageOrientation>(mPageOrientation - HALF_PI));
+}
+
+void PdfViewer::zoomIn(
+        qreal const factor
+)
+{
+    setZoom(zoom() * factor);
+}
+
+void PdfViewer::zoomOut(
+        qreal const factor
+)
+{
+    setZoom(zoom() / factor);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -519,6 +535,8 @@ PdfViewer::paint(
     {
         return;
     }
+
+    qDebug() << "Render:" << boundingRect();
 
     qreal scale = convertZoomToScale();
 

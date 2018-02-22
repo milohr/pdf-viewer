@@ -49,11 +49,11 @@ Item {
                     break
 
                 case Qt.Key_Plus:
-                    pdf.zoom *= 1.1
+                    pdf.zoomIn(1.1)
                     break
 
                 case Qt.Key_Minus:
-                    pdf.zoom /= 1.1
+                    pdf.zoomOut(1.1)
                     break
 
                 case Qt.Key_Y:

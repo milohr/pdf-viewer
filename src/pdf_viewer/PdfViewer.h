@@ -371,19 +371,6 @@ public slots:
     );
 
     /**
-     * Paint item and renderbPDF.
-     * @param painter Painter.
-     * @param option Graphics options, ignored.
-     * @param widget Widget, ignored.
-     */
-    virtual void
-    paint(
-            QPainter * const painter,
-            QStyleOptionGraphicsItem const * const option,
-            QWidget * const widget
-    );
-
-    /**
      * Rotate page clockwise.
      */
     Q_INVOKABLE void
@@ -394,6 +381,24 @@ public slots:
      */
     Q_INVOKABLE void
     rotatePageCounterClockwise();
+
+    /**
+     * Zoom in by a give factor.
+     * @param factor Factor to zoom in.
+     */
+    Q_INVOKABLE void
+    zoomIn(
+            qreal const factor
+    );
+
+    /**
+     * Zoom out by a give factor.
+     * @param factor Factor to zoom out.
+     */
+    Q_INVOKABLE void
+    zoomOut(
+            qreal const factor
+    );
 
 signals:
 
@@ -449,6 +454,19 @@ signals:
 protected:
 
     /**
+     * Paint item and renderbPDF.
+     * @param painter Painter.
+     * @param option Graphics options, ignored.
+     * @param widget Widget, ignored.
+     */
+    virtual void
+    paint(
+            QPainter * const painter,
+            QStyleOptionGraphicsItem const * const option,
+            QWidget * const widget
+    );
+
+    /**
      * Grabs mouse focus.
      * @param event Mouse event.
      */
@@ -476,6 +494,48 @@ protected:
     );
 
 private slots:
+
+    void
+    setStatus(
+            Status const status
+    );
+
+    /**
+     * @return Page orientation expressed in radians.
+     */
+    qreal
+    pageRotation();
+
+    /**
+     * @return Size of page considering rotation, so width and height might be swapped.
+     */
+    QSizeF
+    pageQuad() const;
+
+    /**
+     * @return A real page scalement, computed from the logical zoom.
+     */
+    qreal
+    convertZoomToScale() const;
+
+    /**
+     * @return The scale to which the page is guaranteed to be completely observable. This is, by defintion, a zoom of 1.
+     */
+    qreal
+    fitScale() const;
+
+    /**
+     * @return The scale to which the page is guaranteed to completely cover its bounding rect. This is, by defintion, a zoom > 1.
+     */
+    qreal
+    coverScale() const;
+
+    /**
+     * Centralize page if page zoom is fitting.
+     * Used to initially centralize a page upon opening.
+     */
+    void
+    centralizePage();
 
     /**
      * Dispatch a new render request.
@@ -532,50 +592,6 @@ private:
      * @see rotateClockwise(), rotateCounterClockwise()
      */
     PageOrientation mPageOrientation;
-
-    void
-    setStatus(
-            Status const status
-    );
-
-    /**
-     * @return Page orientation expressed in radians.
-     */
-    qreal
-    pageRotation();
-
-    /**
-     * @return Size of page considering rotation, so width and height might be swapped.
-     */
-    QSizeF
-    pageQuad() const;
-
-    /**
-     * @return A real page scalement, computed from the logical zoom.
-     */
-    qreal
-    convertZoomToScale() const;
-
-    /**
-     * @return The scale to which the page is guaranteed to be completely observable. This is, by defintion, a zoom of 1.
-     */
-    qreal
-    fitScale() const;
-
-    /**
-     * @return The scale to which the page is guaranteed to completely cover its bounding rect. This is, by defintion, a zoom > 1.
-     */
-    qreal
-    coverScale() const;
-
-private slots:
-
-    /**
-     * Centralize page if page zoom is fitting.
-     * Used to initially centralize a page upon opening.
-     */
-    void
-    centralizePage();
 
 };
 
