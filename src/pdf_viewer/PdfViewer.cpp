@@ -43,9 +43,9 @@ PdfViewer::PdfViewer(
     connect(this, SIGNAL(widthChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(heightChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(pageNumberChanged()), this, SLOT(renderPdf()));
+    connect(this, SIGNAL(pageOrientationChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(panChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(zoomChanged()), this, SLOT(renderPdf()));
-    connect(this, SIGNAL(pageOrientationChanged()), this, SLOT(renderPdf()));
 
     connect(this, SIGNAL(widthChanged()), this, SIGNAL(coverZoomChanged()));
     connect(this, SIGNAL(heightChanged()), this, SIGNAL(coverZoomChanged()));
@@ -105,7 +105,11 @@ PdfViewer::setSource(
         setStatus(OK);
 
         // Enable anti-aliased rendering in Poppler:
+        mDocument->setRenderHint(Poppler::Document::Antialiasing);
         mDocument->setRenderHint(Poppler::Document::TextAntialiasing);
+        mDocument->setRenderHint(Poppler::Document::TextHinting);
+        mDocument->setRenderHint(Poppler::Document::TextSlightHinting);
+        mDocument->setRenderHint(Poppler::Document::ThinLineShape);
 
         // Reset page number to zero:
         setPageNumber(0);
@@ -256,7 +260,8 @@ PdfViewer::coverPan()
                 (pageQuad().height() * (coverScale() - fitScale())) / 2);
 }
 
-void PdfViewer::centralizePage()
+void
+PdfViewer::centralizePage()
 {
     if(equalReals(mZoom, 1))
     {
@@ -441,9 +446,9 @@ PdfViewer::fitScale() const
 
     qreal const pageWidth = pageQuad().width();
     qreal const pageHeight = pageQuad().height();
-    qreal const pageAspect = pageWidth / pageHeight;
+    qreal const pageAspectRatio = pageWidth / pageHeight;
 
-    if(width() > height() * pageAspect)
+    if(width() > height() * pageAspectRatio)
     {
         return height() / pageHeight;
     }
@@ -463,15 +468,15 @@ PdfViewer::coverScale() const
 
     qreal const pageWidth = pageQuad().width();
     qreal const pageHeight = pageQuad().height();
-    qreal const pageAspect = pageWidth / pageHeight;
+    qreal const pageAspectRatio = pageWidth / pageHeight;
 
     qDebug() << "\n";
     qDebug() << "coverScale:";
     qDebug() << "   size:    " << boundingRect();
     qDebug() << "   page-size:" << pageQuad();
-    qDebug() << "   page-aspect: " << pageAspect;
+    qDebug() << "   page-aspect: " << pageAspectRatio;
 
-    if(width() > height() * pageAspect)
+    if(width() > height() * pageAspectRatio)
     {
         qDebug() << "    (1: same width)   zoom:" << width() / pageWidth;
         return width() / pageWidth;

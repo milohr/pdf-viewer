@@ -14,5 +14,10 @@ MOC_DIR = build/moc
 RCC_DIR = build/rcc
 
 RESOURCES += rc.qrc
-SOURCES += src/main.cpp src/PdfViewer.cpp
-HEADERS  += src/PdfViewer.h
+
+SOURCES += \
+    src/main.cpp \
+    src/pdf_viewer/PdfViewer.cpp
+
+HEADERS  += \
+    src/pdf_viewer/PdfViewer.h

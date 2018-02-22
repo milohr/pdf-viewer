@@ -3,7 +3,7 @@
 #include <QIcon>
 #include <QDeclarativeView>
 
-#include "PdfViewer.h"
+#include "pdf_viewer/PdfViewer.h"
 
 int main(int argc, char *argv[])
 {

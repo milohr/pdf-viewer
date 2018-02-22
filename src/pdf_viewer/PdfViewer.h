@@ -21,67 +21,108 @@ class PdfViewer
 
     Q_OBJECT
 
-    Q_ENUMS(Status PageOrientation)
+    Q_ENUMS(
+            Status
+            PageOrientation)
 
     /**
      * Document file path.
      */
-    Q_PROPERTY(QString source READ source WRITE setSource NOTIFY sourceChanged)
+    Q_PROPERTY(
+            QString source
+            READ source
+            WRITE setSource
+            NOTIFY sourceChanged)
 
     /**
      * Page number.
      */
-    Q_PROPERTY(int pageNumber READ pageNumber WRITE setPageNumber NOTIFY pageNumberChanged)
+    Q_PROPERTY(
+            int pageNumber
+            READ pageNumber
+            WRITE setPageNumber
+            NOTIFY pageNumberChanged)
 
     /**
      * Document status.
      */
-    Q_PROPERTY(Status status READ status NOTIFY statusChanged)
+    Q_PROPERTY(
+            Status status
+            READ status
+            NOTIFY statusChanged)
 
     /**
      * Document status as message string.
      */
-    Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusChanged)
+    Q_PROPERTY(
+            QString statusMessage
+            READ statusMessage
+            NOTIFY statusChanged)
 
     /**
      * Document title.
      */
-    Q_PROPERTY(QString documentTitle READ documentTitle NOTIFY sourceChanged)
+    Q_PROPERTY(
+            QString documentTitle
+            READ documentTitle
+            NOTIFY sourceChanged)
 
     /**
      * Document author.
      */
-    Q_PROPERTY(QString documentAuthor READ documentAuthor NOTIFY sourceChanged)
+    Q_PROPERTY(
+            QString documentAuthor
+            READ documentAuthor
+            NOTIFY sourceChanged)
 
     /**
      * Document creator.
      */
-    Q_PROPERTY(QString documentCreator READ documentCreator NOTIFY sourceChanged)
+    Q_PROPERTY(
+            QString documentCreator
+            READ documentCreator
+            NOTIFY sourceChanged)
 
     /**
      * Document creation date.
      */
-    Q_PROPERTY(QDateTime documentCreationDate READ documentCreationDate NOTIFY sourceChanged)
+    Q_PROPERTY(
+            QDateTime documentCreationDate
+            READ documentCreationDate
+            NOTIFY sourceChanged)
 
     /**
      * Document modification date.
      */
-    Q_PROPERTY(QDateTime documentModificationDate READ documentModificationDate NOTIFY sourceChanged)
+    Q_PROPERTY(
+            QDateTime documentModificationDate
+            READ documentModificationDate
+            NOTIFY sourceChanged)
 
     /**
      * Page panning.
      */
-    Q_PROPERTY(QPointF pan READ pan WRITE setPan NOTIFY panChanged)
+    Q_PROPERTY(
+            QPointF pan
+            READ pan
+            WRITE setPan
+            NOTIFY panChanged)
 
     /**
      * The pan at which the page would be centralized at fit zoom.
      */
-    Q_PROPERTY(QPointF fitPan READ fitPan NOTIFY coverZoomChanged)
+    Q_PROPERTY(
+            QPointF fitPan
+            READ fitPan
+            NOTIFY coverZoomChanged)
 
     /**
      * The pan at which the page should sit when cover zoom is requested.
      */
-    Q_PROPERTY(QPointF coverPan READ coverPan NOTIFY coverZoomChanged)
+    Q_PROPERTY(
+            QPointF coverPan
+            READ coverPan
+            NOTIFY coverZoomChanged)
 
     /**
      * Zoom.
@@ -91,22 +132,37 @@ class PdfViewer
      * A zoom of 1 is by definition the fit zoom and therefore does not depend
      * on page orientation or graphics item size. A zoom < 1 is not allowed.
      */
-    Q_PROPERTY(qreal zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
+    Q_PROPERTY(
+            qreal zoom
+            READ zoom
+            WRITE setZoom
+            NOTIFY zoomChanged)
 
     /**
      * Maximum zoom. Minimum is 1 by definition.
      */
-    Q_PROPERTY(qreal maxZoom READ maxZoom WRITE setMaxZoom NOTIFY maxZoomChanged)
+    Q_PROPERTY(
+            qreal maxZoom
+            READ maxZoom
+            WRITE setMaxZoom
+            NOTIFY maxZoomChanged)
 
     /**
      * Page orientation.
      */
-    Q_PROPERTY(PageOrientation pageOrientation READ pageOrientation WRITE setPageOrientation NOTIFY pageOrientationChanged)
+    Q_PROPERTY(
+            PageOrientation pageOrientation
+            READ pageOrientation
+            WRITE setPageOrientation
+            NOTIFY pageOrientationChanged)
 
     /**
      * The zoom at which the page would cover the whole graphics item.
      */
-    Q_PROPERTY(qreal coverZoom READ coverZoom NOTIFY coverZoomChanged)
+    Q_PROPERTY(
+            qreal coverZoom
+            READ coverZoom
+            NOTIFY coverZoomChanged)
 
 public:
 
