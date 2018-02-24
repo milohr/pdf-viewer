@@ -593,7 +593,12 @@ private:
      */
     PageOrientation mPageOrientation;
 
-    QImage mRenderedPdf;
+    void
+    renderPdfIntoCache(
+            QRectF const area
+    );
+
+    QImage mCache;
 
 };
 

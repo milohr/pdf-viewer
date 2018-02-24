@@ -523,6 +523,13 @@ PdfViewer::renderPdf()
     update();
 }
 
+void PdfViewer::renderPdfIntoCache(
+        QRectF const area
+)
+{
+
+}
+
 void
 PdfViewer::paint(
         QPainter * const painter,
@@ -545,35 +552,30 @@ PdfViewer::paint(
                          );
 
     // Transform mapping the document onto it's position on screen:
-    QTransform const transform(QTransform()
-                               .translate(mPan.x(), mPan.y())
-                               .translate(
-                                   (-pageQuad().width() * (scale - fitScale())) / 2,
-                                   (-pageQuad().height() * (scale - fitScale())) / 2)
-    );
-
-    // Transform from rendered on-screen space into untransformed space:
-    QTransform const invertedTransform = transform.inverted(Q_NULLPTR);
+    QPointF const translation =
+            QPointF(mPan.x(), mPan.y())
+            + QPointF((-pageQuad().width() * (scale - fitScale())) / 2,
+                      (-pageQuad().height() * (scale - fitScale())) / 2);
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
     QRectF const rect(0, 0, boundingRect().width(), boundingRect().height());
-    QRectF const visiblePdf = invertedTransform.mapRect(rect) & pdfRect;
 
-    QImage const image = mPage->renderToImage(
+    QRectF const visiblePdf = rect.translated(-translation) & pdfRect;
+
+    QPixmap const image = QPixmap::fromImage(mPage->renderToImage(
                 72.0 * scale,
                 72.0 * scale,
                 static_cast<int>(visiblePdf.x()),
                 static_cast<int>(visiblePdf.y()),
                 static_cast<int>(visiblePdf.width()),
                 static_cast<int>(visiblePdf.height()),
-                static_cast<Poppler::Page::Rotation>(mPageOrientation));
+                static_cast<Poppler::Page::Rotation>(mPageOrientation)));
 
     // Painter should start drawing the image at the current clipped visible rect position:
-    painter->setTransform(transform, true);
-    painter->setTransform(QTransform().translate(visiblePdf.x(), visiblePdf.y()), true);
+    painter->translate(translation + visiblePdf.topLeft());
 
     // Draw rendered page itself:
-    painter->drawImage(0, 0, image);
+    painter->drawPixmap(0, 0, image);
 
     // Draw page border:
     painter->setPen(Qt::black);
