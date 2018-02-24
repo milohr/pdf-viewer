@@ -39,7 +39,7 @@ PdfViewer::PdfViewer(
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
     setAcceptTouchEvents(true);
     setAcceptHoverEvents(false);
-    setSmooth(false);
+    setSmooth(false); // Anti-aliasing is done by Poppler itself
     setFocus(true);
 
     connect(this, SIGNAL(widthChanged()), this, SLOT(renderPdf()));
@@ -442,21 +442,21 @@ PdfViewer::mouseDoubleClickEvent(
 qreal
 PdfViewer::pageRotation()
 {
-    return mPageOrientation * M_PI_2;
+    return mPageOrientation * M_PI_2; // Each step is equal to 0.5π
 }
 
 QSizeF
 PdfViewer::pageQuad() const
 {
     return (mPageOrientation == ZERO_PI) || (mPageOrientation == ONE_PI)
-            ? mPage->pageSize()
-            : QSizeF(mPage->pageSize().height(), mPage->pageSize().width());
+            ? mPage->pageSize() // Take page size as is.
+            : QSizeF(mPage->pageSize().height(), mPage->pageSize().width()); // Swap the page's width and height.
 }
 
 qreal
 PdfViewer::convertZoomToScale() const
 {
-    return mZoom * fitScale();
+    return mZoom * fitScale(); // Remember, a zoom of 1 *is defined* as the fit scale.
 }
 
 qreal
@@ -536,18 +536,15 @@ PdfViewer::paint(
         return;
     }
 
-    qDebug() << "Render:" << boundingRect();
+    qreal const scale = convertZoomToScale();
 
-    qreal scale = convertZoomToScale();
+    // This rect is equally in size as the final Pdf which would appear on screen:
+    QRectF const pdfRect(0, 0,
+                         scale * pageQuad().width(),
+                         scale * pageQuad().height()
+                         );
 
-    // Image dimensions the image would have if fully rendered by Poppler:
-    qreal const imageHeight = scale * pageQuad().height();
-    qreal const imageWidth = scale * pageQuad().width();
-
-    // A rect completely containing the PDF:
-    QRectF const pdfRect(0, 0, imageWidth, imageHeight);
-
-    // Calculate a transformation matrix:
+    // Transform mapping the document onto it's position on screen:
     QTransform const transform(QTransform()
                                .translate(mPan.x(), mPan.y())
                                .translate(
@@ -555,9 +552,12 @@ PdfViewer::paint(
                                    (-pageQuad().height() * (scale - fitScale())) / 2)
     );
 
+    // Transform from rendered on-screen space into untransformed space:
+    QTransform const invertedTransform = transform.inverted(Q_NULLPTR);
+
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
     QRectF const rect(0, 0, boundingRect().width(), boundingRect().height());
-    QRectF const visiblePdf = transform.inverted(Q_NULLPTR).mapRect(rect).intersected(pdfRect);
+    QRectF const visiblePdf = invertedTransform.mapRect(rect) & pdfRect;
 
     QImage const image = mPage->renderToImage(
                 72.0 * scale,

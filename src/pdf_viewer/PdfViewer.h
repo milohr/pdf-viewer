@@ -593,6 +593,8 @@ private:
      */
     PageOrientation mPageOrientation;
 
+    QImage mRenderedPdf;
+
 };
 
 } // namespace pdf_viewer
