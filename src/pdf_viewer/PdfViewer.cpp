@@ -533,7 +533,7 @@ void PdfViewer::setupFramebuffer()
 {
     delete mFramebuffer;
     mFramebuffer = new QPixmap(static_cast<int>(width()), static_cast<int>(height()));
-    mFramebuffer->fill(QColor("#eee"));
+    mFramebuffer->fill(QColor(Qt::transparent));
 }
 
 void PdfViewer::renderPdfIntoFramebuffer(
