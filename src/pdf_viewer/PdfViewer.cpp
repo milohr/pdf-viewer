@@ -526,6 +526,7 @@ void
 PdfViewer::renderPdf()
 {
     mRenderRegion = QRect(0, 0, 500, qRound(height()));
+    mRenderRegion |= QRect(700, 200, 200, 200);
     update();
 }
 
@@ -565,17 +566,19 @@ void PdfViewer::renderPdfIntoFramebuffer(
 
     // Painter should start drawing the image at the current clipped visible rect position:
 
-    mDocument->setRenderBackend(Poppler::Document::ArthurBackend);
-
     QPainter bufferPainter(mFramebuffer);
-    bufferPainter.translate(translation + 2 * visiblePdf.topLeft());
-    mPage->renderToPainter(&bufferPainter, 72.0 * scale,
-                           72.0 * scale,
-                           static_cast<int>(visiblePdf.x()),
-                           static_cast<int>(visiblePdf.y()),
-                           static_cast<int>(visiblePdf.width()),
-                           static_cast<int>(visiblePdf.height()),
-                           static_cast<Poppler::Page::Rotation>(mPageOrientation));
+    bufferPainter.translate(translation + visiblePdf.topLeft());
+
+    QImage image = mPage->renderToImage(
+                72.0 * scale,
+                72.0 * scale,
+                visiblePdf.x(),
+                visiblePdf.y(),
+                visiblePdf.width(),
+                visiblePdf.height(),
+                static_cast<Poppler::Page::Rotation>(mPageOrientation));
+
+    bufferPainter.drawImage(0, 0, image);
 }
 
 void
