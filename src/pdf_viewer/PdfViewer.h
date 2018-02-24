@@ -543,6 +543,14 @@ private slots:
     void
     renderPdf();
 
+    void
+    setupFramebuffer();
+
+    void
+    renderPdfIntoFramebuffer(
+            QRectF const rect
+    );
+
 private:
 
     /**
@@ -593,12 +601,7 @@ private:
      */
     PageOrientation mPageOrientation;
 
-    void
-    renderPdfIntoCache(
-            QRectF const area
-    );
-
-    QImage mCache;
+    QPixmap *mFramebuffer;
 
 };
 

@@ -35,6 +35,7 @@ PdfViewer::PdfViewer(
     , mZoom(fitZoom())
     , mMaxZoom(6)
     , mPageOrientation(ZERO_PI)
+    , mFramebuffer(Q_NULLPTR)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -43,6 +44,9 @@ PdfViewer::PdfViewer(
     setAcceptHoverEvents(false);
     setSmooth(false); // Anti-aliasing is done by Poppler itself
     setFocus(true);
+
+    connect(this, SIGNAL(widthChanged()), this, SLOT(setupFramebuffer()));
+    connect(this, SIGNAL(heightChanged()), this, SLOT(setupFramebuffer()));
 
     connect(this, SIGNAL(widthChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(heightChanged()), this, SLOT(renderPdf()));
@@ -525,18 +529,15 @@ PdfViewer::renderPdf()
     update();
 }
 
-void PdfViewer::renderPdfIntoCache(
-        QRectF const area
-)
+void PdfViewer::setupFramebuffer()
 {
-
+    delete mFramebuffer;
+    mFramebuffer = new QPixmap(static_cast<int>(width()), static_cast<int>(height()));
+    mFramebuffer->fill(QColor("#eee"));
 }
 
-void
-PdfViewer::paint(
-        QPainter * const painter,
-        QStyleOptionGraphicsItem const * const,
-        QWidget * const
+void PdfViewer::renderPdfIntoFramebuffer(
+        QRectF const rect
 )
 {
     // If no page is set currently, skip:
@@ -560,32 +561,41 @@ PdfViewer::paint(
                       (-pageQuad().height() * (scale - fitScale())) / 2);
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
-    QRectF const rect(0, 0, boundingRect().width(), boundingRect().height());
-
     QRectF const visiblePdf = rect.translated(-translation) & pdfRect;
 
     // Painter should start drawing the image at the current clipped visible rect position:
 
     mDocument->setRenderBackend(Poppler::Document::ArthurBackend);
 
-    painter->translate(translation + visiblePdf.topLeft());
-
-    painter->translate(visiblePdf.topLeft());
-    mPage->renderToPainter(painter, 72.0 * scale,
+    QPainter bufferPainter(mFramebuffer);
+    bufferPainter.translate(translation + 2 * visiblePdf.topLeft());
+    mPage->renderToPainter(&bufferPainter, 72.0 * scale,
                            72.0 * scale,
                            static_cast<int>(visiblePdf.x()),
                            static_cast<int>(visiblePdf.y()),
                            static_cast<int>(visiblePdf.width()),
                            static_cast<int>(visiblePdf.height()),
                            static_cast<Poppler::Page::Rotation>(mPageOrientation));
+}
+
+void
+PdfViewer::paint(
+        QPainter * const painter,
+        QStyleOptionGraphicsItem const * const,
+        QWidget * const
+)
+{
+    renderPdfIntoFramebuffer(QRectF(0, 0, width(), height()));
+
+    painter->drawPixmap(0, 0, *mFramebuffer);
 
     // Draw page border:
-    painter->setPen(Qt::black);
-    painter->translate(-visiblePdf.topLeft());
+    /*painter->setPen(Qt::black);
+    painter->translate(translation + visiblePdf.topLeft());
     painter->drawRect(QRect(
                           0, 0,
                           static_cast<int>(visiblePdf.width()) - 1,
-                          static_cast<int>(visiblePdf.height()) - 1));
+                          static_cast<int>(visiblePdf.height()) - 1));*/
 }
 
 } // namespace pdf_viewer
