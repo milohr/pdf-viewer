@@ -4,6 +4,8 @@
 #include <QtCore/qmath.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
+#include <QRegion>
+#include <QPixmap>
 
 #include <poppler/qt4/poppler-qt4.h>
 
@@ -562,24 +564,28 @@ PdfViewer::paint(
 
     QRectF const visiblePdf = rect.translated(-translation) & pdfRect;
 
-    QPixmap const image = QPixmap::fromImage(mPage->renderToImage(
-                72.0 * scale,
-                72.0 * scale,
-                static_cast<int>(visiblePdf.x()),
-                static_cast<int>(visiblePdf.y()),
-                static_cast<int>(visiblePdf.width()),
-                static_cast<int>(visiblePdf.height()),
-                static_cast<Poppler::Page::Rotation>(mPageOrientation)));
-
     // Painter should start drawing the image at the current clipped visible rect position:
+
+    mDocument->setRenderBackend(Poppler::Document::ArthurBackend);
+
     painter->translate(translation + visiblePdf.topLeft());
 
-    // Draw rendered page itself:
-    painter->drawPixmap(0, 0, image);
+    painter->translate(visiblePdf.topLeft());
+    mPage->renderToPainter(painter, 72.0 * scale,
+                           72.0 * scale,
+                           static_cast<int>(visiblePdf.x()),
+                           static_cast<int>(visiblePdf.y()),
+                           static_cast<int>(visiblePdf.width()),
+                           static_cast<int>(visiblePdf.height()),
+                           static_cast<Poppler::Page::Rotation>(mPageOrientation));
 
     // Draw page border:
     painter->setPen(Qt::black);
-    painter->drawRect(QRect(0, 0, image.width() - 1, image.height() - 1));
+    painter->translate(-visiblePdf.topLeft());
+    painter->drawRect(QRect(
+                          0, 0,
+                          static_cast<int>(visiblePdf.width()) - 1,
+                          static_cast<int>(visiblePdf.height()) - 1));
 }
 
 } // namespace pdf_viewer
