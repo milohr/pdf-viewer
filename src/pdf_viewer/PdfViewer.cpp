@@ -525,8 +525,7 @@ equalReals(
 void
 PdfViewer::renderPdf()
 {
-    mRenderRegion = QRect(0, 0, 500, qRound(height()));
-    mRenderRegion |= QRect(700, 200, 200, 200);
+    mRenderRegion = QRect(0, 0, qRound(width()), qRound(height()));
     update();
 }
 
@@ -534,7 +533,7 @@ void PdfViewer::setupFramebuffer()
 {
     delete mFramebuffer;
     mFramebuffer = new QPixmap(static_cast<int>(width()), static_cast<int>(height()));
-    mFramebuffer->fill(QColor(Qt::transparent));
+    mFramebuffer->fill(Qt::transparent);
 }
 
 void PdfViewer::renderPdfIntoFramebuffer(
@@ -550,10 +549,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
     qreal const scale = convertZoomToScale();
 
     // This rect is equally in size as the final Pdf which would appear on screen:
-    QRect const pdfRect(0, 0,
-                         qRound(scale * pageQuad().width()),
-                         qRound(scale * pageQuad().height())
-                         );
+    QRect const pdfRect(0, 0, qRound(scale * pageQuad().width()), qRound(scale * pageQuad().height()));
 
     // Transform mapping the document onto it's position on screen:
     QPoint const translation =
@@ -569,7 +565,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
     QPainter bufferPainter(mFramebuffer);
     bufferPainter.translate(translation + visiblePdf.topLeft());
 
-    QImage image = mPage->renderToImage(
+    QImage const image = mPage->renderToImage(
                 72.0 * scale,
                 72.0 * scale,
                 visiblePdf.x(),
