@@ -2,6 +2,7 @@
 
 #include <QDeclarativeItem>
 #include <QDateTime>
+#include <QRegion>
 
 #ifndef Q_NULLPTR
 #define Q_NULLPTR NULL
@@ -548,7 +549,7 @@ private slots:
 
     void
     renderPdfIntoFramebuffer(
-            QRectF const rect
+            QRect const rect
     );
 
 private:
@@ -602,6 +603,8 @@ private:
     PageOrientation mPageOrientation;
 
     QPixmap *mFramebuffer;
+
+    QRegion mRenderRegion;
 
 };
 

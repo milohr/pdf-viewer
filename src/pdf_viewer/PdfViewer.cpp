@@ -4,7 +4,6 @@
 #include <QtCore/qmath.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
-#include <QRegion>
 #include <QPixmap>
 
 #include <poppler/qt4/poppler-qt4.h>
@@ -526,6 +525,7 @@ equalReals(
 void
 PdfViewer::renderPdf()
 {
+    mRenderRegion = QRect(0, 0, 500, qRound(height()));
     update();
 }
 
@@ -537,7 +537,7 @@ void PdfViewer::setupFramebuffer()
 }
 
 void PdfViewer::renderPdfIntoFramebuffer(
-        QRectF const rect
+        QRect const rect
 )
 {
     // If no page is set currently, skip:
@@ -549,19 +549,19 @@ void PdfViewer::renderPdfIntoFramebuffer(
     qreal const scale = convertZoomToScale();
 
     // This rect is equally in size as the final Pdf which would appear on screen:
-    QRectF const pdfRect(0, 0,
-                         scale * pageQuad().width(),
-                         scale * pageQuad().height()
+    QRect const pdfRect(0, 0,
+                         qRound(scale * pageQuad().width()),
+                         qRound(scale * pageQuad().height())
                          );
 
     // Transform mapping the document onto it's position on screen:
-    QPointF const translation =
-            QPointF(mPan.x(), mPan.y())
-            + QPointF((-pageQuad().width() * (scale - fitScale())) / 2,
-                      (-pageQuad().height() * (scale - fitScale())) / 2);
+    QPoint const translation =
+            QPoint(qRound(mPan.x()), qRound(mPan.y()))
+            + QPoint(qRound((-pageQuad().width() * (scale - fitScale())) / 2),
+                      qRound((-pageQuad().height() * (scale - fitScale())) / 2));
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
-    QRectF const visiblePdf = rect.translated(-translation) & pdfRect;
+    QRect const visiblePdf = rect.translated(-translation) & pdfRect;
 
     // Painter should start drawing the image at the current clipped visible rect position:
 
@@ -585,7 +585,10 @@ PdfViewer::paint(
         QWidget * const
 )
 {
-    renderPdfIntoFramebuffer(QRectF(0, 0, width(), height()));
+    for(int i = 0; i < mRenderRegion.rectCount(); i++)
+    {
+        renderPdfIntoFramebuffer(mRenderRegion.rects()[i]);
+    }
 
     painter->drawPixmap(0, 0, *mFramebuffer);
 
