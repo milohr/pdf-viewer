@@ -4,7 +4,6 @@
 #include <QtCore/qmath.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
-#include <QPixmap>
 
 #include <poppler/qt4/poppler-qt4.h>
 
@@ -34,7 +33,6 @@ PdfViewer::PdfViewer(
     , mZoom(fitZoom())
     , mMaxZoom(6)
     , mPageOrientation(ZERO_PI)
-    , mFramebuffer(Q_NULLPTR)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -44,15 +42,14 @@ PdfViewer::PdfViewer(
     setSmooth(false); // Anti-aliasing is done by Poppler itself
     setFocus(true);
 
-    connect(this, SIGNAL(widthChanged()), this, SLOT(setupFramebuffer()));
-    connect(this, SIGNAL(heightChanged()), this, SLOT(setupFramebuffer()));
+    connect(this, SIGNAL(widthChanged()), this, SLOT(allocateFramebuffer()));
+    connect(this, SIGNAL(heightChanged()), this, SLOT(allocateFramebuffer()));
 
-    connect(this, SIGNAL(widthChanged()), this, SLOT(renderPdf()));
-    connect(this, SIGNAL(heightChanged()), this, SLOT(renderPdf()));
-    connect(this, SIGNAL(pageNumberChanged()), this, SLOT(renderPdf()));
-    connect(this, SIGNAL(pageOrientationChanged()), this, SLOT(renderPdf()));
-    //connect(this, SIGNAL(panChanged()), this, SLOT(renderPdf()));
-    connect(this, SIGNAL(zoomChanged()), this, SLOT(renderPdf()));
+    connect(this, SIGNAL(widthChanged()), this, SLOT(requestRenderWholePdf()));
+    connect(this, SIGNAL(heightChanged()), this, SLOT(requestRenderWholePdf()));
+    connect(this, SIGNAL(pageNumberChanged()), this, SLOT(requestRenderWholePdf()));
+    connect(this, SIGNAL(pageOrientationChanged()), this, SLOT(requestRenderWholePdf()));
+    connect(this, SIGNAL(zoomChanged()), this, SLOT(requestRenderWholePdf()));
 
     connect(this, SIGNAL(widthChanged()), this, SIGNAL(coverZoomChanged()));
     connect(this, SIGNAL(heightChanged()), this, SIGNAL(coverZoomChanged()));
@@ -250,7 +247,7 @@ PdfViewer::setPan(
         int const w = qRound(width());
         int const h = qRound(height());
 
-        mFramebuffer->scroll(dx, dy, mFramebuffer->rect(), Q_NULLPTR);
+        mFramebuffer.scroll(dx, dy, mFramebuffer.rect(), Q_NULLPTR);
 
         mPan = pan;
         emit panChanged();
@@ -356,6 +353,28 @@ PdfViewer::coverZoom() const
 qreal PdfViewer::fitZoom() const
 {
     return 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Background color
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+QColor
+PdfViewer::backgroundColor() const
+{
+    return mBackgroundColor;
+}
+
+void
+PdfViewer::setBackgroundColor(
+        QColor const backgroundColor
+)
+{
+    if(backgroundColor != mBackgroundColor)
+    {
+        mBackgroundColor = backgroundColor;
+        emit backgroundColorChanged();
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -545,20 +564,29 @@ equalReals(
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-PdfViewer::renderPdf()
+PdfViewer::requestRenderWholePdf()
 {
     mRenderRegion = QRect(0, 0, qRound(width()), qRound(height()));
     update();
 }
 
-void PdfViewer::setupFramebuffer()
+void
+PdfViewer::allocateFramebuffer()
 {
-    delete mFramebuffer;
-    mFramebuffer = new QPixmap(static_cast<int>(width()), static_cast<int>(height()));
-    mFramebuffer->fill(Qt::transparent);
+    if(mFramebuffer.isNull())
+    {
+        // No framebuffer has been allocated yet, so do that now:
+        mFramebuffer = QPixmap(static_cast<int>(width()), static_cast<int>(height()));
+    }
+    else
+    {
+        // Resize the current framebuffer instead of creating a new one:
+        mFramebuffer = mFramebuffer.scaled(static_cast<int>(width()), static_cast<int>(height()));
+    }
 }
 
-QRect PdfViewer::pdfRect(
+QRect
+PdfViewer::pdfRect(
         QRect const clip,
         QPoint * const outTranslation
 ) const
@@ -588,7 +616,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
 )
 {
     // If no page is set currently, or no framebuffer is allocated yet, skip:
-    if(!mPage || mFramebuffer->isNull())
+    if(!mPage || mFramebuffer.isNull())
     {
         return;
     }
@@ -598,13 +626,13 @@ void PdfViewer::renderPdfIntoFramebuffer(
 
     // Painter should start drawing the image at the current clipped visible rect position:
 
-    QPainter bufferPainter(mFramebuffer);
+    QPainter painter(&mFramebuffer);
 
-    bufferPainter.setPen(Qt::transparent);
-    bufferPainter.setBrush(QColor(0xee, 0xee, 0xee));
-    bufferPainter.drawRect(rect);
+    painter.setPen(Qt::transparent);
+    painter.setBrush(mBackgroundColor);
+    painter.drawRect(rect);
 
-    bufferPainter.translate(translation + visiblePdf.topLeft());
+    painter.translate(translation + visiblePdf.topLeft());
 
     QImage const image = mPage->renderToImage(
                 72.0 * convertZoomToScale(),
@@ -615,7 +643,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
                 visiblePdf.height(),
                 static_cast<Poppler::Page::Rotation>(mPageOrientation));
 
-    bufferPainter.drawImage(0, 0, image);
+    painter.drawImage(0, 0, image);
 }
 
 void
@@ -632,7 +660,7 @@ PdfViewer::paint(
     // Clean render regions:
     mRenderRegion = QRect();
 
-    painter->drawPixmap(0, 0, *mFramebuffer);
+    painter->drawPixmap(0, 0, mFramebuffer);
 }
 
 } // namespace pdf_viewer

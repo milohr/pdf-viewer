@@ -3,6 +3,7 @@
 #include <QDeclarativeItem>
 #include <QDateTime>
 #include <QRegion>
+#include <QPixmap>
 
 #ifndef Q_NULLPTR
 #define Q_NULLPTR NULL
@@ -175,6 +176,15 @@ class PdfViewer
             READ fitZoom
             NOTIFY coverZoomChanged)
 
+    /**
+     * The viewers background color.
+     */
+    Q_PROPERTY(
+            QColor backgroundColor
+            READ backgroundColor
+            WRITE setBackgroundColor
+            NOTIFY backgroundColorChanged)
+
 public:
 
     /**
@@ -311,6 +321,9 @@ public:
     PageOrientation
     pageOrientation() const;
 
+    QColor
+    backgroundColor() const;
+
 public slots:
 
     /**
@@ -401,6 +414,11 @@ public slots:
             qreal const factor
     );
 
+    void
+    setBackgroundColor(
+            QColor const backgroundColor
+    );
+
 signals:
 
     /**
@@ -451,6 +469,9 @@ signals:
      */
     void
     maxZoomChanged();
+
+    void
+    backgroundColorChanged();
 
 protected:
 
@@ -539,14 +560,22 @@ private slots:
     centralizePage();
 
     /**
-     * Dispatch a new render request.
+     * Request a new render request, re-rendering the whole PDF.
      */
     void
-    renderPdf();
+    requestRenderWholePdf();
 
+    /**
+     * Allocates or resizes the internal framebuffer.
+     * This is needed when the viewport dimensions changes.
+     */
     void
-    setupFramebuffer();
+    allocateFramebuffer();
 
+    /**
+     * Actually render the PDF into the framebuffer.
+     * @param rect Rectangle to render, in viewport space <b>and not in page space</b>.
+     */
     void
     renderPdfIntoFramebuffer(
             QRect const rect
@@ -608,9 +637,14 @@ private:
      */
     PageOrientation mPageOrientation;
 
-    QPixmap *mFramebuffer;
+    /**
+     * The internal framebuffer the PDF is rendered to.
+     */
+    QPixmap mFramebuffer;
 
     QRegion mRenderRegion;
+
+    QColor mBackgroundColor;
 
 };
 

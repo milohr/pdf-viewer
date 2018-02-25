@@ -17,6 +17,7 @@ Item {
         source: "../../../pdf-viewer/test-pdf/Merged.pdf"
         focus: true
         maxZoom: 4
+        backgroundColor: "#eee"
 
         onZoomChanged: zoomSlider.value = (zoom - pdf.fitZoom) / (maxZoom - 1)
 
