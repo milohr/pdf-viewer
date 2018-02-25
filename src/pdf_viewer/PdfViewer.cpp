@@ -51,7 +51,7 @@ PdfViewer::PdfViewer(
     connect(this, SIGNAL(heightChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(pageNumberChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(pageOrientationChanged()), this, SLOT(renderPdf()));
-    connect(this, SIGNAL(panChanged()), this, SLOT(renderPdf()));
+    //connect(this, SIGNAL(panChanged()), this, SLOT(renderPdf()));
     connect(this, SIGNAL(zoomChanged()), this, SLOT(renderPdf()));
 
     connect(this, SIGNAL(widthChanged()), this, SIGNAL(coverZoomChanged()));
@@ -245,10 +245,48 @@ PdfViewer::setPan(
 {
     if(mPan != pan)
     {
-        scroll(pan.x() - mPan.x(), pan.y() - mPan.y());
+        int const dx = qRound(pan.x() - mPan.x());
+        int const dy = qRound(pan.y() - mPan.y());
+        int const w = qRound(width());
+        int const h = qRound(height());
+
+        mFramebuffer->scroll(dx, dy, mFramebuffer->rect(), Q_NULLPTR);
+
+        QRect rect;
 
         mPan = pan;
         emit panChanged();
+
+        if(dy > 0)
+        {
+            qDebug() << "moved down:" << dy;
+            rect = QRect(0, 0, w, dy);
+            //mRenderRegion |= rect;
+            renderPdfIntoFramebuffer(rect);
+        }
+        if(dy < 0)
+        {
+            qDebug() << "moved up:" << dy;
+            rect = QRect(0, h + dy, w, -dy);
+            //mRenderRegion |= rect;
+            renderPdfIntoFramebuffer(rect);
+        }
+        if(dx > 0)
+        {
+            qDebug() << "moved right:" << dx;
+            rect = QRect(0, 0, dx, h);
+            //mRenderRegion |= rect;
+            renderPdfIntoFramebuffer(rect);
+        }
+        if(dx < 0)
+        {
+            qDebug() << "moved left:" << dx;
+            rect = QRect(w + dx, 0, -dx, h);
+            //mRenderRegion |= rect;
+            renderPdfIntoFramebuffer(rect);
+        }
+
+        update();
     }
 }
 
@@ -417,8 +455,6 @@ PdfViewer::mouseMoveEvent(
                   -page.height() * panMargin,
                   (mPan + delta).y(),
                   height() - page.height() * (1 - panMargin))));
-
-    renderPdf();
 }
 
 void
@@ -536,16 +572,11 @@ void PdfViewer::setupFramebuffer()
     mFramebuffer->fill(Qt::transparent);
 }
 
-void PdfViewer::renderPdfIntoFramebuffer(
-        QRect const rect
-)
+QRect PdfViewer::pdfRect(
+        QRect const clip,
+        QPoint * const outTranslation
+) const
 {
-    // If no page is set currently, skip:
-    if(!mPage)
-    {
-        return;
-    }
-
     qreal const scale = convertZoomToScale();
 
     // This rect is equally in size as the final Pdf which would appear on screen:
@@ -557,17 +588,41 @@ void PdfViewer::renderPdfIntoFramebuffer(
             + QPoint(qRound((-pageQuad().width() * (scale - fitScale())) / 2),
                       qRound((-pageQuad().height() * (scale - fitScale())) / 2));
 
+    if(outTranslation)
+    {
+        *outTranslation = translation;
+    }
+
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
-    QRect const visiblePdf = rect.translated(-translation) & pdfRect;
+    return clip.translated(-translation) & pdfRect;
+}
+
+void PdfViewer::renderPdfIntoFramebuffer(
+        QRect const rect
+)
+{
+    // If no page is set currently, skip:
+    if(!mPage)
+    {
+        return;
+    }
+
+    QPoint translation;
+    QRect const visiblePdf = pdfRect(rect, &translation);
 
     // Painter should start drawing the image at the current clipped visible rect position:
 
     QPainter bufferPainter(mFramebuffer);
+
+    bufferPainter.setPen(Qt::transparent);
+    bufferPainter.setBrush(QColor(0xee, 0xee, 0xee));
+    bufferPainter.drawRect(rect);
+
     bufferPainter.translate(translation + visiblePdf.topLeft());
 
     QImage const image = mPage->renderToImage(
-                72.0 * scale,
-                72.0 * scale,
+                72.0 * convertZoomToScale(),
+                72.0 * convertZoomToScale(),
                 visiblePdf.x(),
                 visiblePdf.y(),
                 visiblePdf.width(),
@@ -575,6 +630,9 @@ void PdfViewer::renderPdfIntoFramebuffer(
                 static_cast<Poppler::Page::Rotation>(mPageOrientation));
 
     bufferPainter.drawImage(0, 0, image);
+
+    //bufferPainter.setPen(Qt::black);
+    //bufferPainter.drawRect(image.rect());
 }
 
 void
@@ -584,20 +642,16 @@ PdfViewer::paint(
         QWidget * const
 )
 {
+    //qDebug() << "Render" << mRenderRegion.rectCount() << "rects";
     for(int i = 0; i < mRenderRegion.rectCount(); i++)
     {
+        //qDebug() << "Render rect [" << i << "]:" << mRenderRegion.rects()[i];
         renderPdfIntoFramebuffer(mRenderRegion.rects()[i]);
     }
+    // Clean render regions:
+    mRenderRegion &= QRect();
 
     painter->drawPixmap(0, 0, *mFramebuffer);
-
-    // Draw page border:
-    /*painter->setPen(Qt::black);
-    painter->translate(translation + visiblePdf.topLeft());
-    painter->drawRect(QRect(
-                          0, 0,
-                          static_cast<int>(visiblePdf.width()) - 1,
-                          static_cast<int>(visiblePdf.height()) - 1));*/
 }
 
 } // namespace pdf_viewer

@@ -552,6 +552,12 @@ private slots:
             QRect const rect
     );
 
+    QRect
+    pdfRect(
+            QRect const clip,
+            QPoint * const outTranslation = Q_NULLPTR
+    ) const;
+
 private:
 
     /**
