@@ -6,11 +6,6 @@ Item {
     height: 600
     property color themeColor: "#1fd174"
 
-    Rectangle {
-        anchors.fill: pdf
-        color: "#eee"
-    }
-
     // PDF Viewer:
     PdfViewer {
         id: pdf

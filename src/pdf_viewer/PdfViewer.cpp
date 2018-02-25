@@ -252,38 +252,24 @@ PdfViewer::setPan(
 
         mFramebuffer->scroll(dx, dy, mFramebuffer->rect(), Q_NULLPTR);
 
-        QRect rect;
-
         mPan = pan;
         emit panChanged();
 
         if(dy > 0)
         {
-            qDebug() << "moved down:" << dy;
-            rect = QRect(0, 0, w, dy);
-            //mRenderRegion |= rect;
-            renderPdfIntoFramebuffer(rect);
+            renderPdfIntoFramebuffer(QRect(0, 0, w, dy));
         }
         if(dy < 0)
         {
-            qDebug() << "moved up:" << dy;
-            rect = QRect(0, h + dy, w, -dy);
-            //mRenderRegion |= rect;
-            renderPdfIntoFramebuffer(rect);
+            renderPdfIntoFramebuffer(QRect(0, h + dy, w, -dy));
         }
         if(dx > 0)
         {
-            qDebug() << "moved right:" << dx;
-            rect = QRect(0, 0, dx, h);
-            //mRenderRegion |= rect;
-            renderPdfIntoFramebuffer(rect);
+            renderPdfIntoFramebuffer(QRect(0, 0, dx, h));
         }
         if(dx < 0)
         {
-            qDebug() << "moved left:" << dx;
-            rect = QRect(w + dx, 0, -dx, h);
-            //mRenderRegion |= rect;
-            renderPdfIntoFramebuffer(rect);
+            renderPdfIntoFramebuffer(QRect(w + dx, 0, -dx, h));
         }
 
         update();
@@ -601,8 +587,8 @@ void PdfViewer::renderPdfIntoFramebuffer(
         QRect const rect
 )
 {
-    // If no page is set currently, skip:
-    if(!mPage)
+    // If no page is set currently, or no framebuffer is allocated yet, skip:
+    if(!mPage || mFramebuffer->isNull())
     {
         return;
     }
@@ -630,9 +616,6 @@ void PdfViewer::renderPdfIntoFramebuffer(
                 static_cast<Poppler::Page::Rotation>(mPageOrientation));
 
     bufferPainter.drawImage(0, 0, image);
-
-    //bufferPainter.setPen(Qt::black);
-    //bufferPainter.drawRect(image.rect());
 }
 
 void
@@ -642,14 +625,12 @@ PdfViewer::paint(
         QWidget * const
 )
 {
-    //qDebug() << "Render" << mRenderRegion.rectCount() << "rects";
     for(int i = 0; i < mRenderRegion.rectCount(); i++)
     {
-        //qDebug() << "Render rect [" << i << "]:" << mRenderRegion.rects()[i];
         renderPdfIntoFramebuffer(mRenderRegion.rects()[i]);
     }
     // Clean render regions:
-    mRenderRegion &= QRect();
+    mRenderRegion = QRect();
 
     painter->drawPixmap(0, 0, *mFramebuffer);
 }
