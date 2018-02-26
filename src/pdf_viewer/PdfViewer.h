@@ -114,7 +114,7 @@ public:
      * \brief The current page orientation, which can be 0π, 0.5π, 1π or 1.5π.
      * Convinient functions can be used to rotate the page relative to its current orientation,
      * as setting this property is absolute.
-     * \sa rotateClockwise, rotateCounterClockwise
+     * \sa rotatePageClockwise(), rotatePageCounterClockwise()
      */
     Q_PROPERTY(
             PageOrientation pageOrientation
@@ -137,7 +137,7 @@ public:
     /*!
      * \brief The current page pan, i.e. the translation.
      * There are convinient functions to set the pan to special positions, as fit- or cover-pan.
-     * @note Panning to fit-pan is only reasonable if page is at fit-zoom. Same applies to cover-pan.
+     * @note Panning to fit-pan is only reasonable if page is at fit-zoom. Same semantics applies to cover-pan.
      */
     Q_PROPERTY(
             QPointF pan
