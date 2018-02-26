@@ -56,7 +56,8 @@ PdfViewer::PdfViewer(
     connect(this, SIGNAL(pageOrientationChanged()), this, SIGNAL(coverZoomChanged()));
     connect(this, SIGNAL(pageNumberChanged()), this, SIGNAL(coverZoomChanged()));
 
-    connect(this, SIGNAL(coverZoomChanged()), this, SLOT(centralizePage()));
+    connect(this, SIGNAL(coverZoomChanged()), this, SLOT(resetToFitPanIfFitZoom()));
+    connect(this, SIGNAL(pageNumberChanged()), this, SLOT(resetPageViewToFit()));
 }
 
 PdfViewer::~PdfViewer()
@@ -274,7 +275,7 @@ PdfViewer::setPan(
 }
 
 QPointF
-PdfViewer::fitPan()
+PdfViewer::fitPan() const
 {
     return QPointF(
         (width() - pageQuad().width() * fitScale()) / 2,
@@ -283,7 +284,7 @@ PdfViewer::fitPan()
 }
 
 QPointF
-PdfViewer::coverPan()
+PdfViewer::coverPan() const
 {
     return QPointF(
                 (pageQuad().width() * (coverScale() - fitScale())) / 2,
@@ -291,7 +292,7 @@ PdfViewer::coverPan()
 }
 
 void
-PdfViewer::centralizePage()
+PdfViewer::resetToFitPanIfFitZoom()
 {
     if(equalReals(mZoom, fitZoom()))
     {
@@ -375,6 +376,12 @@ PdfViewer::setBackgroundColor(
         mBackgroundColor = backgroundColor;
         emit backgroundColorChanged();
     }
+}
+
+void PdfViewer::resetPageViewToFit()
+{
+    setZoom(fitZoom());
+    setPan(fitPan());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -485,12 +492,6 @@ PdfViewer::mouseDoubleClickEvent(
 /////////////////////        Helper functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-qreal
-PdfViewer::pageRotation()
-{
-    return mPageOrientation * M_PI_2; // Each step is equal to 0.5π
-}
-
 QSizeF
 PdfViewer::pageQuad() const
 {
@@ -586,8 +587,8 @@ PdfViewer::allocateFramebuffer()
 }
 
 QRect
-PdfViewer::pdfRect(
-        QRect const clip,
+PdfViewer::visiblePdfRect(
+        QRect const viewportSpaceClip,
         QPoint * const outTranslation
 ) const
 {
@@ -608,11 +609,11 @@ PdfViewer::pdfRect(
     }
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
-    return clip.translated(-translation) & pdfRect;
+    return viewportSpaceClip.translated(-translation) & pdfRect;
 }
 
 void PdfViewer::renderPdfIntoFramebuffer(
-        QRect const rect
+        QRect const viewportSpaceRect
 )
 {
     // If no page is set currently, or no framebuffer is allocated yet, skip:
@@ -622,7 +623,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
     }
 
     QPoint translation;
-    QRect const visiblePdf = pdfRect(rect, &translation);
+    QRect const visiblePdf = visiblePdfRect(viewportSpaceRect, &translation);
 
     // Painter should start drawing the image at the current clipped visible rect position:
 
@@ -630,7 +631,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
 
     painter.setPen(Qt::transparent);
     painter.setBrush(mBackgroundColor);
-    painter.drawRect(rect);
+    painter.drawRect(viewportSpaceRect);
 
     painter.translate(translation + visiblePdf.topLeft());
 

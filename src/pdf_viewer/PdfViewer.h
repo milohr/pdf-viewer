@@ -16,21 +16,22 @@ namespace Poppler {
 
 namespace pdf_viewer {
 
-/**
- * Display a PDF file.
+/*!
+ * \class PdfViewer
+ * \brief A QML view responsible for rendering a PDF file.
  */
 class PdfViewer
         : public QDeclarativeItem
 {
 
     Q_OBJECT
+    Q_ENUMS(Status PageOrientation)
 
-    Q_ENUMS(
-            Status
-            PageOrientation)
+public:
 
-    /**
-     * Document file path.
+    /*!
+     * \brief The document file path.
+     * To open another document, simply set a new source.
      */
     Q_PROPERTY(
             QString source
@@ -38,8 +39,10 @@ class PdfViewer
             WRITE setSource
             NOTIFY sourceChanged)
 
-    /**
-     * Page number.
+    /*!
+     * \brief The currently visible page's number, zero based.
+     * When changed, page is completely exchanged by another, which may or may not have other dimensions.
+     * The page number cannot be larger than the last page number, i.e. decrement of total page count.
      */
     Q_PROPERTY(
             int pageNumber
@@ -47,64 +50,71 @@ class PdfViewer
             WRITE setPageNumber
             NOTIFY pageNumberChanged)
 
-    /**
-     * Document status.
+    /*!
+     * \brief The current document status.
+     * The status is set to *not opened* as long as no document has
+     * tried to be set. If doing so with success, it will be set to *ok*, otherwise it will hold
+     * a value indicating the reason for failure.
+     * @sa Status, statusMessage
      */
     Q_PROPERTY(
             Status status
             READ status
             NOTIFY statusChanged)
 
-    /**
-     * Document status as message string.
+    /*!
+     * \brief The current document status reported as a string instead of a numeric constant.
      */
     Q_PROPERTY(
             QString statusMessage
             READ statusMessage
             NOTIFY statusChanged)
 
-    /**
-     * Document title.
+    /*!
+     * \brief The document title.
      */
     Q_PROPERTY(
             QString documentTitle
             READ documentTitle
             NOTIFY sourceChanged)
 
-    /**
-     * Document author.
+    /*!
+     * \brief The document author.
      */
     Q_PROPERTY(
             QString documentAuthor
             READ documentAuthor
             NOTIFY sourceChanged)
 
-    /**
-     * Document creator.
+    /*!
+     * \brief The document creator.
      */
     Q_PROPERTY(
             QString documentCreator
             READ documentCreator
             NOTIFY sourceChanged)
 
-    /**
-     * Document creation date.
+    /*!
+     * \brief The document creation date.
      */
     Q_PROPERTY(
             QDateTime documentCreationDate
             READ documentCreationDate
             NOTIFY sourceChanged)
 
-    /**
-     * Document modification date.
+    /*!
+     * \brief The document modification date.
      */
     Q_PROPERTY(
             QDateTime documentModificationDate
             READ documentModificationDate
             NOTIFY sourceChanged)
 
-    /**
-     * Page orientation.
+    /*!
+     * \brief The current page orientation, which can be 0π, 0.5π, 1π or 1.5π.
+     * Convinient functions can be used to rotate the page relative to its current orientation,
+     * as setting this property is absolute.
+     * \sa rotateClockwise, rotateCounterClockwise
      */
     Q_PROPERTY(
             PageOrientation pageOrientation
@@ -112,8 +122,22 @@ class PdfViewer
             WRITE setPageOrientation
             NOTIFY pageOrientationChanged)
 
-    /**
-     * Page panning.
+    /*!
+     * Rotate page clockwise.
+     */
+    Q_INVOKABLE void
+    rotatePageClockwise();
+
+    /*!
+     * Rotate page counter-clockwise.
+     */
+    Q_INVOKABLE void
+    rotatePageCounterClockwise();
+
+    /*!
+     * \brief The current page pan, i.e. the translation.
+     * There are convinient functions to set the pan to special positions, as fit- or cover-pan.
+     * @note Panning to fit-pan is only reasonable if page is at fit-zoom. Same applies to cover-pan.
      */
     Q_PROPERTY(
             QPointF pan
@@ -121,29 +145,28 @@ class PdfViewer
             WRITE setPan
             NOTIFY panChanged)
 
-    /**
-     * The pan at which the page would be centralized at fit zoom.
+    /*!
+     * \brief The pan at which the page would be centralized at fit zoom.
      */
     Q_PROPERTY(
             QPointF fitPan
             READ fitPan
             NOTIFY coverZoomChanged)
 
-    /**
-     * The pan at which the page should sit when cover zoom is requested.
+    /*!
+     * \brief The pan at which the page should sit when cover zoom is requested.
      */
     Q_PROPERTY(
             QPointF coverPan
             READ coverPan
             NOTIFY coverZoomChanged)
 
-    /**
-     * Zoom.
-     * @note Zoom and scale refer to the same term but from different views.
-     * Scale is the internal value to which the page is scaled when rendered.
-     * Zoom is the scalement value exposed to the user and a relative measurement.
-     * A zoom of 1 is by definition the fit zoom and therefore does not depend
-     * on page orientation or graphics item size. A zoom < 1 is not allowed.
+    /*!
+     * \brief The current page zoom.
+     * Zoom refers to a logical unit, where a zoom of 1 is equiliteral to fit-zoom.
+     * Any zoom larger than that scales the page up, increasing the total amount of theoratically rendered page-pixels.
+     * A zoom smaller than 1 is not allowed.
+     * \sa zoomIn(), zoomOut(), maxZoom, coverZoom, fitZoom
      */
     Q_PROPERTY(
             qreal zoom
@@ -151,8 +174,10 @@ class PdfViewer
             WRITE setZoom
             NOTIFY zoomChanged)
 
-    /**
-     * Maximum zoom. Minimum is 1 by definition.
+    /*!
+     * \brief Maximum zoom.
+     * \note Minimum zoom is implicitly 1.
+     * \attention If the upper zoom limit is smaller than cover-zoom, covering will not work properly, as it is not fully allowed to zoom.
      */
     Q_PROPERTY(
             qreal maxZoom
@@ -160,24 +185,25 @@ class PdfViewer
             WRITE setMaxZoom
             NOTIFY maxZoomChanged)
 
-    /**
-     * The zoom at which the page would cover the whole graphics item.
+    /*!
+     * \brief The smallest zoom at which the page would cover the whole viewport.
      */
     Q_PROPERTY(
             qreal coverZoom
             READ coverZoom
             NOTIFY coverZoomChanged)
 
-    /**
-     * The zoom at which the page would fit exactly into the view.
+    /*!
+     * \brief The zoom at which the page would fit exactly into the view.
+     * Returns always 1.
      */
     Q_PROPERTY(
             qreal fitZoom
             READ fitZoom
             NOTIFY coverZoomChanged)
 
-    /**
-     * The viewers background color.
+    /*!
+     * \brief The view's background, filling space that is not obscured by the page.
      */
     Q_PROPERTY(
             QColor backgroundColor
@@ -185,139 +211,99 @@ class PdfViewer
             WRITE setBackgroundColor
             NOTIFY backgroundColorChanged)
 
-public:
+    /*!
+     * Zoom in by a give factor.
+     * \param factor Factor to zoom in.
+     */
+    Q_INVOKABLE void
+    zoomIn(
+            qreal const factor
+    );
 
-    /**
-     * The page status.
+    /*!
+     * Zoom out by a give factor.
+     * \param factor Factor to zoom out.
+     */
+    Q_INVOKABLE void
+    zoomOut(
+            qreal const factor
+    );
+
+    /*!
+     * \brief The page status.
      */
     enum Status {
-        NOT_OPEN,               ///< Initial state the viewer resides in, until the source is set
-        OK,                     ///< Everything is okay. Implies that the document pointer is not Q_NULLPTR.
-        CANNOT_OPEN_DOCUMENT,   ///< The document cannot be opened, e.g. the path is invalid or the file just doesn't exist
-        NO_PAGES,               ///< The document has no pages to display
-        DOCUMENT_IS_LOCKED      ///< A password is required to open the document
+        NOT_OPEN,               //!< Initial state the viewer resides in, until the source is set
+        OK,                     //!< Everything is okay. Implies that the document pointer is not Q_NULLPTR.
+        CANNOT_OPEN_DOCUMENT,   //!< The document cannot be opened, e.g. the path is invalid or the file just doesn't exist
+        NO_PAGES,               //!< The document has no pages to display
+        DOCUMENT_IS_LOCKED      //!< A password is required to open the document
     };
 
-    /**
-     * The possible page orientations.
+    /*!
+     * \brief The possible page orientations.
      */
     enum PageOrientation {
-        ZERO_PI,                ///< 0°, initial state
-        HALF_PI,                ///< 90°, counter-clockwise
-        ONE_PI,                 ///< 180°
-        ONE_HALF_PI             ///< 270°, counter-clockwise
+        ZERO_PI,                //!< 0π, initial state
+        HALF_PI,                //!< 0.5π, counter-clockwise
+        ONE_PI,                 //!< 1π
+        ONE_HALF_PI             //!< 1.5π, counter-clockwise
     };
 
-    /**
-     * Construct a new PDF viewer item.
-     * @param parent Parent item.
-     */
     PdfViewer(
             QDeclarativeItem * const parent = Q_NULLPTR
     );
 
     virtual ~PdfViewer();
 
-    /**
-     * @return The document file path.
-     */
     QString
     source() const;
 
-    /**
-     * @return The current page number, zero based.
-     */
     int
     pageNumber() const;
 
-    /**
-     * @return The document status.
-     */
     Status
     status() const;
 
-    /**
-     * @return The document status as a message string.
-     */
     QString
     statusMessage() const;
 
-    /**
-     * @return The document title.
-     */
     QString
     documentTitle() const;
 
-    /**
-     * @return The document author.
-     */
     QString
     documentAuthor() const;
 
-    /**
-     * @return The document creator.
-     */
     QString
     documentCreator() const;
 
-    /**
-     * @return The document creation date.
-     */
     QDateTime
     documentCreationDate() const;
 
-    /**
-     * @return The document modification date.
-     */
     QDateTime
     documentModificationDate() const;
 
-    /**
-     * @return Current pan.
-     */
     QPointF
     pan() const;
 
-    /**
-     * @return The pan at which the page would be centralized at fit zoom.
-     */
     QPointF
-    fitPan();
+    fitPan() const;
 
-    /**
-     * @return The pan at which the page should sit when cover zoom is requested.
-     */
     QPointF
-    coverPan();
+    coverPan() const;
 
-    /**
-     * @return Current zoom.
-     */
     qreal
     zoom() const;
 
-    /**
-     * @return Maximum zoom.
-     * @attention If smaller than cover-zoom, covering will not work properly.
-     */
     qreal
     maxZoom() const;
 
-    /**
-     * @return The zoom at which the page would cover the whole graphics item.
-     */
     qreal
     coverZoom() const;
 
-    /**
-     * @return The zoom at which the page would fit exactly into the view.
-     */
     qreal
     fitZoom() const;
 
-    /**
-     * @return Current page orientation.
-     */
     PageOrientation
     pageOrientation() const;
 
@@ -326,92 +312,34 @@ public:
 
 public slots:
 
-    /**
-     * Set the document file path and tries to open it.
-     * Closes any document currently opened.
-     * @param source File path to open.
-     */
     void
     setSource(
             QString const &source
     );
 
-    /**
-     * Set the current page number.
-     * Is clamped between 0 and the total page count.
-     * @param pageNumber Number to set.
-     */
     void
     setPageNumber(
             int pageNumber
     );
 
-    /**
-     * Set the page panning.
-     * @param pan Pan to set.
-     */
     void
     setPan(
             QPointF const pan
     );
 
-    /**
-     * Set the page zoom.
-     * Is clamped between 1 and the maximum zoom set by `setMaxZoom()`.
-     * @param zoom Zoom to set.
-     */
     void
     setZoom(
             qreal zoom
     );
 
-    /**
-     * Set the maximum allowed zoom.
-     * Must be greater or equal to 1.
-     * @param maxZoom Zoom to set.
-     */
     void
     setMaxZoom(
             qreal maxZoom
     );
 
-    /**
-     * Set the current page orientation.
-     * @param orientation Orientation to set.
-     */
     void
     setPageOrientation(
             PageOrientation orientation
-    );
-
-    /**
-     * Rotate page clockwise.
-     */
-    Q_INVOKABLE void
-    rotatePageClockwise();
-
-    /**
-     * Rotate page counter-clockwise.
-     */
-    Q_INVOKABLE void
-    rotatePageCounterClockwise();
-
-    /**
-     * Zoom in by a give factor.
-     * @param factor Factor to zoom in.
-     */
-    Q_INVOKABLE void
-    zoomIn(
-            qreal const factor
-    );
-
-    /**
-     * Zoom out by a give factor.
-     * @param factor Factor to zoom out.
-     */
-    Q_INVOKABLE void
-    zoomOut(
-            qreal const factor
     );
 
     void
@@ -421,52 +349,27 @@ public slots:
 
 signals:
 
-    /**
-     * Emitted when page source changed.
-     */
     void
     sourceChanged();
 
-    /**
-     * Emitted when page number changed.
-     */
     void
     pageNumberChanged();
 
-    /**
-     * Emitted when document status changed.
-     */
     void
     statusChanged();
 
-    /**
-     * Emitted when panning changed.
-     */
     void
     panChanged();
 
-    /**
-     * Emitted when zoom changed.
-     */
     void
     zoomChanged();
 
-    /**
-     * Emitted when page orientation changed.
-     */
     void
     pageOrientationChanged();
 
-    /**
-     * Emitted when cover zoom changed.
-     * This happens due to item resizement and page geometry changes.
-     */
     void
     coverZoomChanged();
 
-    /**
-     * Emitted when maximum zoom changed.
-     */
     void
     maxZoomChanged();
 
@@ -475,12 +378,6 @@ signals:
 
 protected:
 
-    /**
-     * Paint item and renderbPDF.
-     * @param painter Painter.
-     * @param option Graphics options, ignored.
-     * @param widget Widget, ignored.
-     */
     virtual void
     paint(
             QPainter * const painter,
@@ -488,28 +385,16 @@ protected:
             QWidget * const widget
     );
 
-    /**
-     * Grabs mouse focus.
-     * @param event Mouse event.
-     */
     virtual void
     mousePressEvent(
             QGraphicsSceneMouseEvent * const event
     );
 
-    /**
-     * Implements panning based on mouse movements.
-     * @param event Mouse event.
-     */
     virtual void
     mouseMoveEvent(
             QGraphicsSceneMouseEvent * const event
     );
 
-    /**
-     * A convinient way to toggle automatically between fit and cover zoom.
-     * @param event Mouse event.
-     */
     virtual void
     mouseDoubleClickEvent(
             QGraphicsSceneMouseEvent * const event
@@ -522,128 +407,54 @@ private slots:
             Status const status
     );
 
-    /**
-     * @return Page orientation expressed in radians.
-     */
-    qreal
-    pageRotation();
-
-    /**
-     * @return Size of page considering rotation, so width and height might be swapped.
-     */
     QSizeF
     pageQuad() const;
 
-    /**
-     * @return A real page scalement, computed from the logical zoom.
-     */
     qreal
     convertZoomToScale() const;
 
-    /**
-     * @return The scale to which the page is guaranteed to be completely observable. This is, by defintion, a zoom of 1.
-     */
     qreal
     fitScale() const;
 
-    /**
-     * @return The scale to which the page is guaranteed to completely cover its bounding rect. This is, by defintion, a zoom > 1.
-     */
     qreal
     coverScale() const;
 
-    /**
-     * Centralize page if page zoom is fitting.
-     * Used to initially centralize a page upon opening.
-     */
     void
-    centralizePage();
+    resetToFitPanIfFitZoom();
 
-    /**
-     * Request a new render request, re-rendering the whole PDF.
-     */
+    void
+    resetPageViewToFit();
+
     void
     requestRenderWholePdf();
 
-    /**
-     * Allocates or resizes the internal framebuffer.
-     * This is needed when the viewport dimensions changes.
-     */
     void
     allocateFramebuffer();
 
-    /**
-     * Actually render the PDF into the framebuffer.
-     * @param rect Rectangle to render, in viewport space <b>and not in page space</b>.
-     */
     void
     renderPdfIntoFramebuffer(
-            QRect const rect
+            QRect const viewportSpaceRect
     );
 
     QRect
-    pdfRect(
-            QRect const clip,
+    visiblePdfRect(
+            QRect const viewportSpaceClip,
             QPoint * const outTranslation = Q_NULLPTR
     ) const;
 
 private:
 
-    /**
-     * The document status.
-     * The status will be set to OK as soon as a document is successfully opened.
-     */
     Status mStatus;
-
-    /**
-     * The document file path.
-     */
     QString mSource;
-
-    /**
-     * The internal document handle.
-     */
     Poppler::Document *mDocument;
-
-    /**
-     * The internal page handle.
-     */
     Poppler::Page const *mPage;
-
-    /**
-     * The current page number, which is zero based.
-     */
     int mPageNumber;
-
-    /**
-     * Linear translation of the page.
-     */
     QPointF mPan;
-
-    /**
-     * Page zoom.
-     */
     qreal mZoom;
-
-    /**
-     * The upper zoom bound, which can be set by the user.
-     */
     qreal mMaxZoom;
-
-    /**
-     * The current page orientation.
-     * @note Do not use rotate() in QML to do rotation, since that does not refer to page rotation.
-     * @see rotateClockwise(), rotateCounterClockwise()
-     */
     PageOrientation mPageOrientation;
-
-    /**
-     * The internal framebuffer the PDF is rendered to.
-     */
     QPixmap mFramebuffer;
-
     QRegion mRenderRegion;
-
     QColor mBackgroundColor;
 
 };
