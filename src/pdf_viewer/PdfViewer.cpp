@@ -238,11 +238,33 @@ PdfViewer::pan() const
 
 void
 PdfViewer::setPan(
-        QPointF const pan
+        QPointF pan
 )
 {
-    if(mPan != pan)
+    static qreal lastZoom;
+    if(mPan != pan || !equalReals(lastZoom, mZoom))
     {
+        lastZoom = mZoom;
+
+        bool const scrolling = zoom() > fitZoom() && zoom() < coverZoom();
+
+        // Restrict pan at certain zoom levels:
+        if(equalReals(zoom(), fitZoom()))
+        {
+            // You cannot pan the page at all when at fit-zoom:
+            pan = fitPan();
+        }
+        if(scrolling && pageQuad().width() * computeScale() > width())
+        {
+            // The page can only be horizontally scrolled:
+            pan.setY(fitPan().y());
+        }
+        else if(scrolling)
+        {
+            // The page can only be vertically scrolled:
+            pan.setX(fitPan().x());
+        }
+
         int const dx = qRound(pan.x() - mPan.x());
         int const dy = qRound(pan.y() - mPan.y());
         int const w = qRound(width());
@@ -320,6 +342,8 @@ PdfViewer::setZoom(
     {
         mZoom = zoom;
         emit zoomChanged();
+
+        setPan(pan());
     }
 }
 
@@ -491,7 +515,7 @@ PdfViewer::pageQuad() const
 }
 
 qreal
-PdfViewer::convertZoomToScale() const
+PdfViewer::computeScale() const
 {
     return mZoom * fitScale(); // Remember, a zoom of 1 *is defined* as the fit scale.
 }
@@ -582,7 +606,7 @@ PdfViewer::visiblePdfRect(
         QPoint * const outTranslation
 ) const
 {
-    qreal const scale = convertZoomToScale();
+    qreal const scale = computeScale();
 
     // This rect is equally in size as the final Pdf which would appear on screen:
     QRect const pdfRect(0, 0, qRound(scale * pageQuad().width()), qRound(scale * pageQuad().height()));
@@ -626,8 +650,8 @@ void PdfViewer::renderPdfIntoFramebuffer(
     painter.translate(translation + visiblePdf.topLeft());
 
     QImage const image = mPage->renderToImage(
-                72.0 * convertZoomToScale(),
-                72.0 * convertZoomToScale(),
+                72.0 * computeScale(),
+                72.0 * computeScale(),
                 visiblePdf.x(),
                 visiblePdf.y(),
                 visiblePdf.width(),

@@ -324,7 +324,7 @@ public slots:
 
     void
     setPan(
-            QPointF const pan
+            QPointF pan
     );
 
     void
@@ -411,7 +411,7 @@ private slots:
     pageQuad() const;
 
     qreal
-    convertZoomToScale() const;
+    computeScale() const;
 
     qreal
     fitScale() const;
