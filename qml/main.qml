@@ -13,11 +13,8 @@ Item {
         anchors.bottom: buttons.top
         anchors.right: parent.right
         anchors.left: parent.left
-        pageNumber: 0
-        source: "../../../pdf-viewer/test-pdf/Merged.pdf"
-        focus: true
-        maxZoom: 4
         backgroundColor: "#eee"
+        source: pathProvider.getPath(0)
 
         onZoomChanged: zoomSlider.value = (zoom - pdf.fitZoom) / (maxZoom - 1)
 
@@ -226,6 +223,26 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 opacity: 0.5
                 font.bold: true
+            }
+
+            Button {
+                id: pathProvider
+                text: "Next PDF…"
+                property variant files: [
+                    "Demo.pdf", "Raspberry-Pi Schematics.pdf",
+                    //"https://www.khronos.org/registry/vulkan/specs/1.0/pdf/vkspec.pdf"
+                    ]
+                property string path: "../../../pdf-viewer/test-pdf/"
+                property int index: 0
+
+                function getPath(index) {
+                    return path + files[index]
+                }
+
+                onClicked: {
+                    index = (index + 1) % files.length
+                    pdf.source = getPath(index)
+                }
             }
         }
 

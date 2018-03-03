@@ -45,6 +45,7 @@ PdfViewer::PdfViewer(
     connect(this, SIGNAL(widthChanged()), this, SLOT(allocateFramebuffer()));
     connect(this, SIGNAL(heightChanged()), this, SLOT(allocateFramebuffer()));
 
+    connect(this, SIGNAL(sourceChanged()), this, SLOT(requestRenderWholePdf()));
     connect(this, SIGNAL(widthChanged()), this, SLOT(requestRenderWholePdf()));
     connect(this, SIGNAL(heightChanged()), this, SLOT(requestRenderWholePdf()));
     connect(this, SIGNAL(pageNumberChanged()), this, SLOT(requestRenderWholePdf()));
@@ -84,12 +85,20 @@ PdfViewer::setSource(
 {
     if(source != mSource)
     {
-        mSource = source;
-        emit sourceChanged();
+        // Release page object:
+        delete mPage;
+        mPage = Q_NULLPTR;
 
-        // Open document:
+        QUrl url(source);
+        qDebug() << url.scheme();
+
+        // Open new document:
         delete mDocument;
         mDocument = Poppler::Document::load(source);
+
+        // Emit new source signal as soon as new document object is retrieved:
+        mSource = source;
+        emit sourceChanged();
 
         // Check whether document is valid:
         if(!mDocument)
@@ -114,7 +123,6 @@ PdfViewer::setSource(
         mDocument->setRenderHint(Poppler::Document::TextAntialiasing);
         mDocument->setRenderHint(Poppler::Document::TextHinting);
         mDocument->setRenderHint(Poppler::Document::TextSlightHinting);
-        mDocument->setRenderHint(Poppler::Document::ThinLineShape);
 
         // Reset page number to zero:
         setPageNumber(0);
@@ -132,13 +140,14 @@ PdfViewer::setPageNumber(
         int pageNumber
 )
 {
-    if(!mDocument)
+    if(OK != mStatus)
     {
         return;
     }
 
     pageNumber = qBound(0, pageNumber, mDocument->numPages() - 1);
-    if((mStatus == OK) && (pageNumber != mPageNumber))
+
+    if((pageNumber != mPageNumber) || !mPage)
     {
         mPageNumber = pageNumber;
 
@@ -529,6 +538,10 @@ PdfViewer::mouseDoubleClickEvent(
 QSize
 PdfViewer::pageQuad() const
 {
+    if(!mPage)
+    {
+        return viewport();
+    }
     return (mPageOrientation == ZERO_PI) || (mPageOrientation == ONE_PI)
             ? mPage->pageSize() // Take page size as is.
             : QSize(mPage->pageSize().height(), mPage->pageSize().width()); // Swap the page's width and height.
@@ -645,22 +658,25 @@ void PdfViewer::renderPdfIntoFramebuffer(
 )
 {
     // If no page is set currently, or no framebuffer is allocated yet, skip:
-    if(!mPage || mFramebuffer.isNull())
+    if(mFramebuffer.isNull())
     {
         return;
     }
 
     QRect const visiblePdf = visiblePdfRect(viewportSpaceRect);
 
-    // Painter should start drawing the image at the current clipped visible rect position:
-
     QPainter painter(&mFramebuffer);
-
     painter.setPen(Qt::transparent);
     painter.setBrush(backgroundColor());
     painter.drawRect(viewportSpaceRect);
 
+    // Painter should start drawing the image at the current clipped visible rect position:
     painter.translate(pan() + zoomPan() + visiblePdf.topLeft());
+
+    if(!mPage)
+    {
+        return;
+    }
 
     QImage const image = mPage->renderToImage(
                 72.0 * computeScale(),
