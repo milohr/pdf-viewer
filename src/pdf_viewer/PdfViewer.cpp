@@ -456,17 +456,7 @@ PdfViewer::mouseMoveEvent(
 )
 {
     QPointF const delta = event->pos() - event->lastPos();
-    QSizeF const page = pageQuad() * convertZoomToScale();
-    qreal const panMargin = 0.9;
-
-    setPan(QPointF(qBound(
-                  -page.width() * panMargin,
-                  (mPan + delta).x(),
-                  width() - page.width() * (1 - panMargin)),
-            qBound(
-                  -page.height() * panMargin,
-                  (mPan + delta).y(),
-                  height() - page.height() * (1 - panMargin))));
+    setPan(pan() + delta);
 }
 
 void
