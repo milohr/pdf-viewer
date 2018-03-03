@@ -436,10 +436,12 @@ private slots:
             QRect const viewportSpaceRect
     );
 
+    QPoint
+    zoomPan() const;
+
     QRect
     visiblePdfRect(
-            QRect const viewportSpaceClip,
-            QPoint * const outTranslation = Q_NULLPTR
+            QRect const viewportSpaceClip
     ) const;
 
 private:

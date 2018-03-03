@@ -242,9 +242,9 @@ PdfViewer::setPan(
 )
 {
     static qreal lastZoom;
-    if(mPan != pan || !equalReals(lastZoom, mZoom))
+    if(mPan != pan || !equalReals(lastZoom, zoom()))
     {
-        lastZoom = mZoom;
+        lastZoom = zoom();
 
         bool const scrolling = zoom() > fitZoom() && zoom() < coverZoom();
 
@@ -263,6 +263,14 @@ PdfViewer::setPan(
         {
             // The page can only be vertically scrolled:
             pan.setX(fitPan().x());
+        }
+
+        if(zoom() > coverZoom())
+        {
+            pan.setX(qMin<int>(pan.x(), -zoomPan().x()));
+            pan.setX(qMax<int>(pan.x(), -zoomPan().x() - pageQuad().width() * computeScale() + width()));
+            pan.setY(qMin<int>(pan.y(), -zoomPan().y()));
+            pan.setY(qMax<int>(pan.y(), -zoomPan().y() - pageQuad().height() * computeScale() + height()));
         }
 
         int const dx = qRound(pan.x() - mPan.x());
@@ -600,10 +608,15 @@ PdfViewer::allocateFramebuffer()
     }
 }
 
+QPoint PdfViewer::zoomPan() const
+{
+    return QPoint(qRound((-pageQuad().width() * (computeScale() - fitScale())) / 2), // TODO: simplify computeScale()
+                          qRound((-pageQuad().height() * (computeScale() - fitScale())) / 2));
+}
+
 QRect
 PdfViewer::visiblePdfRect(
-        QRect const viewportSpaceClip,
-        QPoint * const outTranslation
+        QRect const viewportSpaceClip
 ) const
 {
     qreal const scale = computeScale();
@@ -612,15 +625,7 @@ PdfViewer::visiblePdfRect(
     QRect const pdfRect(0, 0, qRound(scale * pageQuad().width()), qRound(scale * pageQuad().height()));
 
     // Transform mapping the document onto it's position on screen:
-    QPoint const translation =
-            QPoint(qRound(mPan.x()), qRound(mPan.y()))
-            + QPoint(qRound((-pageQuad().width() * (scale - fitScale())) / 2),
-                      qRound((-pageQuad().height() * (scale - fitScale())) / 2));
-
-    if(outTranslation)
-    {
-        *outTranslation = translation;
-    }
+    QPoint const translation = QPoint(qRound(mPan.x()), qRound(mPan.y())) + zoomPan();
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
     return viewportSpaceClip.translated(-translation) & pdfRect;
@@ -636,8 +641,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
         return;
     }
 
-    QPoint translation;
-    QRect const visiblePdf = visiblePdfRect(viewportSpaceRect, &translation);
+    QRect const visiblePdf = visiblePdfRect(viewportSpaceRect);
 
     // Painter should start drawing the image at the current clipped visible rect position:
 
@@ -647,7 +651,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
     painter.setBrush(mBackgroundColor);
     painter.drawRect(viewportSpaceRect);
 
-    painter.translate(translation + visiblePdf.topLeft());
+    painter.translate(QPoint(qRound(mPan.x()), qRound(mPan.y())) + zoomPan() + visiblePdf.topLeft());
 
     QImage const image = mPage->renderToImage(
                 72.0 * computeScale(),
