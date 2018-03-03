@@ -257,7 +257,7 @@ PdfViewer::setPan(
     {
         lastZoom = zoom();
 
-        bool const scrolling = zoom() > fitZoom() && zoom() < coverZoom();
+        bool const scrolling = zoom() > fitZoom() && zoom() <= coverZoom();
 
         // Restrict pan at certain zoom levels:
         if(equalReals(zoom(), fitZoom()))
