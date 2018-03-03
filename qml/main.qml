@@ -228,10 +228,7 @@ Item {
             Button {
                 id: pathProvider
                 text: "Next PDF…"
-                property variant files: [
-                    "Demo.pdf", "Raspberry-Pi Schematics.pdf",
-                    //"https://www.khronos.org/registry/vulkan/specs/1.0/pdf/vkspec.pdf"
-                    ]
+                property variant files: ["Demo.pdf", "Raspberry-Pi Schematics.pdf"]
                 property string path: "../../../pdf-viewer/test-pdf/"
                 property int index: 0
 

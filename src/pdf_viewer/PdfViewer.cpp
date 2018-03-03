@@ -89,9 +89,6 @@ PdfViewer::setSource(
         delete mPage;
         mPage = Q_NULLPTR;
 
-        QUrl url(source);
-        qDebug() << url.scheme();
-
         // Open new document:
         delete mDocument;
         mDocument = Poppler::Document::load(source);
@@ -267,6 +264,8 @@ PdfViewer::setPan(
         lastZoom = zoom();
 
         bool const scrolling = zoom() > fitZoom() && zoom() <= coverZoom();
+        bool const hScrolling = scrolling && scaledPageQuad().width() > width();
+        bool const vScrolling = scrolling && !hScrolling;
 
         // Restrict pan at certain zoom levels:
         if(equalReals(zoom(), fitZoom()))
@@ -274,27 +273,31 @@ PdfViewer::setPan(
             // You cannot pan the page at all when at fit-zoom:
             pan = fitPan();
         }
-        if(scrolling && scaledPageQuad().width() > width())
+        if(hScrolling)
         {
             // The page can only be horizontally scrolled:
             pan.setY(fitPan().y());
         }
-        else if(scrolling)
+        else if(vScrolling)
         {
             // The page can only be vertically scrolled:
             pan.setX(fitPan().x());
         }
 
-        if(zoom() > coverZoom())
+        // Prevent scrolling over edges:
+        if(zoom() > coverZoom() || vScrolling)
         {
-            pan.setX(qMin(pan.x(), -zoomPan().x()));
-            pan.setX(qMax(pan.x(), -zoomPan().x() - scaledPageQuad().width() + viewport().width()));
             pan.setY(qMin(pan.y(), -zoomPan().y()));
             pan.setY(qMax(pan.y(), -zoomPan().y() - scaledPageQuad().height() + viewport().height()));
         }
+        if(zoom() > coverZoom() || hScrolling)
+        {
+            pan.setX(qMin(pan.x(), -zoomPan().x()));
+            pan.setX(qMax(pan.x(), -zoomPan().x() - scaledPageQuad().width() + viewport().width()));
+        }
 
-        int const dx = qRound(pan.x() - mPan.x());
-        int const dy = qRound(pan.y() - mPan.y());
+        int const dx = pan.x() - mPan.x();
+        int const dy = pan.y() - mPan.y();
         int const w = viewport().width();
         int const h = viewport().height();
 
