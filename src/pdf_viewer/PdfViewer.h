@@ -140,7 +140,7 @@ public:
      * @note Panning to fit-pan is only reasonable if page is at fit-zoom. Same semantics applies to cover-pan.
      */
     Q_PROPERTY(
-            QPointF pan
+            QPoint pan
             READ pan
             WRITE setPan
             NOTIFY panChanged)
@@ -283,13 +283,13 @@ public:
     QDateTime
     documentModificationDate() const;
 
-    QPointF
+    QPoint
     pan() const;
 
-    QPointF
+    QPoint
     fitPan() const;
 
-    QPointF
+    QPoint
     coverPan() const;
 
     qreal
@@ -324,7 +324,7 @@ public slots:
 
     void
     setPan(
-            QPointF pan
+            QPoint pan
     );
 
     void
@@ -407,8 +407,14 @@ private slots:
             Status const status
     );
 
-    QSizeF
+    QSize
     pageQuad() const;
+
+    QSize
+    scaledPageQuad() const;
+
+    QSize
+    viewport() const;
 
     qreal
     computeScale() const;
@@ -451,7 +457,7 @@ private:
     Poppler::Document *mDocument;
     Poppler::Page const *mPage;
     int mPageNumber;
-    QPointF mPan;
+    QPoint mPan;
     qreal mZoom;
     qreal mMaxZoom;
     PageOrientation mPageOrientation;

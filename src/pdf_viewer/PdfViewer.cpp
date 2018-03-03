@@ -192,6 +192,17 @@ PdfViewer::setStatus(
     }
 }
 
+QSize
+PdfViewer::scaledPageQuad() const
+{
+    return QSize(pageQuad().width(), pageQuad().height()) * computeScale();
+}
+
+QSize PdfViewer::viewport() const
+{
+    return QSize(qRound(width()), qRound(height()));
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////        Document getter and setter
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +241,7 @@ PdfViewer::documentModificationDate() const
 /////////////////////        Panning
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-QPointF
+QPoint
 PdfViewer::pan() const
 {
     return mPan;
@@ -238,7 +249,7 @@ PdfViewer::pan() const
 
 void
 PdfViewer::setPan(
-        QPointF pan
+        QPoint pan
 )
 {
     static qreal lastZoom;
@@ -254,7 +265,7 @@ PdfViewer::setPan(
             // You cannot pan the page at all when at fit-zoom:
             pan = fitPan();
         }
-        if(scrolling && pageQuad().width() * computeScale() > width())
+        if(scrolling && scaledPageQuad().width() > width())
         {
             // The page can only be horizontally scrolled:
             pan.setY(fitPan().y());
@@ -267,16 +278,16 @@ PdfViewer::setPan(
 
         if(zoom() > coverZoom())
         {
-            pan.setX(qMin<int>(pan.x(), -zoomPan().x()));
-            pan.setX(qMax<int>(pan.x(), -zoomPan().x() - pageQuad().width() * computeScale() + width()));
-            pan.setY(qMin<int>(pan.y(), -zoomPan().y()));
-            pan.setY(qMax<int>(pan.y(), -zoomPan().y() - pageQuad().height() * computeScale() + height()));
+            pan.setX(qMin(pan.x(), -zoomPan().x()));
+            pan.setX(qMax(pan.x(), -zoomPan().x() - scaledPageQuad().width() + viewport().width()));
+            pan.setY(qMin(pan.y(), -zoomPan().y()));
+            pan.setY(qMax(pan.y(), -zoomPan().y() - scaledPageQuad().height() + viewport().height()));
         }
 
         int const dx = qRound(pan.x() - mPan.x());
         int const dy = qRound(pan.y() - mPan.y());
-        int const w = qRound(width());
-        int const h = qRound(height());
+        int const w = viewport().width();
+        int const h = viewport().height();
 
         mFramebuffer.scroll(dx, dy, mFramebuffer.rect(), Q_NULLPTR);
 
@@ -304,27 +315,27 @@ PdfViewer::setPan(
     }
 }
 
-QPointF
+QPoint
 PdfViewer::fitPan() const
 {
-    return QPointF(
-        (width() - pageQuad().width() * fitScale()) / 2,
-        (height() - pageQuad().height() * fitScale()) / 2
+    return QPoint(
+        qRound(viewport().width() - pageQuad().width() * fitScale()) / 2,
+        qRound(viewport().height() - pageQuad().height() * fitScale()) / 2
     );
 }
 
-QPointF
+QPoint
 PdfViewer::coverPan() const
 {
-    return QPointF(
-                (pageQuad().width() * (coverScale() - fitScale())) / 2,
-                (pageQuad().height() * (coverScale() - fitScale())) / 2);
+    return QPoint(
+                (qRound(pageQuad().width() * (coverScale() - fitScale()))) / 2,
+                (qRound(pageQuad().height() * (coverScale() - fitScale()))) / 2);
 }
 
 void
 PdfViewer::resetToFitPanIfFitZoom()
 {
-    if(equalReals(mZoom, fitZoom()))
+    if(equalReals(zoom(), fitZoom()))
     {
         setPan(fitPan());
     }
@@ -447,13 +458,13 @@ PdfViewer::setPageOrientation(
 void
 PdfViewer::rotatePageClockwise()
 {
-    setPageOrientation(static_cast<PageOrientation>(mPageOrientation + HALF_PI));
+    setPageOrientation(static_cast<PageOrientation>(pageOrientation() + HALF_PI));
 }
 
 void
 PdfViewer::rotatePageCounterClockwise()
 {
-    setPageOrientation(static_cast<PageOrientation>(mPageOrientation - HALF_PI));
+    setPageOrientation(static_cast<PageOrientation>(pageOrientation() - HALF_PI));
 }
 
 void PdfViewer::zoomIn(
@@ -487,8 +498,9 @@ PdfViewer::mouseMoveEvent(
         QGraphicsSceneMouseEvent * const event
 )
 {
-    QPointF const delta = event->pos() - event->lastPos();
-    setPan(pan() + delta);
+    int const dx = qRound(event->pos().x() - event->lastPos().x());
+    int const dy = qRound(event->pos().y() - event->lastPos().y());
+    setPan(pan() + QPoint(dx, dy));
 }
 
 void
@@ -496,7 +508,7 @@ PdfViewer::mouseDoubleClickEvent(
         QGraphicsSceneMouseEvent * const
 )
 {
-    if(equalReals(mZoom, fitZoom()))
+    if(equalReals(zoom(), fitZoom()))
     {
         // Zoom to cover:
         setZoom(coverZoom());
@@ -514,18 +526,18 @@ PdfViewer::mouseDoubleClickEvent(
 /////////////////////        Helper functions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-QSizeF
+QSize
 PdfViewer::pageQuad() const
 {
     return (mPageOrientation == ZERO_PI) || (mPageOrientation == ONE_PI)
             ? mPage->pageSize() // Take page size as is.
-            : QSizeF(mPage->pageSize().height(), mPage->pageSize().width()); // Swap the page's width and height.
+            : QSize(mPage->pageSize().height(), mPage->pageSize().width()); // Swap the page's width and height.
 }
 
 qreal
 PdfViewer::computeScale() const
 {
-    return mZoom * fitScale(); // Remember, a zoom of 1 *is defined* as the fit scale.
+    return zoom() * fitScale(); // Remember, a zoom of 1 *is defined* as the fit scale.
 }
 
 qreal
@@ -589,7 +601,7 @@ equalReals(
 void
 PdfViewer::requestRenderWholePdf()
 {
-    mRenderRegion = QRect(0, 0, qRound(width()), qRound(height()));
+    mRenderRegion = QRect(0, 0, viewport().width(), viewport().height());
     update();
 }
 
@@ -599,19 +611,18 @@ PdfViewer::allocateFramebuffer()
     if(mFramebuffer.isNull())
     {
         // No framebuffer has been allocated yet, so do that now:
-        mFramebuffer = QPixmap(static_cast<int>(width()), static_cast<int>(height()));
+        mFramebuffer = QPixmap(viewport().width(), viewport().height());
     }
     else
     {
         // Resize the current framebuffer instead of creating a new one:
-        mFramebuffer = mFramebuffer.scaled(static_cast<int>(width()), static_cast<int>(height()));
+        mFramebuffer = mFramebuffer.scaled(viewport().width(), viewport().height());
     }
 }
 
 QPoint PdfViewer::zoomPan() const
 {
-    return QPoint(qRound((-pageQuad().width() * (computeScale() - fitScale())) / 2), // TODO: simplify computeScale()
-                          qRound((-pageQuad().height() * (computeScale() - fitScale())) / 2));
+    return -QPoint(pageQuad().width(),pageQuad().height()) * (computeScale() - fitScale()) / 2;
 }
 
 QRect
@@ -619,13 +630,11 @@ PdfViewer::visiblePdfRect(
         QRect const viewportSpaceClip
 ) const
 {
-    qreal const scale = computeScale();
-
     // This rect is equally in size as the final Pdf which would appear on screen:
-    QRect const pdfRect(0, 0, qRound(scale * pageQuad().width()), qRound(scale * pageQuad().height()));
+    QRect const pdfRect(0, 0, scaledPageQuad().width(), scaledPageQuad().height());
 
     // Transform mapping the document onto it's position on screen:
-    QPoint const translation = QPoint(qRound(mPan.x()), qRound(mPan.y())) + zoomPan();
+    QPoint const translation = pan() + zoomPan();
 
     // Now figure out which rect a currently visible to the user by inverting that transform matrix:
     return viewportSpaceClip.translated(-translation) & pdfRect;
@@ -648,10 +657,10 @@ void PdfViewer::renderPdfIntoFramebuffer(
     QPainter painter(&mFramebuffer);
 
     painter.setPen(Qt::transparent);
-    painter.setBrush(mBackgroundColor);
+    painter.setBrush(backgroundColor());
     painter.drawRect(viewportSpaceRect);
 
-    painter.translate(QPoint(qRound(mPan.x()), qRound(mPan.y())) + zoomPan() + visiblePdf.topLeft());
+    painter.translate(pan() + zoomPan() + visiblePdf.topLeft());
 
     QImage const image = mPage->renderToImage(
                 72.0 * computeScale(),
@@ -660,7 +669,7 @@ void PdfViewer::renderPdfIntoFramebuffer(
                 visiblePdf.y(),
                 visiblePdf.width(),
                 visiblePdf.height(),
-                static_cast<Poppler::Page::Rotation>(mPageOrientation));
+                static_cast<Poppler::Page::Rotation>(pageOrientation()));
 
     painter.drawImage(0, 0, image);
 }
