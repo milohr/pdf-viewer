@@ -123,6 +123,24 @@ public:
             NOTIFY pageOrientationChanged)
 
     /*!
+     * \brief Controls text anti-aliasing done by Poppler renderer.
+     */
+    Q_PROPERTY(
+            bool renderTextAntiAliased
+            READ renderTextAntiAliased
+            WRITE setRenderTextAntiAliased
+            NOTIFY renderTextAntiAliasedChanged)
+
+    /*!
+     * \brief Controls image anti-aliasing done by Poppler renderer.
+     */
+    Q_PROPERTY(
+            bool renderImageAntiAliased
+            READ renderImageAntiAliased
+            WRITE setRenderImageAntiAliased
+            NOTIFY renderImageAntiAliasedChanged)
+
+    /*!
      * Rotate page clockwise.
      */
     Q_INVOKABLE void
@@ -310,6 +328,12 @@ public:
     QColor
     backgroundColor() const;
 
+    bool
+    renderTextAntiAliased() const;
+
+    bool
+    renderImageAntiAliased() const;
+
 public slots:
 
     void
@@ -347,6 +371,16 @@ public slots:
             QColor const backgroundColor
     );
 
+    void
+    setRenderTextAntiAliased(
+            bool const on
+    );
+
+    void
+    setRenderImageAntiAliased(
+            bool const on
+    );
+
 signals:
 
     void
@@ -375,6 +409,12 @@ signals:
 
     void
     backgroundColorChanged();
+
+    void
+    renderTextAntiAliasedChanged();
+
+    void
+    renderImageAntiAliasedChanged();
 
 protected:
 
@@ -464,6 +504,8 @@ private:
     QPixmap mFramebuffer;
     QRegion mRenderRegion;
     QColor mBackgroundColor;
+    bool mRenderTextAntiAliased;
+    bool mRenderImageAntiAliased;
 
 };
 

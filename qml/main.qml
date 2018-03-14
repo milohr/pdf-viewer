@@ -228,7 +228,7 @@ Item {
             Button {
                 id: pathProvider
                 text: "Next PDF…"
-                property variant files: ["Demo.pdf", "Raspberry-Pi Schematics.pdf"]
+                property variant files: ["Lorem.pdf", "Demo.pdf", "Raspberry-Pi Schematics.pdf"]
                 property string path: "../../../pdf-viewer/test-pdf/"
                 property int index: 0
 

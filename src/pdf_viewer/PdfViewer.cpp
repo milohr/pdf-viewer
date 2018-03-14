@@ -33,6 +33,7 @@ PdfViewer::PdfViewer(
     , mZoom(fitZoom())
     , mMaxZoom(6)
     , mPageOrientation(ZERO_PI)
+    , mRenderTextAntiAliased(false)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -116,10 +117,9 @@ PdfViewer::setSource(
         setStatus(OK);
 
         // Enable anti-aliased rendering in Poppler:
-        mDocument->setRenderHint(Poppler::Document::Antialiasing);
-        mDocument->setRenderHint(Poppler::Document::TextAntialiasing);
-        mDocument->setRenderHint(Poppler::Document::TextHinting);
-        mDocument->setRenderHint(Poppler::Document::TextSlightHinting);
+        mDocument->setRenderHint(Poppler::Document::TextAntialiasing, mRenderTextAntiAliased);
+        //mDocument->setRenderHint(Poppler::Document::TextHinting);
+        //mDocument->setRenderHint(Poppler::Document::TextSlightHinting);
 
         // Reset page number to zero:
         setPageNumber(0);
@@ -409,6 +409,54 @@ PdfViewer::coverZoom() const
 qreal PdfViewer::fitZoom() const
 {
     return 1;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////        Render hints
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool
+PdfViewer::renderTextAntiAliased() const
+{
+    return mRenderTextAntiAliased;
+}
+
+void
+PdfViewer::setRenderTextAntiAliased(
+        bool const on
+)
+{
+    if(mRenderTextAntiAliased != on) {
+        mRenderTextAntiAliased = on;
+        emit renderTextAntiAliasedChanged();
+
+        if(mDocument)
+        {
+            mDocument->setRenderHint(Poppler::Document::TextAntialiasing, mRenderTextAntiAliased);
+        }
+    }
+}
+
+bool
+PdfViewer::renderImageAntiAliased() const
+{
+    return mRenderImageAntiAliased;
+}
+
+void
+PdfViewer::setRenderImageAntiAliased(
+        bool const on
+)
+{
+    if(mRenderImageAntiAliased != on) {
+        mRenderImageAntiAliased = on;
+        emit renderTextAntiAliasedChanged();
+
+        if(mDocument)
+        {
+            mDocument->setRenderHint(Poppler::Document::Antialiasing, mRenderImageAntiAliased);
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
