@@ -12,19 +12,13 @@ namespace pdf_viewer {
 // Compare to floating points value up to a given precision.
 // The `log10(precision)`th digit following the comma is guaranteed to be equal.
 bool
-equalReals(
-        qreal const a,
-        qreal const b,
-        int const precision = 1000
-);
+equalReals(qreal const a, qreal const b, int const precision = 1000);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////        PDF Viewer
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PdfViewer::PdfViewer(
-        QDeclarativeItem * const parent
-)
+PdfViewer::PdfViewer(QDeclarativeItem * const parent)
     : QDeclarativeItem(parent)
     , mStatus(NOT_OPEN)
     , mDocument(Q_NULLPTR)
@@ -118,8 +112,6 @@ PdfViewer::setSource(
 
         // Enable anti-aliased rendering in Poppler:
         mDocument->setRenderHint(Poppler::Document::TextAntialiasing, mRenderTextAntiAliased);
-        //mDocument->setRenderHint(Poppler::Document::TextHinting);
-        //mDocument->setRenderHint(Poppler::Document::TextSlightHinting);
 
         // Reset page number to zero:
         setPageNumber(0);
