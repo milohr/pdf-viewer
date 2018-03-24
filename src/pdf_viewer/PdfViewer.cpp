@@ -1,5 +1,6 @@
 #include "PdfViewer.h"
 
+#include <QTimer>
 #include <QPainter>
 #include <QtCore/qmath.h>
 #include <QGraphicsSceneMouseEvent>
@@ -13,6 +14,8 @@ namespace pdf_viewer {
 // The `log10(precision)`th digit following the comma is guaranteed to be equal.
 bool
 equalReals(qreal const a, qreal const b, int const precision = 1000);
+
+const qreal PdfViewer::SLIDE_MILLIS = 2000.0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////        PDF Viewer
@@ -29,6 +32,8 @@ PdfViewer::PdfViewer(QDeclarativeItem * const parent)
     , mMaxZoom(6)
     , mPageOrientation(ZERO_PI)
     , mRenderTextAntiAliased(false)
+    , mSliding(false)
+    , mSlidingToPage(false)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -520,13 +525,99 @@ PdfViewer::mousePressEvent(
 }
 
 void
+PdfViewer::mouseReleaseEvent(
+        QGraphicsSceneMouseEvent * const
+)
+{
+    // Release mouse focus
+    mSliding = false;
+}
+
+void
 PdfViewer::mouseMoveEvent(
         QGraphicsSceneMouseEvent * const event
 )
 {
+    if(mSlidingToPage) return;
+
     int const dx = qRound(event->pos().x() - event->lastPos().x());
     int const dy = qRound(event->pos().y() - event->lastPos().y());
-    setPan(pan() + QPoint(dx, dy));
+
+    if(mZoom > 1.0 && !mSliding) {
+        setPan(pan() + QPoint(dx, dy));
+    }
+
+    else if(dx != 0) {
+
+        qDebug() << "sliding by" << dx;
+
+        mSliding = true;
+        mSlidingOffset.rx() += dx;
+
+        static qint64 tOld = QDateTime::currentMSecsSinceEpoch();
+        qint64 tNow = QDateTime::currentMSecsSinceEpoch();
+        qint64 dt = tNow - tOld;
+
+        //qDebug() << ((width() - scaledPageQuad().width()) / 2) + mSlidingOffset.x(); // => left hit
+        //qDebug() << ((width() - scaledPageQuad().width()) / 2) - mSlidingOffset.x(); // => right hit
+
+        if(((viewport().width() - scaledPageQuad().width()) / 2 + mSlidingOffset.x() < 0)
+                && pageNumber() < mDocument->numPages() - 1) {
+            // => Left hit
+            mSlidingTStart = tNow;
+            mSlidingVelocity = abs(static_cast<qreal>(dx) / dt);
+            mSlidingCoeffecient = dx > 0 ? 1 : -1;
+
+            // Compute constant deceleration, so that v after t (=SLIDE_MILLIS) is 0 and x is the complete page width:
+            // x = 1/2 at² + vt    => a = 2(x - vt) / t²
+            mSlidingAcceleration = 2 * (scaledPageQuad().width() - mSlidingVelocity * SLIDE_MILLIS) / (SLIDE_MILLIS * SLIDE_MILLIS);
+            mSlidingToPage = true;
+
+            qDebug() << "slider to next page,  x=" << scaledPageQuad().width() << "  v=" << mSlidingVelocity << "  a=" << mSlidingAcceleration;
+            startTimer(10);
+        }
+
+        tOld = tNow;
+
+        mFramebuffer.scroll(dx, 0, mFramebuffer.rect(), Q_NULLPTR);
+
+        qDebug() << "";
+        update();
+    }
+}
+
+void
+PdfViewer::timerEvent(QTimerEvent *event)
+{
+    static qreal tOld;
+    qreal t = QDateTime::currentMSecsSinceEpoch() - mSlidingTStart;
+    qreal dt = t - tOld;
+    if(t < 0) return;
+    static qreal xOld = 0;
+    qreal x = 0.5 * mSlidingAcceleration * t * t + mSlidingVelocity * t;
+    qreal dx = x - xOld;
+
+    static qreal dxAcc = 0.0;
+    dxAcc += dx;
+
+    if(dxAcc > 1.0) {
+        int dxAccTruncated = static_cast<int>(dxAcc);
+        dxAcc -= dxAccTruncated;
+        mFramebuffer.scroll(mSlidingCoeffecient * dxAccTruncated, 0, mFramebuffer.rect(), Q_NULLPTR);
+        update();
+    }
+
+    //qDebug() << scaledPageQuad().width() - x;
+    qDebug("dt=%lfms  t=%lfms  dx=%lfpx  x=%lfpx", dt, t, dx, x);
+    if(x > scaledPageQuad().width() || (mSlidingCoeffecient > 0 ? dx > 0 : dx < 0))
+    {
+        qDebug("Stop, took %lldms, v0=%lf", QDateTime::currentMSecsSinceEpoch() - mSlidingTStart, mSlidingVelocity);
+        killTimer(event->timerId());
+        mSlidingToPage = false;
+    }
+
+    xOld = x;
+    tOld = t;
 }
 
 void

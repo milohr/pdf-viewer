@@ -15,6 +15,7 @@ namespace Poppler {
     class Document;
     class Page;
 }
+class QTimer;
 
 namespace pdf_viewer {
 
@@ -226,8 +227,10 @@ protected:
 
     virtual void paint(QPainter * const painter, QStyleOptionGraphicsItem const * const option, QWidget * const widget);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent * const event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * const event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * const event);
     virtual void mouseDoubleClickEvent(QGraphicsSceneMouseEvent * const event);
+    virtual void timerEvent(QTimerEvent *event);
 
 private slots:
 
@@ -263,6 +266,15 @@ private:
     QColor mBackgroundColor;
     bool mRenderTextAntiAliased;
     bool mRenderImageAntiAliased;
+    bool mSliding;
+    QPoint mSlidingOffset;
+    bool mSlidingToPage;
+    qreal mSlidingVelocity;
+    qreal mSlidingAcceleration;
+    qint64 mSlidingTStart;
+    int mSlidingCoeffecient;
+
+    static const qreal SLIDE_MILLIS;
 
 };
 
