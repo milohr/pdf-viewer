@@ -5,6 +5,7 @@
 
 #include "pdf_viewer/PdfViewer.h"
 #include "pdf_viewer/PdfDocument.h"
+#include "pdf_viewer/Polynomial.h"
 
 int main(int argc, char *argv[])
 {

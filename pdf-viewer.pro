@@ -18,8 +18,10 @@ RESOURCES += rc.qrc
 SOURCES += \
     src/main.cpp \
     src/pdf_viewer/PdfViewer.cpp \
-    src/pdf_viewer/PdfDocument.cpp
+    src/pdf_viewer/PdfDocument.cpp \
+    src/pdf_viewer/Polynomial.cpp
 
 HEADERS  += \
     src/pdf_viewer/PdfViewer.h \
-    src/pdf_viewer/PdfDocument.h
+    src/pdf_viewer/PdfDocument.h \
+    src/pdf_viewer/Polynomial.h
