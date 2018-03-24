@@ -1,5 +1,5 @@
 import QtQuick 1.0
-import PdfViewer 1.0
+import PdfViewing 1.0
 
 Item {
     width: 800
@@ -197,7 +197,7 @@ Item {
 
             // Document title:
             Text {
-                text: pdf.documentTitle
+                text: pdf.info.title
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 verticalAlignment: Text.AlignVCenter

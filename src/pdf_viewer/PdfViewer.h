@@ -5,6 +5,8 @@
 #include <QRegion>
 #include <QPixmap>
 
+#include "PdfDocument.h"
+
 #ifndef Q_NULLPTR
 #define Q_NULLPTR NULL
 #endif // Q_NULLPTR
@@ -56,29 +58,11 @@ public:
     Q_PROPERTY(QString statusMessage READ statusMessage NOTIFY statusChanged)
 
     /*!
-     * \brief The document title.
+     * \brief The document information like title or creation date.
+     * The information is updates as soon as a new document is set.
+     * Exposed information is read-only.
      */
-    Q_PROPERTY(QString documentTitle READ documentTitle NOTIFY sourceChanged)
-
-    /*!
-     * \brief The document author.
-     */
-    Q_PROPERTY(QString documentAuthor READ documentAuthor NOTIFY sourceChanged)
-
-    /*!
-     * \brief The document creator.
-     */
-    Q_PROPERTY(QString documentCreator READ documentCreator NOTIFY sourceChanged)
-
-    /*!
-     * \brief The document creation date.
-     */
-    Q_PROPERTY(QDateTime documentCreationDate READ documentCreationDate NOTIFY sourceChanged)
-
-    /*!
-     * \brief The document modification date.
-     */
-    Q_PROPERTY(QDateTime documentModificationDate READ documentModificationDate NOTIFY sourceChanged)
+    Q_PROPERTY(pdf_viewer::PdfDocument *info READ info NOTIFY infoChanged)
 
     /*!
      * \brief The current page orientation, which can be 0π, 0.5π, 1π or 1.5π.
@@ -99,12 +83,12 @@ public:
     Q_PROPERTY(bool renderImageAntiAliased READ renderImageAntiAliased WRITE setRenderImageAntiAliased NOTIFY renderImageAntiAliasedChanged)
 
     /*!
-     * Rotate page clockwise.
+     * Rotate page clockwise by π/2 or 45°.
      */
     Q_INVOKABLE void rotatePageClockwise();
 
     /*!
-     * Rotate page counter-clockwise.
+     * Rotate page counter-clockwise by π/2 or 45°.
      */
     Q_INVOKABLE void rotatePageCounterClockwise();
 
@@ -186,7 +170,7 @@ public:
     enum PageOrientation {
         ZERO_PI,                //!< 0π, initial state
         HALF_PI,                //!< 0.5π, counter-clockwise
-        ONE_PI,                 //!< 1π
+        ONE_PI,                 //!< 1π, headfirst orientation
         ONE_HALF_PI             //!< 1.5π, counter-clockwise
     };
 
@@ -198,11 +182,7 @@ public:
     int pageNumber() const;
     Status status() const;
     QString statusMessage() const;
-    QString documentTitle() const;
-    QString documentAuthor() const;
-    QString documentCreator() const;
-    QDateTime documentCreationDate() const;
-    QDateTime documentModificationDate() const;
+    PdfDocument *info() const;
     QPoint pan() const;
     QPoint fitPan() const;
     QPoint coverPan() const;
@@ -230,6 +210,7 @@ public slots:
 signals:
 
     void sourceChanged();
+    void infoChanged();
     void pageNumberChanged();
     void statusChanged();
     void panChanged();
@@ -272,6 +253,7 @@ private:
     Poppler::Document *mDocument;
     Poppler::Page const *mPage;
     int mPageNumber;
+    PdfDocument *mInfo;
     QPoint mPan;
     qreal mZoom;
     qreal mMaxZoom;

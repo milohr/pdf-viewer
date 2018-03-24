@@ -4,13 +4,15 @@
 #include <QDeclarativeView>
 
 #include "pdf_viewer/PdfViewer.h"
+#include "pdf_viewer/PdfDocument.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
     // Register PDF viewer component to QML:
-    qmlRegisterType<pdf_viewer::PdfViewer>("PdfViewer", 1, 0, "PdfViewer");
+    qmlRegisterType<pdf_viewer::PdfDocument>("PdfViewing", 1, 0, "PdfDocument");
+    qmlRegisterType<pdf_viewer::PdfViewer>("PdfViewing", 1, 0, "PdfViewer");
 
     // Create the main window:
     QMainWindow window;

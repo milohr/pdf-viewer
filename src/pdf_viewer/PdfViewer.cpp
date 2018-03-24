@@ -24,6 +24,7 @@ PdfViewer::PdfViewer(QDeclarativeItem * const parent)
     , mDocument(Q_NULLPTR)
     , mPage(Q_NULLPTR)
     , mPageNumber(-1)
+    , mInfo(new PdfDocument(this))
     , mZoom(fitZoom())
     , mMaxZoom(6)
     , mPageOrientation(ZERO_PI)
@@ -90,7 +91,9 @@ PdfViewer::setSource(
 
         // Emit new source signal as soon as new document object is retrieved:
         mSource = source;
+        mInfo->setInformation(mDocument->title(), mDocument->author(), mDocument->creator(), mDocument->creationDate(), mDocument->modificationDate());
         emit sourceChanged();
+        emit infoChanged();
 
         // Check whether document is valid:
         if(!mDocument)
@@ -178,6 +181,11 @@ PdfViewer::statusMessage() const
     return "Undefined status";
 }
 
+PdfDocument *PdfViewer::info() const
+{
+    return mInfo;
+}
+
 void
 PdfViewer::setStatus(
         PdfViewer::Status const status
@@ -199,40 +207,6 @@ PdfViewer::scaledPageQuad() const
 QSize PdfViewer::viewport() const
 {
     return QSize(qRound(width()), qRound(height()));
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////        Document getter and setter
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-QString
-PdfViewer::documentTitle() const
-{
-    return mDocument ? mDocument->title() : "";
-}
-
-QString
-PdfViewer::documentAuthor() const
-{
-    return mDocument ? mDocument->author() : "";
-}
-
-QString
-PdfViewer::documentCreator() const
-{
-    return mDocument ? mDocument->creator() : "";
-}
-
-QDateTime
-PdfViewer::documentCreationDate() const
-{
-    return mDocument ? mDocument->creationDate() : QDateTime();
-}
-
-QDateTime
-PdfViewer::documentModificationDate() const
-{
-    return mDocument ? mDocument->modificationDate() : QDateTime();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
