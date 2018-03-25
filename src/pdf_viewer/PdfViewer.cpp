@@ -15,7 +15,7 @@ namespace pdf_viewer {
 bool
 equalReals(qreal const a, qreal const b, int const precision = 1000);
 
-const qreal PdfViewer::SLIDE_MILLIS = 300.0;
+const qreal PdfViewer::SLIDE_MILLIS = 450.0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////        PDF Viewer
@@ -32,7 +32,7 @@ PdfViewer::PdfViewer(QDeclarativeItem * const parent)
     , mMaxZoom(6)
     , mPageOrientation(ZERO_PI)
     , mRenderTextAntiAliased(false)
-    , mSliding(false)
+    , mSlidePulling(false)
     , mSlidingToPage(false)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
@@ -267,7 +267,7 @@ PdfViewer::setPan(
             pan.setX(qMax(pan.x(), -zoomPan().x() - scaledPageQuad().width() + viewport().width()));
         }
 
-        int const dx = pan.x() - mPan.x();
+        int dx = pan.x() - mPan.x();
         int const dy = pan.y() - mPan.y();
         int const w = viewport().width();
         int const h = viewport().height();
@@ -530,7 +530,8 @@ PdfViewer::mouseReleaseEvent(
 )
 {
     // Release mouse focus
-    mSliding = false;
+    mSlidePulling = false;
+    mSlidingPull = 0;
 }
 
 void
@@ -538,38 +539,26 @@ PdfViewer::mouseMoveEvent(
         QGraphicsSceneMouseEvent * const event
 )
 {
-    if(mSlidingToPage) return;
+    if(mSlidingToPage)
+    {
+        // Page slide animation is running:
+        return;
+    }
 
     int const dx = qRound(event->pos().x() - event->lastPos().x());
     int const dy = qRound(event->pos().y() - event->lastPos().y());
 
-    if(mZoom > 1.0 && !mSliding) {
+    if(mZoom > 1.0 && !mSlidePulling) {
         setPan(pan() + QPoint(dx, dy));
     }
 
     else if(dx != 0) {
 
-        qDebug() << "sliding by" << dx;
 
-        mSliding = true;
-        mSlidingOffset.rx() += dx;
-
-        static qint64 tOld = QDateTime::currentMSecsSinceEpoch();
-        qint64 tNow = QDateTime::currentMSecsSinceEpoch();
-        qint64 dt = tNow - tOld;
-
-        //qDebug() << ((width() - scaledPageQuad().width()) / 2) + mSlidingOffset.x(); // => left hit
-        //qDebug() << ((width() - scaledPageQuad().width()) / 2) - mSlidingOffset.x(); // => right hit
-
-        if(((viewport().width() - scaledPageQuad().width()) / 2 + mSlidingOffset.x() < 0)
-                && pageNumber() < mDocument->numPages() - 1) {
-            // => Left hit
-            mSlidingTStart = tNow;
-            mSlidingVelocity = dt > 0.0 ? static_cast<qreal>(dx) / dt : 1.0;
-            mSlidingToPage = true;
-            mSlidingPolynomial.set(SLIDE_MILLIS, copysign(scaledPageQuad().width(), mSlidingVelocity), mSlidingVelocity);
-
-            qDebug("slider to next page,  n=%dpx  m=%lfms  v=%lfpx/ms", scaledPageQuad().width(), SLIDE_MILLIS, mSlidingVelocity);
+        mSlidePulling = true;
+        mSlidingPull += dx;
+        if(std::abs(mSlidingPull) > 150) {
+            qDebug() << "sliding by" << mSlidingPull;
 
             mSlidingImage = mPage->renderToImage(
                         72.0 * computeScale(),
@@ -580,14 +569,13 @@ PdfViewer::mouseMoveEvent(
                         scaledPageQuad().height(),
                         static_cast<Poppler::Page::Rotation>(pageOrientation()));
 
+            mSlidingPolynomial.set(SLIDE_MILLIS, -scaledPageQuad().width(), 0, fitPan().x());
+            mSlidingTStart = QDateTime::currentMSecsSinceEpoch();
+
+            mSlidingToPage = true;
+            mSlidingInNextPage = false;
             startTimer(10);
         }
-
-        tOld = tNow;
-
-        mFramebuffer.scroll(dx, 0, mFramebuffer.rect(), Q_NULLPTR);
-
-        update();
     }
 }
 
@@ -595,6 +583,7 @@ void
 PdfViewer::timerEvent(QTimerEvent *event)
 {
     qint64 t = QDateTime::currentMSecsSinceEpoch() - mSlidingTStart;
+    // TODO: return if negative dt?
 
     int shift = static_cast<int>(mSlidingPolynomial(t));
 
@@ -603,14 +592,33 @@ PdfViewer::timerEvent(QTimerEvent *event)
     painter.drawImage(shift, fitPan().y(), mSlidingImage);
     update();
 
-    qDebug() << zoomPan().y();
-    //qDebug("dt=%lldms  y=%dpx  maxY=%lfpx", t, shift, mSlidingPolynomial.n());
-    //if(y > scaledPageQuad().width() /*|| (mSlidingCoeffecient > 0 ? dy > 0 : dy < 0)*/)
     if(t > SLIDE_MILLIS)
     {
         qDebug("Stop, took %lldms, v0=%lf", QDateTime::currentMSecsSinceEpoch() - mSlidingTStart, mSlidingVelocity);
         killTimer(event->timerId());
-        mSlidingToPage = false;
+        if(mSlidingInNextPage) {
+            mSlidingToPage = false;
+            mSlidingInNextPage = false;
+            return;
+        }
+
+        // Set new page number, but do not re-render the page yet:
+        setPageNumber(pageNumber() + 1);
+
+        mSlidingImage = mPage->renderToImage(
+                    72.0 * computeScale(),
+                    72.0 * computeScale(),
+                    0,
+                    0,
+                    scaledPageQuad().width(),
+                    scaledPageQuad().height(),
+                    static_cast<Poppler::Page::Rotation>(pageOrientation()));
+
+        mSlidingPolynomial.set(0, viewport().width(), SLIDE_MILLIS, fitPan().x());
+        mSlidingTStart = QDateTime::currentMSecsSinceEpoch();
+        mSlidingInNextPage = true;
+
+        startTimer(10);
     }
 }
 

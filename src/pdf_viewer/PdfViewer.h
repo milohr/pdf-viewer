@@ -267,13 +267,14 @@ private:
     QColor mBackgroundColor;
     bool mRenderTextAntiAliased;
     bool mRenderImageAntiAliased;
-    bool mSliding;
-    QPoint mSlidingOffset;
+    bool mSlidePulling;
+    int mSlidingPull;
     bool mSlidingToPage;
     qreal mSlidingVelocity;
     qint64 mSlidingTStart;
     Polynomial mSlidingPolynomial;
     QImage mSlidingImage;
+    bool mSlidingInNextPage;
 
     static const qreal SLIDE_MILLIS;
 

@@ -11,6 +11,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
+    pdf_viewer::Polynomial poly;
+    poly.set(1.5, 0.5, 2, 4);
+    qDebug() << poly(0) << poly(1) << poly(1.5);
+
     // Register PDF viewer component to QML:
     qmlRegisterType<pdf_viewer::PdfDocument>("PdfViewing", 1, 0, "PdfDocument");
     qmlRegisterType<pdf_viewer::PdfViewer>("PdfViewing", 1, 0, "PdfViewer");
