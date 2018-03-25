@@ -35,7 +35,7 @@ public:
      * \attention n must not be 0!
      * \note m, n and g can also be negative. m and g can also be 0.
      */
-    Polynomial(qreal const m, qreal const n, qreal const g);
+    void set(qreal const m, qreal const n, qreal const g);
 
     /*!
      * \brief operator () Evaluates the polynomial at x.
@@ -50,8 +50,8 @@ public:
 
 private:
 
-    qreal const mM, mN, mG;
-    qreal const mA, mB, mC;
+    qreal mM, mN, mG;
+    qreal mA, mB, mC;
 
 };
 

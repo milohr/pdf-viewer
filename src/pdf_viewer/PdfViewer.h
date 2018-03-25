@@ -6,6 +6,7 @@
 #include <QPixmap>
 
 #include "PdfDocument.h"
+#include "Polynomial.h"
 
 #ifndef Q_NULLPTR
 #define Q_NULLPTR NULL
@@ -270,9 +271,9 @@ private:
     QPoint mSlidingOffset;
     bool mSlidingToPage;
     qreal mSlidingVelocity;
-    qreal mSlidingAcceleration;
     qint64 mSlidingTStart;
-    int mSlidingCoeffecient;
+    Polynomial mSlidingPolynomial;
+    QImage mSlidingImage;
 
     static const qreal SLIDE_MILLIS;
 

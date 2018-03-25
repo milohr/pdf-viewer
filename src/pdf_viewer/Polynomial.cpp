@@ -2,14 +2,14 @@
 
 namespace pdf_viewer {
 
-Polynomial::Polynomial(qreal const m, qreal const n, qreal const g)
-    : mM(m)
-    , mN(n)
-    , mG(g)
-    , mA((g * m - 2 * n) / m / m / m)
-    , mB((3 * n - 2 * g * m) / m / m)
-    , mC(g)
+void Polynomial::set(qreal const m, qreal const n, qreal const g)
 {
+    mM = m;
+    mN = n;
+    mG = g;
+    mA = (g * m - 2 * n) / m / m / m;
+    mB = (3 * n - 2 * g * m) / m / m;
+    mC = g;
 }
 
 qreal Polynomial::operator()(qreal x)
