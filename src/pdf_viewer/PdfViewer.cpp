@@ -15,7 +15,7 @@ namespace pdf_viewer {
 bool
 equalReals(qreal const a, qreal const b, int const precision = 1000);
 
-const qreal PdfViewer::SLIDE_MILLIS = 350.0;
+const qreal PdfViewer::SLIDE_ANIMATION_DURATION = 150.0;
 const int PdfViewer::SLIDE_PULL_THRESHOLD = 100;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,8 +33,7 @@ PdfViewer::PdfViewer(QDeclarativeItem * const parent)
     , mMaxZoom(6)
     , mPageOrientation(ZERO_PI)
     , mRenderTextAntiAliased(false)
-    , mSlidePulling(false)
-    , mSlidingToPage(false)
+    , mSlidingOutPage(false)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -319,7 +318,7 @@ PdfViewer::coverPan() const
 void
 PdfViewer::resetToFitPanIfFitZoom()
 {
-    if(!mSlidingToPage && equalReals(zoom(), fitZoom()))
+    if(!mSlidingOutPage && equalReals(zoom(), fitZoom()))
     {
         setPan(fitPan());
     }
@@ -455,7 +454,7 @@ PdfViewer::setBackgroundColor(
 
 void PdfViewer::resetPageViewToFit()
 {
-    if(mSlidingToPage) return;
+    if(mSlidingOutPage) return;
     setZoom(fitZoom());
     setPan(fitPan());
 }
@@ -532,7 +531,6 @@ PdfViewer::mouseReleaseEvent(
 )
 {
     // Release mouse focus
-    mSlidePulling = false;
 }
 
 void
@@ -540,7 +538,7 @@ PdfViewer::mouseMoveEvent(
         QGraphicsSceneMouseEvent * const event
 )
 {
-    if(mSlidingToPage)
+    if(mSlidingOutPage)
     {
         // Page slide animation is running:
         return;
@@ -549,18 +547,26 @@ PdfViewer::mouseMoveEvent(
     int const dx = qRound(event->pos().x() - event->lastPos().x());
     int const dy = qRound(event->pos().y() - event->lastPos().y());
 
-    if(mZoom > 1.0 && !mSlidePulling) {
+    // If zoom is not at fit level, movement means panning:
+    if(mZoom > 1.0) {
         setPan(pan() + QPoint(dx, dy));
     }
 
-    // dx negative => next page
-    // dx positive => prev page
-    else if((dx < 0 && pageNumber() < mDocument->numPages() - 1) || (dx > 0 && pageNumber() > 0)) {
+    // If zoom is at fit level, horizontal movement beyond a certain
+    // threshold value will trigger a page slide animation, given that
+    // the document has any remaining pages in that direction:
+    else if(
+            (dx < 0 && pageNumber() < mDocument->numPages() - 1) // User pulls to left, and there are following pages
+            || (dx > 0 && pageNumber() > 0))                     // User pulls to right, and there are preceeding pages
+    {
+        // dx negative => next page
+        // dx positive => prev page
 
-
-        mSlidePulling = true;
+        // Accumulate slide gesture, since a certain threshold is necessary to trigger the animation:
         mSlidingPull += dx;
         if(std::abs(mSlidingPull) > SLIDE_PULL_THRESHOLD) {
+
+            // Pre-render the whole page:
             mSlidingImage = mPage->renderToImage(
                         72.0 * computeScale(),
                         72.0 * computeScale(),
@@ -570,16 +576,25 @@ PdfViewer::mouseMoveEvent(
                         scaledPageQuad().height(),
                         static_cast<Poppler::Page::Rotation>(pageOrientation()));
 
-            if(mSlidingPull < 0) {
-                mSlidingPolynomial.set(0, fitPan().x(), SLIDE_MILLIS, -scaledPageQuad().width());
+            // Setup animation curve, which will move the current page out at an increasing velocity:
+            if(mSlidingPull < 0)
+            {
+                // Animate slide to next page, so the current page will move leftwards.
+                // The curve will start its animation at the fit-pan, not at 0, which would be the left viewport edge,
+                // and end when the complete page is hidden left of the left viewport edge:
+                mSlidingPolynomial.set(0, fitPan().x(), SLIDE_ANIMATION_DURATION, -scaledPageQuad().width());
             }
-            else {
-                mSlidingPolynomial.set(0, fitPan().x(), SLIDE_MILLIS, viewport().width());
+            else
+            {
+                // Animate slide to previous page, so the current page will move rightwards.
+                // The curve will start its animation at the fit-pan, not at 0, which would be the left viewport edge,
+                // and end when the complete page is hidden right of the right viewport edge:
+                mSlidingPolynomial.set(0, fitPan().x(), SLIDE_ANIMATION_DURATION, viewport().width());
             }
 
-            mSlidingToPage = true;
-            mSlidingInNextPage = false;
-            mSlidingTStart = QDateTime::currentMSecsSinceEpoch();
+            mSlidingOutPage = true;
+            mSlidingInPage = false;
+            mSlidingTStart = QTime::currentTime();
             startTimer(10);
         }
     }
@@ -588,33 +603,42 @@ PdfViewer::mouseMoveEvent(
 void
 PdfViewer::timerEvent(QTimerEvent *event)
 {
-    qint64 t = QDateTime::currentMSecsSinceEpoch() - mSlidingTStart;
-    // TODO: return if negative dt?
+    // The time since the animation started, corresponds to the x value of the animation polynomial:
+    int t = mSlidingTStart.msecsTo(QTime::currentTime());
 
+    // How much the page is shifted at the current time:
     int shift = static_cast<int>(mSlidingPolynomial(t));
 
+    // Paint the pre-rendered page at the current shift position:
     QPainter painter(&mFramebuffer);
     painter.fillRect(0, 0, mFramebuffer.width(), mFramebuffer.height(), mBackgroundColor);
     painter.drawImage(shift, fitPan().y(), mSlidingImage);
     update();
 
-    if(t > SLIDE_MILLIS)
+    if(t > SLIDE_ANIMATION_DURATION)
     {
+        // Animation finished, stop timer:
         killTimer(event->timerId());
-        if(mSlidingInNextPage) {
-            mSlidingToPage = false;
-            mSlidingInNextPage = false;
+
+        if(mSlidingInPage) {
+            // This was the animation for the next/previous page to slide in, so stop the whole sliding state:
+            mSlidingOutPage = false;
+            mSlidingInPage = false;
             mSlidingPull = 0;
             return;
         }
 
+        // Otherwise, start to slide in the next/previous page:
         if(mSlidingPull < 0) {
+            // Go to next page (implicitly guarenteed that there is one, otherwise the slide animation would
+            // not start at all. This time, the curve is flipped, so the start point is steep and the end
+            // is the curve extrem-point.
             setPageNumber(pageNumber() + 1);
-            mSlidingPolynomial.set(SLIDE_MILLIS, fitPan().x(), 0, viewport().width());
+            mSlidingPolynomial.set(SLIDE_ANIMATION_DURATION, fitPan().x(), 0, viewport().width());
         }
         else {
             setPageNumber(pageNumber() - 1);
-            mSlidingPolynomial.set(SLIDE_MILLIS, fitPan().x(), 0, -scaledPageQuad().width());
+            mSlidingPolynomial.set(SLIDE_ANIMATION_DURATION, fitPan().x(), 0, -scaledPageQuad().width());
         }
 
         mSlidingImage = mPage->renderToImage(
@@ -626,9 +650,10 @@ PdfViewer::timerEvent(QTimerEvent *event)
                     scaledPageQuad().height(),
                     static_cast<Poppler::Page::Rotation>(pageOrientation()));
 
-        mSlidingTStart = QDateTime::currentMSecsSinceEpoch();
-        mSlidingInNextPage = true;
+        mSlidingTStart = QTime::currentTime();
+        mSlidingInPage = true;
 
+        // Start timer again, to slide in page
         startTimer(10);
     }
 }
@@ -735,7 +760,7 @@ equalReals(
 void
 PdfViewer::requestRenderWholePdf()
 {
-    if(mSlidingToPage) return;
+    if(mSlidingOutPage) return;
     mRenderRegion = QRect(0, 0, viewport().width(), viewport().height());
     update();
 }
@@ -819,7 +844,7 @@ PdfViewer::paint(
         QWidget * const
 )
 {
-    if(!mSlidingToPage) {
+    if(!mSlidingOutPage) {
         for(int i = 0; i < mRenderRegion.rectCount(); i++)
         {
             renderPdfIntoFramebuffer(mRenderRegion.rects()[i]);

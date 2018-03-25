@@ -14,6 +14,8 @@ Item {
         anchors.right: parent.right
         anchors.left: parent.left
         backgroundColor: "#eee"
+        renderImageAntiAliased: true
+        renderTextAntiAliased: true
         source: pathProvider.getPath(0)
 
         onZoomChanged: zoomSlider.value = (zoom - pdf.fitZoom) / (maxZoom - 1)

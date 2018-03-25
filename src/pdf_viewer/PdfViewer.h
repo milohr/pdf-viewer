@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QDeclarativeItem>
-#include <QDateTime>
 #include <QRegion>
 #include <QPixmap>
 
@@ -258,25 +257,26 @@ private:
     Poppler::Page const *mPage;
     int mPageNumber;
     PdfDocument *mInfo;
+
     QPoint mPan;
     qreal mZoom;
     qreal mMaxZoom;
     PageOrientation mPageOrientation;
+
     QPixmap mFramebuffer;
     QRegion mRenderRegion;
     QColor mBackgroundColor;
     bool mRenderTextAntiAliased;
     bool mRenderImageAntiAliased;
-    bool mSlidePulling;
+
     int mSlidingPull;
-    bool mSlidingToPage;
-    qreal mSlidingVelocity;
-    qint64 mSlidingTStart;
+    bool mSlidingOutPage;
+    QTime mSlidingTStart;
     Polynomial mSlidingPolynomial;
     QImage mSlidingImage;
-    bool mSlidingInNextPage;
+    bool mSlidingInPage;
 
-    static const qreal SLIDE_MILLIS;
+    static const qreal SLIDE_ANIMATION_DURATION;
     static const int SLIDE_PULL_THRESHOLD;
 
 };
