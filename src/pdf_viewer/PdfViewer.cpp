@@ -15,7 +15,7 @@ namespace pdf_viewer {
 bool
 equalReals(qreal const a, qreal const b, int const precision = 1000);
 
-const qreal PdfViewer::SLIDE_MILLIS = 450.0;
+const qreal PdfViewer::SLIDE_MILLIS = 350.0;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////        PDF Viewer
@@ -318,7 +318,7 @@ PdfViewer::coverPan() const
 void
 PdfViewer::resetToFitPanIfFitZoom()
 {
-    if(equalReals(zoom(), fitZoom()))
+    if(!mSlidingToPage && equalReals(zoom(), fitZoom()))
     {
         setPan(fitPan());
     }
@@ -454,6 +454,7 @@ PdfViewer::setBackgroundColor(
 
 void PdfViewer::resetPageViewToFit()
 {
+    if(mSlidingToPage) return;
     setZoom(fitZoom());
     setPan(fitPan());
 }
@@ -531,7 +532,6 @@ PdfViewer::mouseReleaseEvent(
 {
     // Release mouse focus
     mSlidePulling = false;
-    mSlidingPull = 0;
 }
 
 void
@@ -552,14 +552,14 @@ PdfViewer::mouseMoveEvent(
         setPan(pan() + QPoint(dx, dy));
     }
 
-    else if(dx != 0) {
+    // dx negative => next page
+    // dx positive => prev page
+    else if((dx < 0 && pageNumber() < mDocument->numPages() - 1) || (dx > 0 && pageNumber() > 0)) {
 
 
         mSlidePulling = true;
         mSlidingPull += dx;
         if(std::abs(mSlidingPull) > 150) {
-            qDebug() << "sliding by" << mSlidingPull;
-
             mSlidingImage = mPage->renderToImage(
                         72.0 * computeScale(),
                         72.0 * computeScale(),
@@ -569,11 +569,16 @@ PdfViewer::mouseMoveEvent(
                         scaledPageQuad().height(),
                         static_cast<Poppler::Page::Rotation>(pageOrientation()));
 
-            mSlidingPolynomial.set(SLIDE_MILLIS, -scaledPageQuad().width(), 0, fitPan().x());
-            mSlidingTStart = QDateTime::currentMSecsSinceEpoch();
+            if(mSlidingPull < 0) {
+                mSlidingPolynomial.set(0, fitPan().x(), SLIDE_MILLIS, -scaledPageQuad().width());
+            }
+            else {
+                mSlidingPolynomial.set(0, fitPan().x(), SLIDE_MILLIS, viewport().width());
+            }
 
             mSlidingToPage = true;
             mSlidingInNextPage = false;
+            mSlidingTStart = QDateTime::currentMSecsSinceEpoch();
             startTimer(10);
         }
     }
@@ -594,16 +599,22 @@ PdfViewer::timerEvent(QTimerEvent *event)
 
     if(t > SLIDE_MILLIS)
     {
-        qDebug("Stop, took %lldms, v0=%lf", QDateTime::currentMSecsSinceEpoch() - mSlidingTStart, mSlidingVelocity);
         killTimer(event->timerId());
         if(mSlidingInNextPage) {
             mSlidingToPage = false;
             mSlidingInNextPage = false;
+            mSlidingPull = 0;
             return;
         }
 
-        // Set new page number, but do not re-render the page yet:
-        setPageNumber(pageNumber() + 1);
+        if(mSlidingPull < 0) {
+            setPageNumber(pageNumber() + 1);
+            mSlidingPolynomial.set(SLIDE_MILLIS, fitPan().x(), 0, viewport().width());
+        }
+        else {
+            setPageNumber(pageNumber() - 1);
+            mSlidingPolynomial.set(SLIDE_MILLIS, fitPan().x(), 0, -scaledPageQuad().width());
+        }
 
         mSlidingImage = mPage->renderToImage(
                     72.0 * computeScale(),
@@ -614,7 +625,6 @@ PdfViewer::timerEvent(QTimerEvent *event)
                     scaledPageQuad().height(),
                     static_cast<Poppler::Page::Rotation>(pageOrientation()));
 
-        mSlidingPolynomial.set(0, viewport().width(), SLIDE_MILLIS, fitPan().x());
         mSlidingTStart = QDateTime::currentMSecsSinceEpoch();
         mSlidingInNextPage = true;
 
@@ -724,6 +734,7 @@ equalReals(
 void
 PdfViewer::requestRenderWholePdf()
 {
+    if(mSlidingToPage) return;
     mRenderRegion = QRect(0, 0, viewport().width(), viewport().height());
     update();
 }
@@ -807,9 +818,11 @@ PdfViewer::paint(
         QWidget * const
 )
 {
-    for(int i = 0; i < mRenderRegion.rectCount(); i++)
-    {
-        renderPdfIntoFramebuffer(mRenderRegion.rects()[i]);
+    if(!mSlidingToPage) {
+        for(int i = 0; i < mRenderRegion.rectCount(); i++)
+        {
+            renderPdfIntoFramebuffer(mRenderRegion.rects()[i]);
+        }
     }
     // Clean render regions:
     mRenderRegion = QRect();
