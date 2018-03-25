@@ -277,6 +277,7 @@ private:
     bool mSlidingInNextPage;
 
     static const qreal SLIDE_MILLIS;
+    static const int SLIDE_PULL_THRESHOLD;
 
 };
 

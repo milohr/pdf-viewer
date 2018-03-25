@@ -16,6 +16,7 @@ bool
 equalReals(qreal const a, qreal const b, int const precision = 1000);
 
 const qreal PdfViewer::SLIDE_MILLIS = 350.0;
+const int PdfViewer::SLIDE_PULL_THRESHOLD = 100;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////        PDF Viewer
@@ -559,7 +560,7 @@ PdfViewer::mouseMoveEvent(
 
         mSlidePulling = true;
         mSlidingPull += dx;
-        if(std::abs(mSlidingPull) > 150) {
+        if(std::abs(mSlidingPull) > SLIDE_PULL_THRESHOLD) {
             mSlidingImage = mPage->renderToImage(
                         72.0 * computeScale(),
                         72.0 * computeScale(),
