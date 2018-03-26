@@ -2,7 +2,7 @@
 
 #include <QTimer>
 #include <QPainter>
-#include <QtCore/qmath.h>
+#include <qmath.h>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 
@@ -34,6 +34,7 @@ PdfViewer::PdfViewer(QDeclarativeItem * const parent)
     , mPageOrientation(ZERO_PI)
     , mRenderTextAntiAliased(false)
     , mSlidingOutPage(false)
+    , mSlidingPolynomial(3)
 {
     setFlag(QGraphicsItem::ItemHasNoContents, false);
     setFlag(QGraphicsItem::ItemIsFocusable, true);

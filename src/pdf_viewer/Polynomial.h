@@ -7,9 +7,9 @@ namespace pdf_viewer {
 
 /*!
  * \class Polynomial
- * \brief Controllable 2nd order polynomial used for animation.
+ * \brief Controllable nth-order polynomial used for animation.
  *
- * The polynomial is constructed from four parameters: x0, y0, x1 and y1.
+ * The polynomial is constructed from five parameters: n, x0, y0, x1 and y1.
  * It guarantees to fulfill following requirements:
  * 1. f(x0) = y0
  * 2. f'(x0) = 0
@@ -17,7 +17,12 @@ namespace pdf_viewer {
  * 4. f'(x1) != 0 if y0 != y1
  *
  * In short, the function is flat at (x0|y0) at crosses (x1|y1).
- * If n is negative, the curve open at the bottom.
+ * If y1 is smaller than y0, the curve open at the bottom.
+ *
+ * n relates to the polynomial order. n of 2 is a quadratic curve,
+ * n of 3 a cubic one and so on. n of 1 is a linear curve with a
+ * constant gradient. Unlike the anchoring parameters xy0 and xy1,
+ * n is fixed and invariant.
  */
 class Polynomial
 {
@@ -26,6 +31,13 @@ public:
 
     /*!
      * \brief Construct a new polynomial.
+     * \param n Order of curve.
+     * \attention n must be greater than 0.
+     */
+    Polynomial(unsigned const n);
+
+    /*!
+     * \brief Re-anchors the animation curve to different points.
      * \param x0 Origin of curve.
      * \param y0 Origin of curve.
      * \param x1 Control point.
@@ -44,6 +56,7 @@ public:
 
 private:
 
+    unsigned const mN;
     qreal mA, mX0, mY0;
 
 };
