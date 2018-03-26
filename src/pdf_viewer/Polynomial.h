@@ -1,5 +1,5 @@
-#ifndef CONTROLLABLEPOLYNOMINAL_H
-#define CONTROLLABLEPOLYNOMINAL_H
+#ifndef POLYNOMINAL_H
+#define POLYNOMINAL_H
 
 #include <QObject>
 
@@ -63,4 +63,4 @@ private:
 
 } // namespace pdf_viewer
 
-#endif // CONTROLLABLEPOLYNOMINAL_H
+#endif // POLYNOMINAL_H

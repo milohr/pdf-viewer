@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PDFVIEWER_H
+#define PDFVIEWER_H
 
 #include <QDeclarativeItem>
 #include <QRegion>
@@ -282,3 +283,5 @@ private:
 };
 
 } // namespace pdf_viewer
+
+#endif // PDFVIEWER_H
